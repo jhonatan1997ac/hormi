@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "525520989408",
+    "project_id": "hormibloque-99c7b",
+    "storage_bucket": "hormibloque-99c7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:525520989408:android:34adee3ff9486165f17485",
+        "android_client_info": {
+          "package_name": "com.example.hormi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa4n7BTxEXY_kJs_AMiS6Efb-SDCWOUV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:525520989408:android:3a1414c054c0f852f17485",
+        "android_client_info": {
+          "package_name": "com.hormi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa4n7BTxEXY_kJs_AMiS6Efb-SDCWOUV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
