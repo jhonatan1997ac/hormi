@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class Usuario extends StatelessWidget {
+  const Usuario({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
