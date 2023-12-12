@@ -1,6 +1,8 @@
 import 'package:apphormi/login/login.dart';
 import 'package:apphormi/pages/inicio/home.dart';
-
+import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
+import 'package:apphormi/pages/inicio/usabilidad/configuracion.dart';
+import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/usuario/usu_actualizar.dart';
 import 'package:apphormi/pages/usuario/usuario.dart';
 import 'package:apphormi/pages/usuario/usua_agregar.dart';
@@ -40,11 +42,15 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => HomeScreen(),
+        '/': (context) => const HomeScreen(),
         '/agg': (context) => const agregarDatos(),
         '/edit': (context) => const EditarDatos(),
         '/usu': (context) => const Usuario(),
         '/home': (context) => const Home(),
+        '/conf': (context) => const ConfiguracionPage(),
+        '/pres': (context) => const Presupuesto(),
+        '/cale': (context) => const Calendario(),
+        '/tare': (context) => TareaPage(calendarData: CalendarData({})),
       },
     );
   }
