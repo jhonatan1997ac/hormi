@@ -9,11 +9,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: Home(),
-      routes: {
-        '/conf': (context) => const ConfiguracionPage(),
-      },
     );
   }
 }
@@ -39,15 +36,15 @@ class Home extends StatelessWidget {
               icon: Icons.settings,
               color: Colors.green,
               onTap: () {
-                _navigateToPage(context, 'Configuración');
+                Navigator.pushNamed(context, '/conf');
               },
             ),
             HomeCard(
-              title: 'Uso de Datos',
-              icon: Icons.data_usage,
+              title: 'Presupuestos',
+              icon: Icons.attach_money_outlined,
               color: Colors.blue,
               onTap: () {
-                _navigateToPage(context, 'Uso de Datos');
+                Navigator.pushNamed(context, '/pres');
               },
             ),
             HomeCard(
@@ -55,15 +52,15 @@ class Home extends StatelessWidget {
               icon: Icons.calendar_month,
               color: Colors.orange,
               onTap: () {
-                _navigateToPage(context, 'Calendario');
+                Navigator.pushNamed(context, '/cale');
               },
             ),
             HomeCard(
-              title: 'Opción 4',
+              title: '',
               icon: Icons.star,
               color: Colors.purple,
               onTap: () {
-                _navigateToPage(context, 'Opción 4');
+                Navigator.pushNamed(context, '/tare');
               },
             ),
             HomeCard(
@@ -71,7 +68,7 @@ class Home extends StatelessWidget {
               icon: Icons.access_alarm,
               color: Colors.red,
               onTap: () {
-                _navigateToPage(context, 'Opción 5');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
             HomeCard(
@@ -79,7 +76,7 @@ class Home extends StatelessWidget {
               icon: Icons.camera,
               color: Colors.teal,
               onTap: () {
-                _navigateToPage(context, 'Opción 6');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
             HomeCard(
@@ -87,7 +84,7 @@ class Home extends StatelessWidget {
               icon: Icons.bluetooth,
               color: Colors.indigo,
               onTap: () {
-                _navigateToPage(context, 'Opción 7');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
             HomeCard(
@@ -95,7 +92,7 @@ class Home extends StatelessWidget {
               icon: Icons.airplanemode_active,
               color: Colors.amber,
               onTap: () {
-                _navigateToPage(context, 'Opción 8');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
             HomeCard(
@@ -103,7 +100,7 @@ class Home extends StatelessWidget {
               icon: Icons.attach_money,
               color: Colors.brown,
               onTap: () {
-                _navigateToPage(context, 'Opción 9');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
             HomeCard(
@@ -111,20 +108,11 @@ class Home extends StatelessWidget {
               icon: Icons.beach_access,
               color: Colors.deepPurple,
               onTap: () {
-                _navigateToPage(context, 'Opción 10');
+                // Mantén este espacio vacío si no deseas ninguna acción.
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _navigateToPage(BuildContext context, String pageTitle) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailPage(title: pageTitle),
       ),
     );
   }
@@ -151,7 +139,7 @@ class HomeCard extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          primary: color,
+          backgroundColor: color,
           elevation: 4.0,
         ),
         child: Column(
@@ -172,40 +160,6 @@ class HomeCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class DetailPage extends StatelessWidget {
-  final String title;
-
-  const DetailPage({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text('Página de detalles para $title'),
-      ),
-    );
-  }
-}
-
-class ConfiguracionPage extends StatelessWidget {
-  const ConfiguracionPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configuración'),
-      ),
-      body: const Center(
-        child: Text('Esta es la página de configuración'),
       ),
     );
   }
