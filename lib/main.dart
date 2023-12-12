@@ -5,6 +5,7 @@ import 'package:apphormi/pages/usuario/usu_actualizar.dart';
 import 'package:apphormi/pages/usuario/usuario.dart';
 import 'package:apphormi/pages/usuario/usua_agregar.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 
@@ -16,7 +17,9 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    print('Error al inicializar Firebase: $e');
+    if (kDebugMode) {
+      print('Error al inicializar Firebase: $e');
+    }
   }
 
   runApp(MyApp());
