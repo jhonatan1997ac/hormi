@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,8 +9,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Home(),
+      routes: {
+        '/conf': (context) => const ConfiguracionPage(),
+      },
     );
   }
 }
@@ -37,9 +39,7 @@ class Home extends StatelessWidget {
               icon: Icons.settings,
               color: Colors.green,
               onTap: () {
-                if (kDebugMode) {
-                  print('Configuración');
-                }
+                _navigateToPage(context, 'Configuración');
               },
             ),
             HomeCard(
@@ -47,9 +47,7 @@ class Home extends StatelessWidget {
               icon: Icons.data_usage,
               color: Colors.blue,
               onTap: () {
-                if (kDebugMode) {
-                  print('Uso de Datos');
-                }
+                _navigateToPage(context, 'Uso de Datos');
               },
             ),
             HomeCard(
@@ -57,9 +55,7 @@ class Home extends StatelessWidget {
               icon: Icons.calendar_month,
               color: Colors.orange,
               onTap: () {
-                if (kDebugMode) {
-                  print('Calendario');
-                }
+                _navigateToPage(context, 'Calendario');
               },
             ),
             HomeCard(
@@ -67,9 +63,7 @@ class Home extends StatelessWidget {
               icon: Icons.star,
               color: Colors.purple,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 4');
-                }
+                _navigateToPage(context, 'Opción 4');
               },
             ),
             HomeCard(
@@ -77,9 +71,7 @@ class Home extends StatelessWidget {
               icon: Icons.access_alarm,
               color: Colors.red,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 5');
-                }
+                _navigateToPage(context, 'Opción 5');
               },
             ),
             HomeCard(
@@ -87,9 +79,7 @@ class Home extends StatelessWidget {
               icon: Icons.camera,
               color: Colors.teal,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 6');
-                }
+                _navigateToPage(context, 'Opción 6');
               },
             ),
             HomeCard(
@@ -97,9 +87,7 @@ class Home extends StatelessWidget {
               icon: Icons.bluetooth,
               color: Colors.indigo,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 7');
-                }
+                _navigateToPage(context, 'Opción 7');
               },
             ),
             HomeCard(
@@ -107,9 +95,7 @@ class Home extends StatelessWidget {
               icon: Icons.airplanemode_active,
               color: Colors.amber,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 8');
-                }
+                _navigateToPage(context, 'Opción 8');
               },
             ),
             HomeCard(
@@ -117,9 +103,7 @@ class Home extends StatelessWidget {
               icon: Icons.attach_money,
               color: Colors.brown,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 9');
-                }
+                _navigateToPage(context, 'Opción 9');
               },
             ),
             HomeCard(
@@ -127,13 +111,20 @@ class Home extends StatelessWidget {
               icon: Icons.beach_access,
               color: Colors.deepPurple,
               onTap: () {
-                if (kDebugMode) {
-                  print('Opción 10');
-                }
+                _navigateToPage(context, 'Opción 10');
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _navigateToPage(BuildContext context, String pageTitle) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailPage(title: pageTitle),
       ),
     );
   }
@@ -157,9 +148,12 @@ class HomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        elevation: 4.0,
-        color: color,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          primary: color,
+          elevation: 4.0,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -178,6 +172,40 @@ class HomeCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  final String title;
+
+  const DetailPage({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text('Página de detalles para $title'),
+      ),
+    );
+  }
+}
+
+class ConfiguracionPage extends StatelessWidget {
+  const ConfiguracionPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Configuración'),
+      ),
+      body: const Center(
+        child: Text('Esta es la página de configuración'),
       ),
     );
   }
