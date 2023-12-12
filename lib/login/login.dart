@@ -1,88 +1,110 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-        '/': (context) => HomeScreen(),
+        '/': (context) => const HomeScreen(),
       },
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentPage);
+
+    // Configura un temporizador para cambiar automáticamente la página cada 3 segundos.
+    Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_currentPage < 2) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hormibloque Ecuador S.A'),
+        title: const Text('Hormibloque Ecuador S.A'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: SizedBox(
               height: 200,
               child: PageView(
+                controller: _pageController,
                 children: [
-                  Image.asset(
-                    'assets/cruz.jpg',
-                    height: 200,
-                    width: 200,
-                  ),
-                  Image.asset(
-                    'assets/paleta.jpg',
-                    height: 200,
-                    width: 200,
-                  ),
-                  Image.asset(
-                    'assets/jaboncillo.jpg',
-                    height: 200,
-                    width: 200,
-                  ),
+                  buildImage('assets/cruz.jpg', 200, 200),
+                  buildImage('assets/paleta.jpg', 200, 200),
+                  buildImage('assets/jaboncillo.jpg', 200, 200),
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            AnimatedBuilder(
-              animation: Tween<double>(begin: 0.0, end: 1.0).animate(
-                CurvedAnimation(
-                  parent: AlwaysStoppedAnimation(1),
-                  curve: Curves.easeInOutBack,
-                ),
-              ),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0.0, 100 * (1 - (1 - 0.5).abs())),
-                  child: Opacity(
-                    opacity: 1 - (1 - 0.5).abs(),
-                    child: const Text(
-                      'Iniciar aplicación',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                );
-              },
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/home');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 75, 170, 88),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20, horizontal: 114),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/home');
-              },
-              style: ElevatedButton.styleFrom(
-                primary: const Color.fromARGB(255, 75, 170, 88),
-              ),
-              child: const Text('Iniciar aplicación'),
+            child: const Text(
+              'Iniciar aplicación',
+              style: TextStyle(fontSize: 24),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget buildImage(String imagePath, double height, double width) {
+    return Image.asset(
+      imagePath,
+      height: height,
+      width: width,
     );
   }
 }
