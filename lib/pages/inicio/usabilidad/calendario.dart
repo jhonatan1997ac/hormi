@@ -21,7 +21,6 @@ class Calendario extends StatefulWidget {
   const Calendario({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _CalendarioState createState() => _CalendarioState();
 }
 
@@ -51,6 +50,13 @@ class _CalendarioState extends State<Calendario> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddEventDialog(_selectedDate);
+        },
+        tooltip: 'Agregar evento',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -74,7 +80,6 @@ class _CalendarioState extends State<Calendario> {
                   subtitle: Text(
                       'Producto: ${event.productName}, Cantidad: ${event.quantity}, Estado: ${event.status}'),
                   onTap: () {
-                    // Navegar a la pantalla de ListaTareas
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -92,68 +97,104 @@ class _CalendarioState extends State<Calendario> {
     );
   }
 
-  // ignore: unused_element
-  Future<void> _showAddDeliveryDialog(
-      BuildContext context, DateTime date) async {
+  Future<void> _showAddEventDialog(DateTime date) async {
     String productName = '';
     int quantity = 0;
-    String status = '';
+    String selectedStatus =
+        ''; // Variable para almacenar el estado seleccionado
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Agregar Entrega'),
-          content: Column(
-            children: [
-              TextField(
-                onChanged: (value) {
-                  productName = value;
-                },
-                decoration:
-                    const InputDecoration(labelText: 'Nombre del Producto'),
-              ),
-              TextField(
-                onChanged: (value) {
-                  quantity = int.tryParse(value) ?? 0;
-                },
-                decoration: const InputDecoration(labelText: 'Cantidad'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                onChanged: (value) {
-                  status = value;
-                },
-                decoration: const InputDecoration(labelText: 'Estado'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await _calendarData.addEvent(
-                    date, productName, quantity, status);
-                // Navegar a la pantalla de AgregarTarea
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AgregarTarea(
-                        selectedDate: date, calendarData: _calendarData),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Agregar Evento'),
+              content: Column(
+                children: [
+                  TextField(
+                    onChanged: (value) {
+                      productName = value;
+                    },
+                    decoration:
+                        const InputDecoration(labelText: 'Nombre del Producto'),
                   ),
-                );
-              },
-              child: const Text('Agregar'),
-            ),
+                  TextField(
+                    onChanged: (value) {
+                      quantity = int.tryParse(value) ?? 0;
+                    },
+                    decoration: const InputDecoration(labelText: 'Cantidad'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  // DropdownButton para seleccionar el estado
+                  ElevatedButton(
+                    onPressed: () {
+                      _showStatusSelectionDialog().then((value) {
+                        setState(() {
+                          selectedStatus = value ?? '';
+                        });
+                      });
+                    },
+                    child: Text('Seleccionar Estado: $selectedStatus'),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await _calendarData.addEvent(
+                      date,
+                      productName,
+                      quantity,
+                      selectedStatus, // Usar el estado seleccionado
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Agregar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<String?> _showStatusSelectionDialog() async {
+    return await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Seleccionar Estado'),
+          children: [
+            _buildStatusOption('Pendiente'),
+            _buildStatusOption('En Proceso'),
+            _buildStatusOption('Enviado'),
+            _buildStatusOption('Entregado'),
+            _buildStatusOption('Cancelado'),
+            _buildStatusOption('Devuelto'),
+            _buildStatusOption('Pagado'),
+            _buildStatusOption('Aprobado'),
+            _buildStatusOption('En Espera de Pago'),
+            _buildStatusOption('En Espera de Stock'),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildStatusOption(String status) {
+    return SimpleDialogOption(
+      onPressed: () {
+        Navigator.pop(context, status);
+      },
+      child: Text(status),
     );
   }
 }
