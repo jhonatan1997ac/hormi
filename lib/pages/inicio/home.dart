@@ -5,7 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,83 +32,83 @@ class Home extends StatelessWidget {
           mainAxisSpacing: 16.0,
           children: [
             HomeCard(
-              title: 'Configuración',
-              icon: Icons.settings,
+              title: 'Gestión de Clientes',
+              icon: Icons.people,
               color: Colors.green,
               onTap: () {
-                Navigator.pushNamed(context, '/conf');
+                Navigator.pushNamed(context, '/usu');
               },
             ),
             HomeCard(
-              title: 'Presupuestos',
-              icon: Icons.attach_money_outlined,
+              title: 'Catálogo de Productos',
+              icon: Icons.inventory,
               color: Colors.blue,
               onTap: () {
-                Navigator.pushNamed(context, '/pres');
+                // Implementa la lógica para el catálogo de productos
               },
             ),
             HomeCard(
-              title: 'Calendario',
-              icon: Icons.calendar_month,
+              title: 'Cotizaciones y Pedidos',
+              icon: Icons.shopping_cart,
               color: Colors.orange,
               onTap: () {
-                Navigator.pushNamed(context, '/cale');
+                // Implementa la lógica para cotizaciones y pedidos
               },
             ),
             HomeCard(
-              title: '',
-              icon: Icons.star,
+              title: 'Facturación',
+              icon: Icons.receipt,
               color: Colors.purple,
               onTap: () {
-                Navigator.pushNamed(context, '/tare');
+                // Implementa la lógica para la facturación
               },
             ),
             HomeCard(
-              title: 'Opción 5',
-              icon: Icons.access_alarm,
+              title: 'Informes y Estadísticas',
+              icon: Icons.bar_chart,
               color: Colors.red,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para informes y estadísticas
               },
             ),
             HomeCard(
-              title: 'Opción 6',
-              icon: Icons.camera,
+              title: 'Calendario de Entregas',
+              icon: Icons.calendar_today,
               color: Colors.teal,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para el calendario de entregas
               },
             ),
             HomeCard(
-              title: 'Opción 7',
-              icon: Icons.bluetooth,
+              title: 'Configuración y Administración',
+              icon: Icons.settings,
               color: Colors.indigo,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para configuración y administración
               },
             ),
             HomeCard(
-              title: 'Opción 8',
-              icon: Icons.airplanemode_active,
+              title: 'Soporte y Ayuda',
+              icon: Icons.help,
               color: Colors.amber,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para soporte y ayuda
               },
             ),
             HomeCard(
-              title: 'Opción 9',
-              icon: Icons.attach_money,
+              title: 'Integración con GPS',
+              icon: Icons.gps_fixed,
               color: Colors.brown,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para integración con GPS
               },
             ),
             HomeCard(
-              title: 'Opción 10',
-              icon: Icons.beach_access,
+              title: 'Accesos Rápidos',
+              icon: Icons.speed,
               color: Colors.deepPurple,
               onTap: () {
-                // Mantén este espacio vacío si no deseas ninguna acción.
+                // Implementa la lógica para accesos rápidos
               },
             ),
           ],
@@ -125,12 +125,12 @@ class HomeCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const HomeCard({
-    super.key,
+    Key? key,
     required this.title,
     required this.icon,
     required this.color,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

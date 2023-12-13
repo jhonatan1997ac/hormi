@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(const CalendarApp());
@@ -19,12 +20,13 @@ class Calendario extends StatefulWidget {
   const Calendario({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _CalendarioState createState() => _CalendarioState();
 }
 
 class _CalendarioState extends State<Calendario> {
   late DateTime _selectedDate;
-  final CalendarData _calendarData = CalendarData({});
+  final CalendarData _calendarData = CalendarData();
 
   @override
   void initState() {
@@ -44,21 +46,37 @@ class _CalendarioState extends State<Calendario> {
           children: [
             Text('Año: ${_selectedDate.year} - Mes: ${_selectedDate.month}'),
             const SizedBox(height: 16),
-            CalendarWidget(
-              calendarData: _calendarData,
-              selectedDate: _selectedDate,
-              onDateTapped: (date) => _showAddTaskDialog(context, date),
-              onMonthChanged: (newMonth) {
-                setState(() {
-                  _selectedDate = DateTime(_selectedDate.year, newMonth, 1);
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Text('Número total de tareas: ${_calendarData.totalTasks}'),
+            _buildEventList(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEventList() {
+    return StreamBuilder<List<Event>>(
+      stream: _calendarData.getEvents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final events = snapshot.data ?? [];
+          return Expanded(
+            child: ListView.builder(
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                final event = events[index];
+                return ListTile(
+                  title: Text('Fecha: ${event.date}'),
+                  subtitle: Text(event.task),
+                );
+              },
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -83,10 +101,9 @@ class _CalendarioState extends State<Calendario> {
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                _calendarData.addEvent(date, task);
+              onPressed: () async {
+                await _calendarData.addEvent(date, task);
                 Navigator.of(context).pop();
-                _navigateToTareaPage(context); // Navegar a la página de tareas
               },
               child: const Text('Agregar'),
             ),
@@ -95,147 +112,49 @@ class _CalendarioState extends State<Calendario> {
       },
     );
   }
-
-  void _navigateToTareaPage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TareaPage(calendarData: _calendarData),
-      ),
-    );
-  }
-}
-
-class CalendarWidget extends StatelessWidget {
-  final CalendarData calendarData;
-  final DateTime selectedDate;
-  final Function(DateTime) onDateTapped;
-  final Function(int) onMonthChanged;
-
-  const CalendarWidget({
-    Key? key,
-    required this.calendarData,
-    required this.selectedDate,
-    required this.onDateTapped,
-    required this.onMonthChanged,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.chevron_left),
-              onPressed: () {
-                onMonthChanged(selectedDate.month - 1);
-              },
-            ),
-            Text(
-              '${selectedDate.year}',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            IconButton(
-              icon: Icon(Icons.chevron_right),
-              onPressed: () {
-                onMonthChanged(selectedDate.month + 1);
-              },
-            ),
-          ],
-        ),
-        TableCalendar(
-          calendarData: calendarData,
-          selectedDate: selectedDate,
-          onDateTapped: onDateTapped,
-        ),
-      ],
-    );
-  }
-}
-
-class TableCalendar extends StatelessWidget {
-  final CalendarData calendarData;
-  final DateTime selectedDate;
-  final Function(DateTime) onDateTapped;
-
-  const TableCalendar({
-    Key? key,
-    required this.calendarData,
-    required this.selectedDate,
-    required this.onDateTapped,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final DateTime firstDayOfMonth =
-        DateTime(selectedDate.year, selectedDate.month, 1);
-    final int daysInMonth =
-        DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
-    final int startWeekday = firstDayOfMonth.weekday;
-
-    return Table(
-      children: List.generate(
-        ((daysInMonth + startWeekday - 1) / 7).ceil(),
-        (index) => TableRow(
-          children: List.generate(
-            7,
-            (index2) {
-              final day = index * 7 + index2 + 1 - startWeekday;
-              if (day > 0 && day <= daysInMonth) {
-                final date =
-                    DateTime(selectedDate.year, selectedDate.month, day);
-                final events = calendarData.getEvents(date);
-                return TableCell(
-                  child: InkWell(
-                    onTap: () => onDateTapped(date),
-                    child: Container(
-                      height: 40,
-                      color: Colors.grey[200],
-                      child: Column(
-                        children: [
-                          Text('$day'),
-                          if (events.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            for (final event in events) Text(event),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                return const TableCell(child: SizedBox());
-              }
-            },
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class CalendarData {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Map<DateTime, List<String>> events;
 
-  CalendarData(this.events);
+  CalendarData({Map<DateTime, List<String>> events = const {}})
+      // ignore: prefer_initializing_formals
+      : events = events;
 
-  void addEvent(DateTime date, String task) {
-    if (events.containsKey(date)) {
-      events[date]!.add(task);
-    } else {
-      events[date] = [task];
+  Future<void> addEvent(DateTime date, String task) async {
+    try {
+      await _firestore.collection('events').add({
+        'date': date,
+        'task': task,
+      });
+    } catch (e) {
+      print('Error adding event: $e');
     }
   }
 
-  List<String> getEvents(DateTime date) {
-    return events[date] ?? [];
+  Stream<List<Event>> getEvents() {
+    return _firestore.collection('events').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Event(date: data['date'].toDate(), task: data['task']);
+      }).toList();
+    });
   }
 
   int get totalTasks {
-    return events.values.fold(0, (count, tasks) => count + tasks.length);
+    // Puedes seguir usando el método anterior o calcular el total a partir de los eventos en Firestore.
+    // Dejo esto como un ejemplo, pero puedes ajustarlo según tus necesidades.
+    // Si usas Firestore, el total de tareas se obtendría desde el stream de eventos.
+    return 0;
   }
+}
+
+class Event {
+  final DateTime date;
+  final String task;
+
+  Event({required this.date, required this.task});
 }
 
 class TareaPage extends StatelessWidget {
