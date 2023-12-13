@@ -76,7 +76,7 @@ class Home extends StatelessWidget {
               icon: Icons.calendar_today,
               color: Colors.teal,
               onTap: () {
-                // Implementa la lógica para el calendario de entregas
+                Navigator.pushNamed(context, '/cale');
               },
             ),
             HomeCard(

@@ -50,7 +50,6 @@ class _MyAppState extends State<MyApp> {
         '/conf': (context) => const ConfiguracionPage(),
         '/pres': (context) => const Presupuesto(),
         '/cale': (context) => const Calendario(),
-        '/tare': (context) => TareaPage(calendarData: CalendarData(events: {})),
       },
     );
   }
