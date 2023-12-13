@@ -44,7 +44,7 @@ class Home extends StatelessWidget {
               icon: Icons.inventory,
               color: Colors.blue,
               onTap: () {
-                // Implementa la lógica para el catálogo de productos
+                Navigator.pushNamed(context, '/cata');
               },
             ),
             HomeCard(
