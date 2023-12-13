@@ -10,7 +10,7 @@ class Usuario extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bienvenido a hormibloque ecuador S.A'),
+        title: const Text('Usuarios'),
       ),
       body: FutureBuilder(
         future: getUsuario(),
