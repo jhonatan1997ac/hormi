@@ -3,6 +3,8 @@ import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
 import 'package:apphormi/pages/inicio/usabilidad/configuracion.dart';
+import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
+import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/usuario/usu_actualizar.dart';
 import 'package:apphormi/pages/usuario/usuario.dart';
@@ -52,6 +54,8 @@ class _MyAppState extends State<MyApp> {
         '/pres': (context) => const Presupuesto(),
         '/cale': (context) => const Calendario(),
         '/cata': (context) => Catalogo(),
+        '/coti': (context) => const CotizacionesScreen(),
+        '/fact': (context) => const FacturacionScreen(),
       },
     );
   }

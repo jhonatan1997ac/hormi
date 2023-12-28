@@ -52,7 +52,7 @@ class Home extends StatelessWidget {
               icon: Icons.shopping_cart,
               color: Colors.orange,
               onTap: () {
-                // Implementa la lógica para cotizaciones y pedidos
+                Navigator.pushNamed(context, '/coti');
               },
             ),
             HomeCard(
@@ -60,7 +60,7 @@ class Home extends StatelessWidget {
               icon: Icons.receipt,
               color: Colors.purple,
               onTap: () {
-                // Implementa la lógica para la facturación
+                Navigator.pushNamed(context, '/fact');
               },
             ),
             HomeCard(
