@@ -454,7 +454,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Tamaños disponibles:',
+                  'Tamaños disponibles',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
