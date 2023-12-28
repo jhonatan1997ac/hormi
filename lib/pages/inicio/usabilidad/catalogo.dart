@@ -17,13 +17,13 @@ class Product {
 class Catalogo extends StatelessWidget {
   final List<Product> products = [
     Product(
-      name: 'Producto 1',
+      name: 'Adoquin de cruz',
       description: 'Descripción del Producto 1',
       imageUrl: 'assets/cruz.jpg',
       sizes: ['unidad', 'metro', 'paleta'],
     ),
     Product(
-      name: 'Producto 2',
+      name: 'Adoquin de paleta',
       description: 'Descripción del Producto 2',
       imageUrl: 'assets/paleta.jpg',
       sizes: ['Small', 'Medium'],
@@ -37,24 +37,21 @@ class Catalogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Catálogo de Productos'),
+        title: const Text('Catálogo de Productos'),
       ),
-      body: Container(
-        color: Colors.white, // Fondo blanco
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            return ProductCard(product: products[index]);
-          },
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
         ),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          return ProductCard(product: products[index]);
+        },
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.white, // Fondo blanco
+        color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -108,81 +105,73 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.asset(
-              product.imageUrl,
-              fit: BoxFit.cover,
-              height: 150,
-            ),
+          Stack(
+            alignment: Alignment.bottomLeft,
+            children: [
+              SizedBox(
+                height: 89, // Ajusta la altura de la sección de la imagen
+                child: ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.asset(
+                    product.imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color.fromARGB(0, 136, 63, 63),
+                        Colors.black.withOpacity(0.7)
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    product.name,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 8), // Añade un pequeño espacio
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  product.description,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Tamaños disponibles:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: product.sizes
-                        .map(
-                          (size) => Chip(
-                            label: Text(size),
-                            backgroundColor: Colors.blue,
-                            labelStyle: const TextStyle(color: Colors.white),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     SmallButton(
-                      label: 'Button 1',
+                      label: 'Comprar',
                       onPressed: () {
-                        // Acción al presionar el botón 1
+                        // Acción al presionar el botón de compra
                       },
                     ),
                     SmallButton(
-                      label: 'Button 2',
+                      label: 'Detalles',
                       onPressed: () {
-                        // Acción al presionar el botón 2
-                      },
-                    ),
-                    SmallButton(
-                      label: 'Button 3',
-                      onPressed: () {
-                        // Acción al presionar el botón 3
+                        // Acción al presionar el botón de detalles
                       },
                     ),
                   ],
@@ -207,11 +196,13 @@ class SmallButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(label),
       style: ElevatedButton.styleFrom(
-        primary: Colors.blue,
+        backgroundColor: Colors.blue,
         textStyle: const TextStyle(color: Colors.white),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 12, vertical: 8), // Ajusta el tamaño aquí
       ),
+      child: Text(label),
     );
   }
 }
@@ -246,7 +237,8 @@ class ProductSearchDelegate extends SearchDelegate<Product> {
   @override
   Widget buildResults(BuildContext context) {
     final results = products.where(
-        (product) => product.name.toLowerCase().contains(query.toLowerCase()));
+      (product) => product.name.toLowerCase().contains(query.toLowerCase()),
+    );
 
     return ProductSearchResults(results.toList());
   }
@@ -254,7 +246,8 @@ class ProductSearchDelegate extends SearchDelegate<Product> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = products.where(
-        (product) => product.name.toLowerCase().contains(query.toLowerCase()));
+      (product) => product.name.toLowerCase().contains(query.toLowerCase()),
+    );
 
     return ProductSearchResults(suggestions.toList());
   }
@@ -263,7 +256,7 @@ class ProductSearchDelegate extends SearchDelegate<Product> {
 class ProductSearchResults extends StatelessWidget {
   final List<Product> results;
 
-  ProductSearchResults(this.results);
+  const ProductSearchResults(this.results, {super.key});
 
   @override
   Widget build(BuildContext context) {
