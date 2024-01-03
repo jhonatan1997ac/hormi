@@ -84,7 +84,7 @@ class Home extends StatelessWidget {
               icon: Icons.settings,
               color: Colors.indigo,
               onTap: () {
-                // Implementa la lógica para configuración y administración
+                Navigator.pushNamed(context, '/conf');
               },
             ),
             HomeCard(
@@ -92,7 +92,7 @@ class Home extends StatelessWidget {
               icon: Icons.help,
               color: Colors.amber,
               onTap: () {
-                // Implementa la lógica para soporte y ayuda
+                Navigator.pushNamed(context, '/sopor');
               },
             ),
             HomeCard(

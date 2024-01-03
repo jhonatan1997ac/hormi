@@ -6,6 +6,7 @@ import 'package:apphormi/pages/inicio/usabilidad/configuracion.dart';
 import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
 import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
+import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
 import 'package:apphormi/pages/usuario/usu_actualizar.dart';
 import 'package:apphormi/pages/usuario/usuario.dart';
 import 'package:apphormi/pages/usuario/usua_agregar.dart';
@@ -56,6 +57,7 @@ class _MyAppState extends State<MyApp> {
         '/cata': (context) => Catalogo(),
         '/coti': (context) => const CotizacionesScreen(),
         '/fact': (context) => const FacturacionScreen(),
+        '/sopor': (context) => SoporteScreen(),
       },
     );
   }
