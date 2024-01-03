@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class SoporteProvider {
@@ -28,9 +28,11 @@ class SoporteProvider {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Soporte y Ayuda',
       home: SoporteScreen(),
     );
@@ -38,7 +40,10 @@ class MyApp extends StatelessWidget {
 }
 
 class SoporteScreen extends StatefulWidget {
+  const SoporteScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SoporteScreenState createState() => _SoporteScreenState();
 }
 
@@ -105,6 +110,7 @@ class _SoporteScreenState extends State<SoporteScreen> {
                 setState(() {
                   soporteProvider.agregarConsulta(consulta);
                 });
+                // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
               },
               child: const Text('Enviar'),
@@ -119,7 +125,7 @@ class _SoporteScreenState extends State<SoporteScreen> {
 class PreguntasFrecuentesList extends StatelessWidget {
   final List<String> preguntas;
 
-  const PreguntasFrecuentesList({required this.preguntas});
+  const PreguntasFrecuentesList({super.key, required this.preguntas});
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +144,7 @@ class PreguntasFrecuentesList extends StatelessWidget {
 class HistorialConsultasList extends StatelessWidget {
   final List<String> consultas;
 
-  const HistorialConsultasList({required this.consultas});
+  const HistorialConsultasList({super.key, required this.consultas});
 
   @override
   Widget build(BuildContext context) {
