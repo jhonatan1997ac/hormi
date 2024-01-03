@@ -226,11 +226,11 @@ class _FacturacionScreenState extends State<FacturacionScreen> {
 
   // Método para mostrar la factura generada
   void _mostrarFactura(BuildContext context) {
-    String nombreCliente = 'Cliente Ejemplo';
-    String direccionCliente = 'Dirección de Ejemplo';
-    String nombreEmpresa = 'Empresa Grande S.A.';
-    String direccionEmpresa = 'Dirección de la Empresa Grande';
-    String numeroFactura = '123456';
+    String nombreCliente = 'Nombre cliente';
+    String direccionCliente = 'pedir direccion';
+    String nombreEmpresa = 'Hormibloque Ecuador S.A.';
+    String direccionEmpresa = 'Pichincha, Aloasi, via al Chaupi';
+    String numeroFactura = '****';
     DateTime fechaFactura = DateTime.now();
 
     Factura facturaGenerada = Factura(
