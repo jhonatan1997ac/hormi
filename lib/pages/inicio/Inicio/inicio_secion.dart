@@ -94,7 +94,8 @@ class _SecionState extends State<Secion> {
                                         context);
                                   },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Color del botón
+                          backgroundColor: const Color.fromARGB(
+                              255, 99, 206, 66), // Color del botón
                         ),
                         child: _loading
                             ? const CircularProgressIndicator()
@@ -110,7 +111,8 @@ class _SecionState extends State<Secion> {
                                 await _iniciarSesion(context);
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Color del botón
+                          backgroundColor: const Color.fromARGB(
+                              255, 89, 48, 201), // Color del botón
                         ),
                         child: _loading
                             ? const CircularProgressIndicator()
