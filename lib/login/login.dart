@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/home');
+              Navigator.pushNamed(context, '/seci');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 75, 170, 88),

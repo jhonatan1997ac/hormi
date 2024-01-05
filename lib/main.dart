@@ -1,4 +1,5 @@
 import 'package:apphormi/login/login.dart';
+import 'package:apphormi/pages/inicio/Inicio/inicio_secion.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
@@ -57,7 +58,8 @@ class _MyAppState extends State<MyApp> {
         '/cata': (context) => Catalogo(),
         '/coti': (context) => const CotizacionesScreen(),
         '/fact': (context) => const FacturacionScreen(),
-        '/sopor': (context) => SoporteScreen(),
+        '/sopor': (context) => const SoporteScreen(),
+        '/seci': (context) => const Secion(),
       },
     );
   }
