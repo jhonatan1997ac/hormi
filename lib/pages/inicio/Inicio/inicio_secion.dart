@@ -25,7 +25,6 @@ class Secion extends StatefulWidget {
   const Secion({Key? key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SecionState createState() => _SecionState();
 }
 
@@ -41,89 +40,115 @@ class _SecionState extends State<Secion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: const Color.fromARGB(255, 108, 120, 131),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Card(
-            elevation: 8.0,
-            child: Padding(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(height: 80),
+            const Text(
+              'BIENVENIDOS A NUESTRA APLICACIÓN',
+              style: TextStyle(fontSize: 40.0, color: Colors.white),
+            ),
+            const Text(
+              'SOMOS HOMIBLOQUE ECUADOR S.A',
+              style: TextStyle(fontSize: 40.0, color: Colors.white),
+            ),
+            const SizedBox(height: 40), // Agregamos un espacio adicional
+            Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Correo electrónico',
-                      prefixIcon: Icon(Icons.email),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: !_showPassword,
-                    decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _showPassword = !_showPassword;
-                          });
-                        },
-                        child: Icon(
-                          _showPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Card(
+                elevation: 8.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton(
-                        onPressed: _loading
-                            ? null
-                            : _isLoggedIn
-                                ? _cerrarSesion
-                                : () async {
-                                    await _mostrarFormularioCrearCuenta(
-                                        context);
-                                  },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                              255, 99, 206, 66), // Color del botón
+                      Container(
+                        color: Colors.white,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Inicio de Sesión',
+                          style: TextStyle(
+                              fontSize: 24.0,
+                              color: Color.fromARGB(255, 14, 13, 13)),
                         ),
-                        child: _loading
-                            ? const CircularProgressIndicator()
-                            : _isLoggedIn
-                                ? const Text('Cerrar Sesión')
-                                : const Text('Crear Cuenta'),
                       ),
-                      const SizedBox(width: 2.0), // Espacio de 2 píxeles
-                      ElevatedButton(
-                        onPressed: _loading
-                            ? null
-                            : () async {
-                                await _iniciarSesion(context);
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                              255, 89, 48, 201), // Color del botón
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Correo electrónico',
+                          prefixIcon: Icon(Icons.email),
                         ),
-                        child: _loading
-                            ? const CircularProgressIndicator()
-                            : const Text('Iniciar Sesión'),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: !_showPassword,
+                        decoration: InputDecoration(
+                          labelText: 'Contraseña',
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
+                            },
+                            child: Icon(
+                              _showPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _loading
+                                ? null
+                                : _isLoggedIn
+                                    ? _cerrarSesion
+                                    : () async {
+                                        await _mostrarFormularioCrearCuenta(
+                                            context);
+                                      },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 99, 206, 66),
+                            ),
+                            child: _loading
+                                ? const CircularProgressIndicator()
+                                : _isLoggedIn
+                                    ? const Text('Cerrar Sesión')
+                                    : const Text('Crear Cuenta'),
+                          ),
+                          const SizedBox(width: 2.0),
+                          ElevatedButton(
+                            onPressed: _loading
+                                ? null
+                                : () async {
+                                    await _iniciarSesion(context);
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 89, 48, 201),
+                            ),
+                            child: _loading
+                                ? const CircularProgressIndicator()
+                                : const Text('Iniciar Sesión'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -165,7 +190,7 @@ class _SecionState extends State<Secion> {
                       Navigator.pop(context);
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Color del botón
+                backgroundColor: Colors.green,
               ),
               child: const Text('Crear Cuenta'),
             ),
@@ -174,7 +199,7 @@ class _SecionState extends State<Secion> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Color del botón
+                backgroundColor: Colors.red,
               ),
               child: const Text('Cancelar'),
             ),
