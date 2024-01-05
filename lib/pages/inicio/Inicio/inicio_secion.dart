@@ -81,30 +81,42 @@ class _SecionState extends State<Secion> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _loading
-                        ? null
-                        : _isLoggedIn
-                            ? _cerrarSesion
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _loading
+                            ? null
+                            : _isLoggedIn
+                                ? _cerrarSesion
+                                : () async {
+                                    await _mostrarFormularioCrearCuenta(
+                                        context);
+                                  },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue, // Color del botón
+                        ),
+                        child: _loading
+                            ? const CircularProgressIndicator()
+                            : _isLoggedIn
+                                ? const Text('Cerrar Sesión')
+                                : const Text('Crear Cuenta'),
+                      ),
+                      const SizedBox(width: 2.0), // Espacio de 2 píxeles
+                      ElevatedButton(
+                        onPressed: _loading
+                            ? null
                             : () async {
-                                await _mostrarFormularioCrearCuenta(context);
+                                await _iniciarSesion(context);
                               },
-                    child: _loading
-                        ? const CircularProgressIndicator() // Indicador de carga
-                        : _isLoggedIn
-                            ? const Text('Cerrar Sesión')
-                            : const Text('Crear Cuenta'),
-                  ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _loading
-                        ? null
-                        : () async {
-                            await _iniciarSesion(context);
-                          },
-                    child: _loading
-                        ? const CircularProgressIndicator() // Indicador de carga
-                        : const Text('Iniciar Sesión'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue, // Color del botón
+                        ),
+                        child: _loading
+                            ? const CircularProgressIndicator()
+                            : const Text('Iniciar Sesión'),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -143,17 +155,25 @@ class _SecionState extends State<Secion> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () async {
-                await _crearCuenta(context);
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context); // Cerrar el diálogo
-              },
+              onPressed: _loading
+                  ? null
+                  : () async {
+                      await _crearCuenta(context);
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green, // Color del botón
+              ),
               child: const Text('Crear Cuenta'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Cerrar el diálogo
+                Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // Color del botón
+              ),
               child: const Text('Cancelar'),
             ),
           ],
@@ -168,9 +188,7 @@ class _SecionState extends State<Secion> {
     });
 
     try {
-      await Future.delayed(
-          const Duration(seconds: 2)); // Simula un proceso de inicio de sesión
-
+      await Future.delayed(const Duration(seconds: 2));
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -179,7 +197,7 @@ class _SecionState extends State<Secion> {
         _isLoggedIn = true;
       });
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/home'); // Navegar a '/home'
+      Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (kDebugMode) {
         print('Error de inicio de sesión: $e');
@@ -243,6 +261,7 @@ class _SecionState extends State<Secion> {
         print('Error al crear cuenta: $e');
         print('StackTrace: $stackTrace');
       }
+
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
