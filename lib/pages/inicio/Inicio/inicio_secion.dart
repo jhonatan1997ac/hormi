@@ -36,6 +36,7 @@ class _SecionState extends State<Secion> {
   bool _isLoggedIn = false;
   bool _showPassword = false;
   bool _loading = false;
+  String _selectedUserRole = 'Vendedor'; // Valor predeterminado
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +49,11 @@ class _SecionState extends State<Secion> {
             const SizedBox(height: 80),
             const Text(
               'BIENVENIDOS A NUESTRA APLICACIÓN',
-              style: TextStyle(fontSize: 40.0, color: Colors.white),
+              style: TextStyle(fontSize: 25.0, color: Colors.white),
             ),
             const Text(
               'SOMOS HOMIBLOQUE ECUADOR S.A',
-              style: TextStyle(fontSize: 40.0, color: Colors.white),
+              style: TextStyle(fontSize: 25.0, color: Colors.white),
             ),
             const SizedBox(height: 40), // Agregamos un espacio adicional
             Padding(
@@ -103,6 +104,7 @@ class _SecionState extends State<Secion> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 16.0),
                       const SizedBox(height: 16.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,6 +178,23 @@ class _SecionState extends State<Secion> {
                   decoration: const InputDecoration(
                     labelText: 'Contraseña',
                   ),
+                ),
+                const SizedBox(height: 16.0),
+                // Agregar un campo para seleccionar el tipo de usuario
+                DropdownButton<String>(
+                  value: _selectedUserRole,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedUserRole = value!;
+                    });
+                  },
+                  items: ['Vendedor', 'Administrador']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -279,9 +298,32 @@ class _SecionState extends State<Secion> {
       );
 
       if (userCredential.user != null) {
+        // Obtener el UID del usuario recién creado
+        // ignore: unused_local_variable
+        String uid = userCredential.user!.uid;
+
+        // Asignar el rol según la selección del usuario
+        if (_selectedUserRole == 'Vendedor') {
+          // Lógica para asignar el rol de vendedor al usuario
+          // Puedes guardar esta información en Firestore o en otra base de datos
+          // dependiendo de tu implementación.
+        } else if (_selectedUserRole == 'Administrador') {
+          // Lógica para asignar el rol de administrador al usuario
+          // Puedes guardar esta información en Firestore o en otra base de datos
+          // dependiendo de tu implementación.
+        }
+
         setState(() {
           _isLoggedIn = true;
         });
+
+        // Mostrar un SnackBar de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cuenta creada con éxito'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -289,6 +331,7 @@ class _SecionState extends State<Secion> {
         print('StackTrace: $stackTrace');
       }
 
+      // Mostrar un SnackBar de error
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
