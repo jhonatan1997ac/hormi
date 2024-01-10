@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,7 @@ class _SecionState extends State<Secion> {
   bool _isLoggedIn = false;
   bool _showPassword = false;
   bool _loading = false;
-  String _selectedUserRole = 'Vendedor'; // Valor predeterminado
+  String _selectedUserRole = 'Vendedor';
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class _SecionState extends State<Secion> {
               'SOMOS HOMIBLOQUE ECUADOR S.A',
               style: TextStyle(fontSize: 25.0, color: Colors.white),
             ),
-            const SizedBox(height: 40), // Agregamos un espacio adicional
+            const SizedBox(height: 40),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Card(
@@ -180,7 +181,6 @@ class _SecionState extends State<Secion> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
-                // Agregar un campo para seleccionar el tipo de usuario
                 DropdownButton<String>(
                   value: _selectedUserRole,
                   onChanged: (String? value) {
@@ -228,46 +228,48 @@ class _SecionState extends State<Secion> {
     );
   }
 
+  Future<void> _mostrarUsuarioExistente(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Usuario Existente'),
+          content: const Text('El usuario ya existe. Por favor, elige otro.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _iniciarSesion(BuildContext context) async {
     setState(() {
       _loading = true;
     });
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
       setState(() {
         _isLoggedIn = true;
       });
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/home');
+
+      // Después de iniciar sesión con éxito, redirigir según el rol del usuario
+      route();
     } catch (e) {
-      if (kDebugMode) {
-        print('Error de inicio de sesión: $e');
-      }
-
-      String errorMessage =
-          'Error al iniciar sesión. Verifica tus credenciales.';
-
-      if (e is FirebaseAuthException) {
-        if (e.code == 'user-not-found') {
-          errorMessage =
-              'Usuario no encontrado. Regístrate para crear una cuenta.';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Contraseña incorrecta. Inténtalo de nuevo.';
-        }
-      }
-
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      // Manejar errores aquí
     } finally {
       setState(() {
         _loading = false;
@@ -281,64 +283,106 @@ class _SecionState extends State<Secion> {
       setState(() {
         _isLoggedIn = false;
       });
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('Error al cerrar sesión: $e');
-        print('StackTrace: $stackTrace');
-      }
+    } catch (e) {
+      // Manejar errores aquí
     }
   }
 
   Future<void> _crearCuenta(BuildContext context) async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      bool nombreUsuarioExistente =
+          await _verificarNombreUsuario(_emailController.text.trim());
+
+      if (nombreUsuarioExistente) {
+        // ignore: use_build_context_synchronously
+        await _mostrarUsuarioExistente(context);
+        return;
+      }
+
+      await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      if (userCredential.user != null) {
-        // Obtener el UID del usuario recién creado
-        // ignore: unused_local_variable
-        String uid = userCredential.user!.uid;
-
-        // Asignar el rol según la selección del usuario
-        if (_selectedUserRole == 'Vendedor') {
-          // Lógica para asignar el rol de vendedor al usuario
-          // Puedes guardar esta información en Firestore o en otra base de datos
-          // dependiendo de tu implementación.
-        } else if (_selectedUserRole == 'Administrador') {
-          // Lógica para asignar el rol de administrador al usuario
-          // Puedes guardar esta información en Firestore o en otra base de datos
-          // dependiendo de tu implementación.
-        }
-
-        setState(() {
-          _isLoggedIn = true;
-        });
-
-        // Mostrar un SnackBar de éxito
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cuenta creada con éxito'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('Error al crear cuenta: $e');
-        print('StackTrace: $stackTrace');
-      }
-
-      // Mostrar un SnackBar de error
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al crear cuenta. Intenta nuevamente.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      // Después de crear la cuenta con éxito, redirigir según el rol seleccionado
+      route();
+    } catch (e) {
+      // Manejar errores aquí
     }
+  }
+
+  Future<bool> _verificarNombreUsuario(String nombreUsuario) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('usuarios')
+        .where('nombreUsuario', isEqualTo: nombreUsuario)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+  // Función para redirigir según el rol del usuario
+  void route() {
+    User? user = FirebaseAuth.instance.currentUser;
+    // ignore: unused_local_variable
+    var kk = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.get('rool') == "Teacher") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Teacher(),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Student(),
+            ),
+          );
+        }
+      } else {
+        if (kDebugMode) {
+          print('Document does not exist on the database');
+        }
+      }
+    });
+  }
+}
+
+class Student extends StatelessWidget {
+  const Student({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Student Screen'),
+      ),
+      body: const Center(
+        child: Text('Content for the Student'),
+      ),
+    );
+  }
+}
+
+class Teacher extends StatelessWidget {
+  const Teacher({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Teacher Screen'),
+      ),
+      body: const Center(
+        child: Text('Content for the Teacher'),
+      ),
+    );
   }
 }

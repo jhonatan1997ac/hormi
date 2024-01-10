@@ -8,6 +8,7 @@ import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
 import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
+import 'package:apphormi/pages/loging/login.dart';
 import 'package:apphormi/pages/usuario/usu_actualizar.dart';
 import 'package:apphormi/pages/usuario/usua_agregar.dart';
 import 'package:apphormi/pages/usuario/usuario.dart';
@@ -30,13 +31,14 @@ void main() async {
     }
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
@@ -46,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Extraccion de datos y edicion',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/logpag',
       routes: {
         '/': (context) => const HomeScreen(),
         '/agg': (context) => const agregarDatos(),
@@ -61,6 +63,7 @@ class _MyAppState extends State<MyApp> {
         '/fact': (context) => const FacturacionScreen(),
         '/sopor': (context) => const SoporteScreen(),
         '/seci': (context) => const Secion(),
+        '/logpag': (context) => const LoginPage(),
       },
     );
   }
