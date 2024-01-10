@@ -23,14 +23,14 @@ class _agregarDatosState extends State<agregarDatos> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
-            content: Text('El nombre no puede estar vacío.'),
+            title: const Text('Error'),
+            content: const Text('El nombre no puede estar vacío.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // Cerrar el AlertDialog
                 },
-                child: Text('Aceptar'),
+                child: const Text('Aceptar'),
               ),
             ],
           );
@@ -57,7 +57,7 @@ class _agregarDatosState extends State<agregarDatos> {
         title: const Text('Agregar datos'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -71,13 +71,13 @@ class _agregarDatosState extends State<agregarDatos> {
                 ),
               ],
             ),
-            SizedBox(height: 20), // Espaciador vertical
+            const SizedBox(height: 20), // Espaciador vertical
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => _guardarDatos(context),
                 style: ElevatedButton.styleFrom(
-                  fixedSize: Size(200, 50),
+                  fixedSize: const Size(200, 50),
                 ),
                 child: const Text("Guardar"),
               ),
