@@ -314,7 +314,7 @@ class _RegisterState extends State<Register> {
     // ignore: unused_local_variable
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
-    CollectionReference ref = FirebaseFirestore.instance.collection('users');
+    CollectionReference ref = FirebaseFirestore.instance.collection('Users');
     ref.doc(user!.uid).set({'email': emailController.text, 'rool': rool});
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => LoginPage()));
