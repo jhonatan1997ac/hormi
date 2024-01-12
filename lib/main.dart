@@ -1,4 +1,3 @@
-import 'package:apphormi/login/login.dart';
 import 'package:apphormi/pages/inicio/Inicio/inicio_secion.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
@@ -50,7 +49,6 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/logpag',
       routes: {
-        '/': (context) => const HomeScreen(),
         '/agg': (context) => const agregarDatos(),
         '/edit': (context) => const EditarDatos(),
         '/usu': (context) => const Usuario(),

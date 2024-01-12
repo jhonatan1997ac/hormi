@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 30,
                         ),
                         const Text(
-                          "Login",
+                          "Iniciar seccion",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -75,12 +75,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return "Email cannot be empty";
+                              return "El correo electrónico no puede estar vacío.";
                             }
                             if (!RegExp(
                                     "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
                                 .hasMatch(value)) {
-                              return ("Please enter a valid email");
+                              return ("Por favor introduzca una dirección de correo electrónico válida");
                             } else {
                               return null;
                             }
@@ -124,10 +124,10 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (value) {
                             RegExp regex = RegExp(r'^.{6,}$');
                             if (value!.isEmpty) {
-                              return "Password cannot be empty";
+                              return "La contraseña no puede estar vacía";
                             }
                             if (!regex.hasMatch(value)) {
-                              return ("please enter valid password min. 6 character");
+                              return ("por favor ingrese una contraseña válida min. 6 caracteres");
                             } else {
                               return null;
                             }
@@ -152,13 +152,13 @@ class _LoginPageState extends State<LoginPage> {
                             signIn(
                                 emailController.text, passwordController.text);
                           },
+                          color: Colors.white,
                           child: const Text(
-                            "Login",
+                            "Acceder",
                             style: TextStyle(
                               fontSize: 20,
                             ),
                           ),
-                          color: Colors.white,
                         ),
                         const SizedBox(
                           height: 10,
@@ -245,31 +245,33 @@ class _LoginPageState extends State<LoginPage> {
 
           if (userRole != null) {
             if (userRole == "administrador") {
+              // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => administrador(),
+                  builder: (context) => const administrador(),
                 ),
               );
             } else {
+              // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => vendedor(),
+                  builder: (context) => const vendedor(),
                 ),
               );
             }
           } else {
-            print('User role is null');
+            print('El rol de usuario es nulo');
           }
         } else {
-          print('Document does not exist on the database');
+          print('El documento no existe en la base de datos.');
         }
       } catch (e) {
-        print('Error fetching user data: $e');
+        print('Error al recuperar los datos del usuario: $e');
       }
     } else {
-      print('User is null');
+      print('El usuario es nulo');
     }
   }
 
@@ -284,10 +286,10 @@ class _LoginPageState extends State<LoginPage> {
         );
         route();
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
+        if (e.code == 'Usuario no encontrado') {
+          print('Ningún usuario encontrado para ese correo electrónico.');
+        } else if (e.code == 'contraseña incorrecta') {
+          print('Contraseña incorrecta proporcionada para ese usuario.');
         }
       }
     }
