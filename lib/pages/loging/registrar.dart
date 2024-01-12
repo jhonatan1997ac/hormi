@@ -143,12 +143,13 @@ class _RegisterState extends State<Register> {
                               ),
                             ),
                             validator: (value) {
-                              RegExp regex = RegExp(r'^.{6,}$');
+                              RegExp regex = RegExp(
+                                  r'^.{6,15}$'); // Modificado a 15 caracteres
                               if (value!.isEmpty) {
                                 return "La contraseña no puede estar vacía";
                               }
                               if (!regex.hasMatch(value)) {
-                                return ("por favor ingrese una contraseña válida min. 6 caracteres");
+                                return "Por favor, ingrese una contraseña válida de 6 a 15 caracteres";
                               } else {
                                 return null;
                               }
@@ -308,11 +309,37 @@ class _RegisterState extends State<Register> {
   void signUp(String email, String password, String rool) async {
     const CircularProgressIndicator();
     if (_formkey.currentState!.validate()) {
-      await _auth
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) => {postDetailsToFirestore(email, rool)})
-          // ignore: body_might_complete_normally_catch_error
-          .catchError((e) {});
+      try {
+        await _auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+        // Si el registro es exitoso, postDetailsToFirestore será llamado
+        postDetailsToFirestore(email, rool);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          // El correo electrónico ya está en uso, muestra un mensaje emergente
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Error de registro'),
+                content: Text(
+                    'El correo electrónico ya está en uso. Por favor, utiliza otro correo electrónico.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Aceptar'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } catch (e) {
+        // Otras excepciones que puedan ocurrir durante el registro
+        print(e);
+      }
     }
   }
 

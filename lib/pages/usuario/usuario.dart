@@ -1,9 +1,12 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    home: Usuario(),
+  ));
+}
 
 class Usuario extends StatefulWidget {
   const Usuario({Key? key}) : super(key: key);
@@ -13,125 +16,6 @@ class Usuario extends StatefulWidget {
 }
 
 class _UsuarioState extends State<Usuario> {
-  // ignore: unused_element
-  Future<List<UserCredential>> _getUsers() async {
-    try {
-      // Lee el contenido del archivo credentials.json
-      String jsonString = await DefaultAssetBundle.of(context)
-          .loadString('assets/credentials/credentials.json');
-      Map<String, dynamic> credentials = json.decode(jsonString);
-
-      // Inicializa Firebase si aún no se ha inicializado
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: FirebaseOptions(
-            apiKey: credentials['api_key'],
-            authDomain: credentials['auth_domain'],
-            databaseURL: credentials['database_url'],
-            projectId: credentials['project_id'],
-            storageBucket: credentials['storage_bucket'],
-            messagingSenderId: credentials['messaging_sender_id'],
-            appId: credentials['app_id'],
-            measurementId: credentials['measurement_id'],
-          ),
-        );
-      }
-
-      // Iniciar sesión anónima (puedes cambiar esto según tus necesidades)
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInAnonymously();
-
-      return [userCredential];
-    } catch (error, stackTrace) {
-      if (kDebugMode) {
-        print('Error al obtener la lista de usuarios: $error');
-        print(stackTrace);
-      }
-
-      String errorMessage = 'Error al obtener la lista de usuarios';
-
-      if (error is FirebaseException) {
-        errorMessage = 'Firebase Error: ${error.message}';
-        // Puedes agregar más lógica para manejar diferentes tipos de errores de Firebase aquí
-      }
-
-      // Mostrar un mensaje de error en caso de fallo
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
-      );
-
-      // Puedes manejar el error de alguna manera apropiada
-      return [];
-    }
-  }
-
-  Future<void> _showUsersListDialog(BuildContext context) async {
-    try {
-      // Obtener la lista de usuarios desde Firestore
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection('usuarios').get();
-
-      // Construir el diálogo para mostrar la lista de usuarios
-      // ignore: use_build_context_synchronously
-      showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Lista de Usuarios'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: querySnapshot.docs
-                    .map((QueryDocumentSnapshot<Map<String, dynamic>>
-                            document) =>
-                        ListTile(
-                          title: Text('Usuario ID: ${document.id}'),
-                          subtitle: Text('Email: ${document['email']}'),
-                        ))
-                    .toList(),
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cerrar'),
-              ),
-            ],
-          );
-        },
-      );
-
-      // Actualizar la interfaz de usuario
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Usuarios obtenidos exitosamente'),
-        ),
-      );
-    } catch (error, stackTrace) {
-      if (kDebugMode) {
-        print('Error al obtener la lista de usuarios: $error');
-        print(stackTrace);
-      }
-
-      String errorMessage = 'Error al obtener la lista de usuarios';
-
-      if (error is FirebaseException) {
-        errorMessage = 'Firebase Error: ${error.message}';
-        // Puedes agregar más lógica para manejar diferentes tipos de errores de Firebase aquí
-      }
-
-      // Mostrar un mensaje de error en caso de fallo
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,9 +28,6 @@ class _UsuarioState extends State<Usuario> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            if (kDebugMode) {
-              print('Error in auth state: ${snapshot.error}');
-            }
             return Text('Error: ${snapshot.error}');
           } else {
             User? user = snapshot.data;
@@ -154,38 +35,137 @@ class _UsuarioState extends State<Usuario> {
             if (user == null) {
               return const Text('No hay usuarios autenticados.');
             } else {
-              return ListView(
-                children: [
-                  ListTile(
-                    title: Text('Usuario ID: ${user.uid}'),
-                    subtitle: Text('Email: ${user.email}'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _showUsersListDialog(context);
-                    },
-                    child: const Text('Obtener Lista de Usuarios'),
-                  ),
-                ],
+              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream:
+                    FirebaseFirestore.instance.collection('users').snapshots(),
+                builder: (context, usersSnapshot) {
+                  if (usersSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (usersSnapshot.hasError) {
+                    return Text('Error: ${usersSnapshot.error}');
+                  } else {
+                    var users = usersSnapshot.data?.docs;
+
+                    if (users == null || users.isEmpty) {
+                      return const Text('No se encontraron usuarios.');
+                    } else {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: users.length,
+                              itemBuilder: (context, index) {
+                                var userData = users[index].data();
+                                return ListTile(
+                                  title: Text('Usuario ID: ${users[index].id}'),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Email: ${userData['email']}'),
+                                      Text('Rol: ${userData['rool']}'),
+                                    ],
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.edit),
+                                        onPressed: () {
+                                          _showEditDialog(
+                                            context,
+                                            users[index].id,
+                                            userData['email'],
+                                            userData['rool'],
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () {
+                                          FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(users[index].id)
+                                              .delete();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  }
+                },
               );
             }
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Puedes agregar lógica para realizar operaciones adicionales
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
-}
 
-void main() {
-  runApp(
-    const MaterialApp(
-      home: Usuario(),
-    ),
-  );
+  void _showEditDialog(
+    BuildContext context,
+    String userId,
+    String currentEmail,
+    String currentRool,
+  ) {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController roolController = TextEditingController();
+
+    emailController.text = currentEmail;
+    roolController.text = currentRool;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Editar Usuario'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Nuevo Email'),
+              ),
+              TextField(
+                controller: roolController,
+                decoration: InputDecoration(labelText: 'Nuevo Rol'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Actualizar los datos en Firestore
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .update({
+                  'email': emailController.text,
+                  'rool': roolController.text,
+                });
+
+                Navigator.of(context).pop();
+              },
+              child: Text('Guardar Cambios'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

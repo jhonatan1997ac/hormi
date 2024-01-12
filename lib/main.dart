@@ -8,8 +8,7 @@ import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
 import 'package:apphormi/pages/loging/login.dart';
-import 'package:apphormi/pages/usuario/usu_actualizar.dart';
-import 'package:apphormi/pages/usuario/usua_agregar.dart';
+
 import 'package:apphormi/pages/usuario/usuario.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -49,8 +48,6 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/logpag',
       routes: {
-        '/agg': (context) => const agregarDatos(),
-        '/edit': (context) => const EditarDatos(),
         '/usu': (context) => const Usuario(),
         '/home': (context) => const Home(),
         '/conf': (context) => const ConfiguracionPage(),
