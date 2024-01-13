@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'registrar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -287,9 +288,13 @@ class _LoginPageState extends State<LoginPage> {
         route();
       } on FirebaseAuthException catch (e) {
         if (e.code == 'Usuario no encontrado') {
-          print('Ningún usuario encontrado para ese correo electrónico.');
+          if (kDebugMode) {
+            print('Ningún usuario encontrado para ese correo electrónico.');
+          }
         } else if (e.code == 'contraseña incorrecta') {
-          print('Contraseña incorrecta proporcionada para ese usuario.');
+          if (kDebugMode) {
+            print('Contraseña incorrecta proporcionada para ese usuario.');
+          }
         }
       }
     }
