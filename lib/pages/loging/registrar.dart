@@ -317,19 +317,20 @@ class _RegisterState extends State<Register> {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
           // El correo electrónico ya está en uso, muestra un mensaje emergente
+          // ignore: use_build_context_synchronously
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Error de registro'),
-                content: Text(
+                title: const Text('Error de registro'),
+                content: const Text(
                     'El correo electrónico ya está en uso. Por favor, utiliza otro correo electrónico.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('Aceptar'),
+                    child: const Text('Aceptar'),
                   ),
                 ],
               );
