@@ -6,14 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'administrador.dart';
 import 'vendedor.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class Inicio extends StatefulWidget {
+  const Inicio({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _InicioState createState() => _InicioState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _InicioState extends State<Inicio> {
   bool _isObscure3 = true;
   bool visible = false;
   final _formkey = GlobalKey<FormState>();
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 30,
                         ),
                         const Text(
-                          "Iniciar seccion",
+                          "INICIAR SECCIÓN",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -66,11 +66,11 @@ class _LoginPageState extends State<LoginPage> {
                             contentPadding: const EdgeInsets.only(
                                 left: 14.0, bottom: 8.0, top: 8.0),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: const BorderSide(color: Colors.white),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: const BorderSide(color: Colors.white),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),

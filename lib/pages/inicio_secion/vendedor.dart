@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'login.dart';
+import 'inicio.dart';
 
 class vendedor extends StatefulWidget {
   const vendedor({Key? key}) : super(key: key);
@@ -116,7 +116,7 @@ class _vendedorState extends State<vendedor> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const LoginPage(),
+        builder: (context) => const Inicio(),
       ),
     );
   }

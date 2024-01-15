@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'login.dart';
+import 'inicio.dart';
 
+// ignore: camel_case_types
 class administrador extends StatefulWidget {
   const administrador({Key? key}) : super(key: key);
 
@@ -133,7 +134,7 @@ class AdminHome extends StatelessWidget {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const LoginPage(),
+        builder: (context) => const Inicio(),
       ),
     );
   }
