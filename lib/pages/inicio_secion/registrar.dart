@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'login.dart';
+import 'inicio.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -360,7 +360,7 @@ void main() {
       initialRoute: '/',
       routes: {
         '/': (context) => Register(),
-        '/logpag': (context) => const LoginPage(),
+        '/logpag': (context) => const Inicio(),
       },
     ),
   );

@@ -1,4 +1,3 @@
-import 'package:apphormi/pages/inicio/Inicio/inicio_secion.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
@@ -7,7 +6,7 @@ import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
 import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
-import 'package:apphormi/pages/loging/login.dart';
+import 'package:apphormi/pages/inicio_secion/inicio.dart';
 
 import 'package:apphormi/pages/usuario/usuario.dart';
 
@@ -57,8 +56,7 @@ class _MyAppState extends State<MyApp> {
         '/coti': (context) => const CotizacionesScreen(),
         '/fact': (context) => const FacturacionScreen(),
         '/sopor': (context) => const SoporteScreen(),
-        '/seci': (context) => const Secion(),
-        '/logpag': (context) => const LoginPage(),
+        '/logpag': (context) => const Inicio(),
       },
     );
   }
