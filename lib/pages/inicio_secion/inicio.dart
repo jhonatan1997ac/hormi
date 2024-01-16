@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'registrar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'administrador.dart';
-import 'vendedor.dart';
+import '../administrador/administrador.dart';
+import '../vendedor/vendedor.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({Key? key}) : super(key: key);
@@ -250,7 +250,7 @@ class _InicioState extends State<Inicio> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const administrador(),
+                  builder: (context) => const AdminHome(),
                 ),
               );
             } else {

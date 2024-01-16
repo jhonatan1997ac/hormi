@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/administrador/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
@@ -8,7 +9,7 @@ import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 
-import 'package:apphormi/pages/usuario/usuario.dart';
+import 'package:apphormi/pages/inicio/usabilidad/usuario.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -57,6 +58,7 @@ class _MyAppState extends State<MyApp> {
         '/fact': (context) => const FacturacionScreen(),
         '/sopor': (context) => const SoporteScreen(),
         '/logpag': (context) => const Inicio(),
+        '/gestprod': (context) => GestionProductos(),
       },
     );
   }
