@@ -5,6 +5,23 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Gestión de Productos',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: GestionProductos(),
+    );
+  }
+}
+
 class GestionProductos extends StatefulWidget {
   @override
   _GestionProductosState createState() => _GestionProductosState();
@@ -30,7 +47,7 @@ class _GestionProductosState extends State<GestionProductos> {
           'imagen': imagen,
         });
         setState(() {
-          _imagen = null; // Limpiar la imagen después de agregar el producto
+          _imagen = null;
         });
       } else {
         await productosCollection.add({
@@ -40,6 +57,31 @@ class _GestionProductosState extends State<GestionProductos> {
       }
     } catch (e) {
       print('Error al agregar el producto: $e');
+    }
+  }
+
+  Future<void> editarProducto(Producto producto) async {
+    try {
+      Producto productoEditado = Producto(
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio + 10.0,
+        imagen: producto.imagen,
+      );
+      bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
+      if (confirmacion) {
+        // Simulando la actualización en Firestore
+        // Debes implementar la lógica adecuada para actualizar en tu base de datos
+        await productosCollection.doc(producto.id).update({
+          'nombre': productoEditado.nombre,
+          'precio': productoEditado.precio,
+          'imagen': productoEditado.imagen,
+        });
+
+        print('Producto actualizado: $productoEditado');
+      }
+    } catch (e) {
+      print('Error al editar el producto: $e');
     }
   }
 
@@ -75,6 +117,12 @@ class _GestionProductosState extends State<GestionProductos> {
       print('Error al cargar la imagen: $e');
     }
     return null;
+  }
+
+  Future<bool> _mostrarConfirmacion(
+      BuildContext context, Producto producto) async {
+    // Implementa la lógica para mostrar el diálogo de confirmación
+    return true;
   }
 
   @override
@@ -146,9 +194,25 @@ class _GestionProductosState extends State<GestionProductos> {
                             : SizedBox.shrink(),
                         trailing: IconButton(
                           icon: Icon(Icons.edit),
-                          onPressed: () {
-                            // Implementa la lógica para editar el producto
-                            // Puedes usar Navigator.push para navegar a la pantalla de edición
+                          onPressed: () async {
+                            bool confirmacion =
+                                await _mostrarConfirmacion(context, producto);
+                            if (confirmacion) {
+                              // ignore: use_build_context_synchronously
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      EditarProductoScreen(producto: producto),
+                                ),
+                              ).then((productoActualizado) async {
+                                if (productoActualizado != null) {
+                                  await editarProducto(productoActualizado);
+                                  print(
+                                      'Producto actualizado: $productoActualizado');
+                                }
+                              });
+                            }
                           },
                         ),
                       );
@@ -165,14 +229,20 @@ class _GestionProductosState extends State<GestionProductos> {
 }
 
 class Producto {
+  final String id;
   final String nombre;
   final double precio;
   String? imagen;
 
-  Producto({required this.nombre, required this.precio, this.imagen});
+  Producto(
+      {required this.id,
+      required this.nombre,
+      required this.precio,
+      this.imagen});
 
   Producto.fromSnapshot(DocumentSnapshot snapshot)
-      : nombre = snapshot['nombre'] ?? '',
+      : id = snapshot.id,
+        nombre = snapshot['nombre'] ?? '',
         precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
         imagen = snapshot['imagen'] as String?;
 
@@ -224,6 +294,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                       _capitalizeFirstLetter(nombreController.text);
 
                   final nuevoProducto = Producto(
+                    id: '', // Asigna el ID adecuadamente en tu aplicación
                     nombre: nombreCapitalizado,
                     precio: double.tryParse(precioController.text) ?? 0.0,
                     imagen: null, // No es necesario asignar imagen aquí
@@ -243,4 +314,89 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
   String _capitalizeFirstLetter(String text) {
     return text[0].toUpperCase() + text.substring(1);
   }
+}
+
+class EditarProductoScreen extends StatefulWidget {
+  final Producto producto;
+
+  EditarProductoScreen({required this.producto});
+
+  @override
+  _EditarProductoScreenState createState() => _EditarProductoScreenState();
+}
+
+class _EditarProductoScreenState extends State<EditarProductoScreen> {
+  late TextEditingController nombreController;
+  late TextEditingController precioController;
+
+  @override
+  void initState() {
+    super.initState();
+    nombreController = TextEditingController(text: widget.producto.nombre);
+    precioController =
+        TextEditingController(text: widget.producto.precio.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Editar Producto'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: nombreController,
+              decoration: InputDecoration(labelText: 'Nombre del Producto'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: precioController,
+              keyboardType: TextInputType.number,
+              decoration:
+                  const InputDecoration(labelText: 'Precio del Producto'),
+            ),
+            SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: () async {
+                bool confirmacion =
+                    await _mostrarConfirmacion(context, widget.producto);
+
+                if (confirmacion) {
+                  if (nombreController.text.isNotEmpty &&
+                      precioController.text.isNotEmpty) {
+                    final nombreCapitalizado =
+                        _capitalizeFirstLetter(nombreController.text);
+
+                    final productoActualizado = Producto(
+                      id: widget.producto.id,
+                      nombre: nombreCapitalizado,
+                      precio: double.tryParse(precioController.text) ?? 0.0,
+                      imagen: widget.producto.imagen,
+                    );
+
+                    Navigator.pop(context, productoActualizado);
+                  }
+                }
+              },
+              child: const Text('Guardar Cambios'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _capitalizeFirstLetter(String text) {
+    return text[0].toUpperCase() + text.substring(1);
+  }
+}
+
+Future<bool> _mostrarConfirmacion(
+    BuildContext context, Producto producto) async {
+  // Implementa la lógica para mostrar el diálogo de confirmación
+  return true;
 }
