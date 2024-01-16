@@ -1,4 +1,6 @@
 import 'package:apphormi/pages/administrador/gestion_productos.dart';
+import 'package:apphormi/pages/administrador/historial_venta_admin.dart';
+import 'package:apphormi/pages/administrador/venta_administrador.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
@@ -59,6 +61,8 @@ class _MyAppState extends State<MyApp> {
         '/sopor': (context) => const SoporteScreen(),
         '/logpag': (context) => const Inicio(),
         '/gestprod': (context) => GestionProductos(),
+        '/ventas': (context) => Ventas(),
+        '/historial_ventas': (context) => HistorialVentas(),
       },
     );
   }

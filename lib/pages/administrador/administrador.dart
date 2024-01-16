@@ -62,7 +62,7 @@ class AdminHome extends StatelessWidget {
               icon: Icons.shopping_cart,
               color: Colors.orange,
               onTap: () {
-                // Navigator.pushNamed(context, '/realizar_ventas');
+                Navigator.pushNamed(context, '/ventas');
               },
             ),
             HomeCard(
@@ -70,7 +70,7 @@ class AdminHome extends StatelessWidget {
               icon: Icons.receipt,
               color: Colors.purple,
               onTap: () {
-                // Navigator.pushNamed(context, '/historial_ventas');
+                Navigator.pushNamed(context, '/historial_ventas');
               },
             ),
             HomeCard(

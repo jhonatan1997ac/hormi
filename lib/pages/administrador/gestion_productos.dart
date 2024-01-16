@@ -65,7 +65,7 @@ class _GestionProductosState extends State<GestionProductos> {
       Producto productoEditado = Producto(
         id: producto.id,
         nombre: producto.nombre,
-        precio: producto.precio + 10.0,
+        precio: producto.precio, // Mantener el mismo precio al editar
         imagen: producto.imagen,
       );
       bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
@@ -246,6 +246,8 @@ class Producto {
         precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
         imagen = snapshot['imagen'] as String?;
 
+  get stock => null;
+
   Map<String, dynamic> toMap() {
     return {
       'nombre': nombre,
@@ -282,7 +284,8 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
             SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(
+                  decimal: true), // Permitir decimales
               decoration: InputDecoration(labelText: 'Precio del Producto'),
             ),
             SizedBox(height: 32.0),
@@ -350,16 +353,18 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
           children: [
             TextField(
               controller: nombreController,
-              decoration: InputDecoration(labelText: 'Nombre del Producto'),
+              decoration:
+                  const InputDecoration(labelText: 'Nombre del Producto'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(
+                  decimal: true), // Permitir decimales
               decoration:
                   const InputDecoration(labelText: 'Precio del Producto'),
             ),
-            SizedBox(height: 32.0),
+            const SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: () async {
                 bool confirmacion =
