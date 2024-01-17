@@ -1,5 +1,9 @@
+import 'package:apphormi/pages/administrador/cliente_admin.dart';
+import 'package:apphormi/pages/administrador/configuracion_admin.dart';
+import 'package:apphormi/pages/administrador/empleados.dart';
 import 'package:apphormi/pages/administrador/gestion_productos.dart';
 import 'package:apphormi/pages/administrador/historial_venta_admin.dart';
+import 'package:apphormi/pages/administrador/notificacion_admin.dart';
 import 'package:apphormi/pages/administrador/venta_administrador.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
@@ -12,6 +16,7 @@ import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 
 import 'package:apphormi/pages/inicio/usabilidad/usuario.dart';
+import 'package:apphormi/pages/vendedor/producto_vendedor.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -63,6 +68,11 @@ class _MyAppState extends State<MyApp> {
         '/gestprod': (context) => GestionProductos(),
         '/ventas': (context) => Ventas(),
         '/historial_ventas': (context) => HistorialVentas(),
+        '/empleados': (context) => const Empleados(),
+        '/clientes': (context) => const Clientes(),
+        '/configuracion': (context) => Configuracion(),
+        '/notificacion': (context) => Notificacion(),
+        '/productosvendedor': (context) => ProductosVendedor(),
       },
     );
   }

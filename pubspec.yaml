@@ -23,6 +23,8 @@ dependencies:
   pdf: ^3.10.7
   csv: ^5.1.1
   path_provider: ^2.1.2
+  shared_preferences: ^2.0.8
+  flutter_local_notifications: ^8.2.0
   
 
 dev_dependencies:

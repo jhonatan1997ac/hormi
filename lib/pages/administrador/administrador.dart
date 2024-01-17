@@ -54,7 +54,7 @@ class AdminHome extends StatelessWidget {
               icon: Icons.people,
               color: Colors.green,
               onTap: () {
-                Navigator.pushNamed(context, '/usu');
+                Navigator.pushNamed(context, '/clientes');
               },
             ),
             HomeCard(
@@ -74,11 +74,11 @@ class AdminHome extends StatelessWidget {
               },
             ),
             HomeCard(
-              title: 'Gestión de Empleados',
+              title: 'Gestión de Vendedor',
               icon: Icons.person,
               color: Colors.teal,
               onTap: () {
-                // Navigator.pushNamed(context, '/gestion_empleados');
+                Navigator.pushNamed(context, '/empleados');
               },
             ),
             HomeCard(
@@ -86,7 +86,7 @@ class AdminHome extends StatelessWidget {
               icon: Icons.settings,
               color: Colors.indigo,
               onTap: () {
-                // Navigator.pushNamed(context, '/configuracion_sistema');
+                Navigator.pushNamed(context, '/configuracion');
               },
             ),
             HomeCard(
@@ -94,7 +94,7 @@ class AdminHome extends StatelessWidget {
               icon: Icons.notifications,
               color: Colors.red,
               onTap: () {
-                // Navigator.pushNamed(context, '/notificaciones_mensajes');
+                Navigator.pushNamed(context, '/notificacion');
               },
             ),
             HomeCard(

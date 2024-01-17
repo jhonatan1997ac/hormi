@@ -34,7 +34,7 @@ class _vendedorState extends State<vendedor> {
             HomeCard(
               title: 'Productos',
               onTap: () {
-                // Lógica para acceder a la sección de productos
+                Navigator.pushNamed(context, '/productosvendedor');
               },
               color: Colors.blue,
               icon: Icons.shopping_cart, // Agrega el icono correspondiente
@@ -70,14 +70,6 @@ class _vendedorState extends State<vendedor> {
               },
               color: Colors.red,
               icon: Icons.settings,
-            ),
-            HomeCard(
-              title: 'Promociones',
-              onTap: () {
-                // Lógica para acceder a la sección de promociones
-              },
-              color: Colors.teal,
-              icon: Icons.local_offer,
             ),
             HomeCard(
               title: 'Estadísticas',
