@@ -29,6 +29,7 @@ class _RegisterState extends State<Register> {
   var options = [
     'vendedor',
     'administrador',
+    'cliente', // Agregado el rol de "cliente"
   ];
   var _currentItemSelected = "vendedor";
   var rool = "vendedor";

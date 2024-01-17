@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:io';
 
 import 'package:csv/csv.dart';
@@ -24,6 +26,12 @@ class HistorialVenta {
     required this.fecha,
   });
 
+  double get totalVenta {
+    return productos
+        .map((producto) => producto.precio)
+        .fold(0, (a, b) => a + b);
+  }
+
   List<dynamic> toCsv() {
     return [
       fecha.toIso8601String(),
@@ -31,6 +39,7 @@ class HistorialVenta {
       productos.map((producto) => producto.nombre).join(', '),
       productos.map((producto) => producto.precio).join(', '),
       productos.map((producto) => producto.imagen ?? '').join(', '),
+      totalVenta, // Agregamos el total al CSV
     ];
   }
 }
@@ -49,6 +58,7 @@ class CalculosVenta {
               .toList(),
           'metodoPago': venta.metodoPago,
           'fecha': venta.fecha,
+          'totalVenta': venta.totalVenta, // Agregamos el total al documento
         })
         .then((value) => print("Venta guardada en historial"))
         .catchError((error) => print("Error al guardar la venta: $error"));
@@ -93,7 +103,7 @@ class HistorialVentas extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Historial de Ventas',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
@@ -111,6 +121,7 @@ class HistorialVentas extends StatelessWidget {
                         var fecha = data['fecha'].toDate();
                         var metodoPago = data['metodoPago'];
                         var productosData = data['productos'];
+                        var totalVenta = data['totalVenta'];
 
                         // Convertir la lista de Map a una lista de Producto
                         List<Producto> productos = productosData
@@ -122,23 +133,30 @@ class HistorialVentas extends StatelessWidget {
                             .toList();
 
                         // Crear una lista de Widgets ListTile para mostrar las ventas
-                        List<Widget> ventas = productos
-                            .map<Widget>((producto) => ListTile(
-                                  title: Text('Producto: ${producto.nombre}'),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Precio: \$${producto.precio}'),
-                                      if (producto.imagen != null)
-                                        Image.network(
-                                          producto.imagen!,
-                                          width: 50.0,
-                                        ),
-                                    ],
+                        List<Widget> ventas = productos.map<Widget>((producto) {
+                          String precioTexto = 'Precio: ';
+                          if (producto.precio != null) {
+                            precioTexto +=
+                                '\$${producto.precio.toStringAsFixed(2)}';
+                          } else {
+                            precioTexto += 'N/A';
+                          }
+
+                          return ListTile(
+                            title: Text('Producto: ${producto.nombre}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(precioTexto),
+                                if (producto.imagen != null)
+                                  Image.network(
+                                    producto.imagen!,
+                                    width: 50.0,
                                   ),
-                                ))
-                            .toList();
+                              ],
+                            ),
+                          );
+                        }).toList();
 
                         // Aquí puedes personalizar la visualización de cada venta
                         // según la estructura de tu modelo de datos.
@@ -149,8 +167,11 @@ class HistorialVentas extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Text('Venta #${index + 1}'), // Número de venta
                                 Text('Fecha: $fecha'),
                                 Text('Método de Pago: $metodoPago'),
+                                Text(
+                                    'Total Venta: \$${totalVenta?.toStringAsFixed(2) ?? 'N/A'}'),
                                 ...ventas,
                               ],
                             ),
