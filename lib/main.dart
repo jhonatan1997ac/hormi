@@ -16,6 +16,8 @@ import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 
 import 'package:apphormi/pages/inicio/usabilidad/usuario.dart';
+import 'package:apphormi/pages/vendedor/cliente_vendedor.dart';
+import 'package:apphormi/pages/vendedor/pedido_vendedor.dart';
 import 'package:apphormi/pages/vendedor/producto_vendedor.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -73,6 +75,8 @@ class _MyAppState extends State<MyApp> {
         '/configuracion': (context) => Configuracion(),
         '/notificacion': (context) => Notificacion(),
         '/productosvendedor': (context) => ProductosVendedor(),
+        '/pedidovendedor': (context) => PedidoVendedor(),
+        '/clientevendedor': (context) => const ClienteVendedor(),
       },
     );
   }
