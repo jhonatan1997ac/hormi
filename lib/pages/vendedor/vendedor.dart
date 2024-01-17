@@ -42,7 +42,7 @@ class _vendedorState extends State<vendedor> {
             HomeCard(
               title: 'Pedidos',
               onTap: () {
-                // Lógica para acceder a la sección de pedidos
+                Navigator.pushNamed(context, '/pedidovendedor');
               },
               color: Colors.green,
               icon: Icons.assignment,
@@ -50,7 +50,7 @@ class _vendedorState extends State<vendedor> {
             HomeCard(
               title: 'Clientes',
               onTap: () {
-                // Lógica para acceder a la sección de clientes
+                Navigator.pushNamed(context, '/clientevendedor');
               },
               color: Colors.orange,
               icon: Icons.people,
