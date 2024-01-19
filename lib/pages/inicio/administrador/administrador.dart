@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../inicio_secion/inicio.dart';
+import '../../inicio_secion/inicio.dart';
 
 class Administrador extends StatefulWidget {
   const Administrador({Key? key}) : super(key: key);
@@ -24,7 +24,7 @@ class AdminHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tablero de Control'),
+        title: const Text('Tablero de Control de ventas'),
         leading: IconButton(
           onPressed: () {
             logout(context);

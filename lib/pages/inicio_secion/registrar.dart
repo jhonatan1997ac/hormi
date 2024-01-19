@@ -28,10 +28,8 @@ class _RegisterState extends State<Register> {
   File? file;
   var options = [
     'vendedor',
-    'administrador',
-    'cliente', // Agregado el rol de "cliente"
   ];
-  var _currentItemSelected = "vendedor";
+
   var rool = "vendedor";
 
   @override
@@ -80,7 +78,7 @@ class _RegisterState extends State<Register> {
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
-                              hintText: 'Email',
+                              hintText: 'Correo',
                               enabled: true,
                               contentPadding: const EdgeInsets.only(
                                   left: 14.0, bottom: 8.0, top: 8.0),
@@ -128,7 +126,7 @@ class _RegisterState extends State<Register> {
                                   }),
                               filled: true,
                               fillColor: Colors.white,
-                              hintText: 'Password',
+                              hintText: 'Contraseña',
                               enabled: true,
                               contentPadding: const EdgeInsets.only(
                                   left: 14.0, bottom: 8.0, top: 15.0),
@@ -202,46 +200,6 @@ class _RegisterState extends State<Register> {
                           ),
                           const SizedBox(
                             height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Rool : ",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              DropdownButton<String>(
-                                dropdownColor: Colors.blue[900],
-                                isDense: true,
-                                isExpanded: false,
-                                iconEnabledColor: Colors.white,
-                                focusColor: Colors.white,
-                                items: options.map((String dropDownStringItem) {
-                                  return DropdownMenuItem<String>(
-                                    value: dropDownStringItem,
-                                    child: Text(
-                                      dropDownStringItem,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValueSelected) {
-                                  setState(() {
-                                    _currentItemSelected = newValueSelected!;
-                                    rool = newValueSelected;
-                                  });
-                                },
-                                value: _currentItemSelected,
-                              ),
-                            ],
                           ),
                           const SizedBox(
                             height: 20,

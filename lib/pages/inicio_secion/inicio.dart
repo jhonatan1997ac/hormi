@@ -1,10 +1,11 @@
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
+import 'package:apphormi/pages/inicio/vendedor/vendedor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'registrar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../administrador/administrador.dart';
-import '../vendedor/vendedor.dart';
+import '../inicio/administrador/administrador.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({Key? key}) : super(key: key);
@@ -46,7 +47,7 @@ class _InicioState extends State<Inicio> {
                           height: 30,
                         ),
                         const Text(
-                          "INICIAR SECCIÓN",
+                          "INICIAR SESIÓN",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -61,7 +62,7 @@ class _InicioState extends State<Inicio> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: 'Email',
+                            hintText: 'Correo',
                             enabled: true,
                             contentPadding: const EdgeInsets.only(
                                 left: 14.0, bottom: 8.0, top: 8.0),
@@ -109,7 +110,7 @@ class _InicioState extends State<Inicio> {
                                 }),
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: 'Password',
+                            hintText: 'Contraseña',
                             enabled: true,
                             contentPadding: const EdgeInsets.only(
                                 left: 14.0, bottom: 8.0, top: 15.0),
@@ -245,12 +246,20 @@ class _InicioState extends State<Inicio> {
           String? userRole = documentSnapshot.get('rool');
 
           if (userRole != null) {
-            if (userRole == "administrador") {
+            if (userRole == "vendedor") {
               // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const AdminHome(),
+                ),
+              );
+            } else if (userRole == "bodeguero") {
+              // ignore: use_build_context_synchronously
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BodegueroHome(),
                 ),
               );
             } else {
@@ -263,16 +272,24 @@ class _InicioState extends State<Inicio> {
               );
             }
           } else {
-            print('El rol de usuario es nulo');
+            if (kDebugMode) {
+              print('El rol de usuario es nulo');
+            }
           }
         } else {
-          print('El documento no existe en la base de datos.');
+          if (kDebugMode) {
+            print('El documento no existe en la base de datos.');
+          }
         }
       } catch (e) {
-        print('Error al recuperar los datos del usuario: $e');
+        if (kDebugMode) {
+          print('Error al recuperar los datos del usuario: $e');
+        }
       }
     } else {
-      print('El usuario es nulo');
+      if (kDebugMode) {
+        print('El usuario es nulo');
+      }
     }
   }
 
