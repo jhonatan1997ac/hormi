@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ClienteVendedor extends StatefulWidget {
-  const ClienteVendedor({Key? key}) : super(key: key);
+class Bodeguero extends StatefulWidget {
+  const Bodeguero({Key? key}) : super(key: key);
 
   @override
-  _ClienteVendedorState createState() => _ClienteVendedorState();
+  _BodegueroState createState() => _BodegueroState();
 }
 
-class _ClienteVendedorState extends State<ClienteVendedor> {
+class _BodegueroState extends State<Bodeguero> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cliente'),
+        title: const Text('Bodeguero'),
       ),
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -33,7 +33,7 @@ class _ClienteVendedorState extends State<ClienteVendedor> {
                 stream: FirebaseFirestore.instance
                     .collection('users')
                     .where('rool',
-                        isEqualTo: 'cliente') // Filtrar por rol 'cliente'
+                        isEqualTo: 'bodeguero') // Filtrar por rol 'bodeguero'
                     .snapshots(),
                 builder: (context, usersSnapshot) {
                   if (usersSnapshot.connectionState ==

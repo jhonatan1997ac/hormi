@@ -1,10 +1,12 @@
-import 'package:apphormi/pages/administrador/cliente_admin.dart';
-import 'package:apphormi/pages/administrador/configuracion_admin.dart';
-import 'package:apphormi/pages/administrador/empleados.dart';
-import 'package:apphormi/pages/administrador/gestion_productos.dart';
-import 'package:apphormi/pages/administrador/historial_venta_admin.dart';
-import 'package:apphormi/pages/administrador/notificacion_admin.dart';
-import 'package:apphormi/pages/administrador/venta_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/cliente_admin.dart';
+import 'package:apphormi/pages/inicio/administrador/configuracion_admin.dart';
+import 'package:apphormi/pages/inicio/administrador/empleados.dart';
+import 'package:apphormi/pages/inicio/administrador/gestion_productos.dart';
+import 'package:apphormi/pages/inicio/administrador/historial_venta_admin.dart';
+import 'package:apphormi/pages/inicio/administrador/notificacion_admin.dart';
+import 'package:apphormi/pages/inicio/administrador/venta_administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
+import 'package:apphormi/pages/inicio/bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
 import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
@@ -13,12 +15,12 @@ import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
 import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
 import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
 import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
+import 'package:apphormi/pages/inicio/vendedor/cliente_vendedor.dart';
+import 'package:apphormi/pages/inicio/vendedor/pedido_vendedor.dart';
+import 'package:apphormi/pages/inicio/vendedor/producto_vendedor.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 
 import 'package:apphormi/pages/inicio/usabilidad/usuario.dart';
-import 'package:apphormi/pages/vendedor/cliente_vendedor.dart';
-import 'package:apphormi/pages/vendedor/pedido_vendedor.dart';
-import 'package:apphormi/pages/vendedor/producto_vendedor.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -76,7 +78,9 @@ class _MyAppState extends State<MyApp> {
         '/notificacion': (context) => Notificacion(),
         '/productosvendedor': (context) => ProductosVendedor(),
         '/pedidovendedor': (context) => PedidoVendedor(),
-        '/clientevendedor': (context) => const ClienteVendedor(),
+        '/bodeguero': (context) => const Bodeguero(),
+        '/agregarproducto': (context) => const AgregarProducto(),
+        '/disponibilidadproducto': (context) => DisponibilidadProducto(),
       },
     );
   }

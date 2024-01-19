@@ -1,6 +1,6 @@
+import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../inicio_secion/inicio.dart';
 
 class vendedor extends StatefulWidget {
   const vendedor({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class _vendedorState extends State<vendedor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Vendedor"),
+        title: const Text("Administrador"),
         leading: IconButton(
           onPressed: () {
             logout(context);
@@ -48,9 +48,17 @@ class _vendedorState extends State<vendedor> {
               icon: Icons.assignment,
             ),
             HomeCard(
-              title: 'Clientes',
+              title: 'Gestión de Vendedor',
+              icon: Icons.person,
+              color: Colors.teal,
               onTap: () {
-                Navigator.pushNamed(context, '/clientevendedor');
+                Navigator.pushNamed(context, '/empleados');
+              },
+            ),
+            HomeCard(
+              title: 'Gestion de Bodeguero',
+              onTap: () {
+                Navigator.pushNamed(context, '/bodeguero');
               },
               color: Colors.orange,
               icon: Icons.people,
