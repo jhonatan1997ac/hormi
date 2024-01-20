@@ -139,6 +139,11 @@ class _EditarProductoState extends State<EditarProducto> {
         TextEditingController(text: widget.cantidad.toString());
     _disponible = widget.disponible;
     _selectedImage = File(""); // Initialize with an empty file
+
+    // Set the initial image if available
+    if (widget.imagenURL != null && widget.imagenURL!.isNotEmpty) {
+      _selectedImage = File(widget.imagenURL!);
+    }
   }
 
   @override
@@ -183,13 +188,6 @@ class _EditarProductoState extends State<EditarProducto> {
               ],
             ),
             const SizedBox(height: 16.0),
-            if (_selectedImage.path.isNotEmpty)
-              Image.file(
-                _selectedImage,
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-              ),
             ElevatedButton(
               onPressed: _seleccionarImagen,
               child: const Text('Seleccionar Imagen'),
