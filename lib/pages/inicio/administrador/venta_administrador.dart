@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -33,7 +35,7 @@ class CalculosVenta {
     // Calcular el total con el IVA al 0.12%
     double subtotal =
         carrito.fold(0.0, (sum, producto) => sum + producto.precio);
-    double iva = subtotal * 0.12;
+    double iva = subtotal * 0.15;
     double total = subtotal + iva;
 
     // Crear instancia de HistorialVenta
@@ -54,16 +56,16 @@ class CalculosVenta {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Factura de Venta'),
+          title: const Text('Factura de Venta'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Detalles de la Venta:'),
-              SizedBox(height: 8),
+              const Text('Detalles de la Venta:'),
+              const SizedBox(height: 8),
               Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
-              Text('IVA (0.12%): \$${iva.toStringAsFixed(2)}'),
+              Text('IVA (0.15%): \$${iva.toStringAsFixed(2)}'),
               Text('Total: \$${total.toStringAsFixed(2)}'),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text('Método de Pago: $metodoPago'),
             ],
           ),
@@ -72,7 +74,7 @@ class CalculosVenta {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Aceptar'),
+              child: const Text('Aceptar'),
             ),
           ],
         );
@@ -84,11 +86,10 @@ class CalculosVenta {
     FirebaseFirestore.instance
         .collection('historial_ventas')
         .add({
-          'productos': venta.productos
+          'disponibilidadproducto': venta.productos
               .map((producto) => {
                     'nombre': producto.nombre,
                     'precio': producto.precio,
-                    'imagen': producto.imagen,
                   })
               .toList(),
           'subtotal': venta.subtotal,
@@ -103,6 +104,8 @@ class CalculosVenta {
 }
 
 class Ventas extends StatefulWidget {
+  const Ventas({super.key});
+
   @override
   _VentasState createState() => _VentasState();
 }
@@ -119,17 +122,16 @@ class _VentasState extends State<Ventas> {
   }
 
   Future<void> cargarProductosDesdeFirestore() async {
-    CollectionReference productosCollection =
-        FirebaseFirestore.instance.collection('productos');
+    CollectionReference disponibilidadproductoCollection =
+        FirebaseFirestore.instance.collection('disponibilidadproducto');
 
-    QuerySnapshot querySnapshot = await productosCollection.get();
+    QuerySnapshot querySnapshot = await disponibilidadproductoCollection.get();
 
     List<Producto> productos = querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return Producto(
         nombre: data['nombre'] ?? '',
         precio: (data['precio'] ?? 0.0).toDouble(),
-        imagen: data['imagen'] ?? '',
       );
     }).toList();
 
@@ -142,14 +144,14 @@ class _VentasState extends State<Ventas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ventas del Administrador'),
+        title: const Text('Ventas '),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Productos Disponibles'),
+            const Text('Productos Disponibles'),
             Expanded(
               child: ListView.builder(
                 itemCount: productosDisponibles.length,
@@ -158,24 +160,24 @@ class _VentasState extends State<Ventas> {
                   return ListTile(
                     title: Text(producto.nombre),
                     subtitle: Text('\$${producto.precio.toStringAsFixed(2)}'),
-                    leading: Container(
+                    leading: SizedBox(
                       width: 50.0,
                       child: producto.imagen != null
                           ? Image.network(producto.imagen!)
-                          : Placeholder(),
+                          : const Placeholder(),
                     ),
                     trailing: ElevatedButton(
                       onPressed: () {
                         agregarAlCarrito(producto);
                       },
-                      child: Text('Agregar al Carrito'),
+                      child: const Text('Agregar al Carrito'),
                     ),
                   );
                 },
               ),
             ),
             const SizedBox(height: 16),
-            Text('Carrito de Compras'),
+            const Text('Carrito de Compras'),
             Expanded(
               child: ListView.builder(
                 itemCount: carrito.length,
@@ -184,11 +186,11 @@ class _VentasState extends State<Ventas> {
                   return ListTile(
                     title: Text(producto.nombre),
                     subtitle: Text('\$${producto.precio.toStringAsFixed(2)}'),
-                    leading: Container(
+                    leading: SizedBox(
                       width: 50.0,
                       child: producto.imagen != null
                           ? Image.network(producto.imagen!)
-                          : Placeholder(),
+                          : const Placeholder(),
                     ),
                   );
                 },

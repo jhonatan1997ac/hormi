@@ -20,7 +20,7 @@ class DisponibilidadProducto extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Datos ingresados'),
+        title: const Text('Datos ingresados'),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -28,7 +28,7 @@ class DisponibilidadProducto extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
           var productos = snapshot.data!.docs;
           List<Widget> productosWidget = [];

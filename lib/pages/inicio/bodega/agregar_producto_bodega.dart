@@ -1,6 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProductoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,6 +14,9 @@ class ProductoService {
         'precio': nuevoProducto.precio,
         'cantidad': nuevoProducto.cantidad,
         'disponible': nuevoProducto.disponible,
+        'imagen': nuevoProducto.imagen != null
+            ? File(nuevoProducto.imagen!.path).toString()
+            : null,
       });
       if (kDebugMode) {
         print('Producto agregado correctamente a la base de datos.');
@@ -29,20 +34,21 @@ class Producto {
   double precio;
   int cantidad;
   int disponible;
+  File? imagen;
 
   Producto({
     required this.nombre,
     required this.precio,
     required this.cantidad,
     required this.disponible,
+    this.imagen,
   });
 
-  // Método para convertir el número de disponibilidad a un valor booleano
   bool get estaDisponible => disponible == 1;
 }
 
 class AgregarProducto extends StatefulWidget {
-  const AgregarProducto({super.key});
+  const AgregarProducto({Key? key}) : super(key: key);
 
   @override
   _AgregarProductoState createState() => _AgregarProductoState();
@@ -52,8 +58,9 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _precioController = TextEditingController();
   final _cantidadController = TextEditingController();
   bool _disponible = true;
-  String _selectedProducto =
-      'Adoquin clasico peatonal sin color'; // Valor inicial del menú desplegable
+  String _selectedProducto = 'Adoquin clasico peatonal sin color';
+  File? _selectedImage;
+
   final List<String> _productos = [
     'Adoquin clasico peatonal sin color',
     'Adoquin clasico peatonal con color',
@@ -117,18 +124,17 @@ class _AgregarProductoState extends State<AgregarProducto> {
               controller: _precioController,
               keyboardType: TextInputType.number,
             ),
-            if (int.tryParse(_precioController.text) != null &&
-                int.parse(_precioController.text) > 0)
+            if (double.tryParse(_precioController.text) != null &&
+                double.parse(_precioController.text) <= 0)
               const Text(
-                'La precio debe ser mayor a 0',
+                'El precio debe ser mayor a 0',
                 style: TextStyle(color: Colors.red),
               ),
             TextField(
-              decoration: const InputDecoration(labelText: 'Cantidad'),
+              decoration: InputDecoration(labelText: 'Cantidad'),
               controller: _cantidadController,
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(width: 20.0),
             if (int.tryParse(_cantidadController.text) != null &&
                 int.parse(_cantidadController.text) < 1)
               const Text(
@@ -149,20 +155,62 @@ class _AgregarProductoState extends State<AgregarProducto> {
               ],
             ),
             const SizedBox(height: 16.0),
+            if (_selectedImage != null) Image.file(_selectedImage!),
             ElevatedButton(
-              onPressed: () {
-                if (int.tryParse(_cantidadController.text) != null &&
-                    int.parse(_cantidadController.text) >= 1) {
-                  _agregarProducto();
-                  Navigator.pushNamed(context, '/disponibilidadproducto');
-                }
-              },
-              child: const Text('Agregar Producto'),
+              onPressed: _seleccionarImagen,
+              child: const Text('Seleccionar Imagen'),
+            ),
+            const SizedBox(height: 16.0),
+            const Spacer(), // Agregado para centrar el botón en la pantalla
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_selectedImage != null &&
+                      double.tryParse(_precioController.text) != null &&
+                      double.parse(_precioController.text) > 0 &&
+                      int.tryParse(_cantidadController.text) != null &&
+                      int.parse(_cantidadController.text) >= 1) {
+                    _agregarProducto();
+                    Navigator.pushNamed(context, '/disponibilidadproducto');
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Error'),
+                          content: const Text(
+                              'Debe seleccionar una imagen y completar los campos correctamente.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: const Text('Agregar Producto'),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _seleccionarImagen() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+      }
+    });
   }
 
   void _agregarProducto() {
@@ -175,6 +223,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
       precio: precio,
       cantidad: cantidad,
       disponible: _disponible ? 1 : 0,
+      imagen: _selectedImage,
     );
 
     final productoService = ProductoService();
