@@ -1,7 +1,7 @@
 import 'package:apphormi/pages/inicio/administrador/cliente_admin.dart';
 import 'package:apphormi/pages/inicio/administrador/configuracion_admin.dart';
 import 'package:apphormi/pages/inicio/administrador/empleados.dart';
-import 'package:apphormi/pages/inicio/administrador/gestion_productos.dart';
+import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/administrador/historial_venta_admin.dart';
 import 'package:apphormi/pages/inicio/administrador/notificacion_admin.dart';
 import 'package:apphormi/pages/inicio/administrador/venta_administrador.dart';
