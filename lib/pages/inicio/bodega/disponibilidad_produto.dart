@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:image_picker/image_picker.dart';
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,138 +15,334 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Datos ingresados',
+      title: 'Disponibilidad de producto',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: DisponibilidadProducto(),
     );
   }
 }
 
-class DisponibilidadProducto extends StatelessWidget {
+class DisponibilidadProducto extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Datos ingresados'),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('disponibilidadproducto')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
-          }
-
-          var productos = snapshot.data!.docs;
-          if (productos.isEmpty) {
-            return const Center(
-              child: Text('No existe ningún dato.'),
-            );
-          }
-
-          List<Widget> productosWidget = [];
-          for (var producto in productos) {
-            var productoData = producto.data() as Map<String, dynamic>;
-            productosWidget.add(
-              ListTile(
-                title: Text(productoData['nombre']),
-                subtitle: Text(
-                    'Precio: ${productoData['precio']}, Cantidad: ${productoData['cantidad']}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Disponible: ${productoData['disponible'] == 1 ? 'Sí' : 'No'}',
-                    ),
-                    const SizedBox(width: 8.0),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditarProducto(
-                              productoId: producto.id,
-                              nombre: productoData['nombre'],
-                              precio: productoData['precio'],
-                              cantidad: productoData['cantidad'],
-                              disponible: productoData['disponible'] == 1,
-                              imagenURL: productoData['imagen'],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        _eliminarProducto(producto.id);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          return ListView(
-            children: productosWidget,
-          );
-        },
-      ),
-    );
-  }
-
-  void _eliminarProducto(String productoId) async {
-    await FirebaseFirestore.instance
-        .collection('disponibilidadproducto')
-        .doc(productoId)
-        .delete();
-  }
+  _DisponibilidadProductoState createState() => _DisponibilidadProductoState();
 }
 
-class EditarProducto extends StatefulWidget {
-  final String productoId;
-  final String nombre;
-  final double precio;
-  final int cantidad;
-  final bool disponible;
-  final String? imagenURL;
-
-  EditarProducto({
-    required this.productoId,
-    required this.nombre,
-    required this.precio,
-    required this.cantidad,
-    required this.disponible,
-    this.imagenURL,
-  });
-
-  @override
-  _EditarProductoState createState() => _EditarProductoState();
-}
-
-class _EditarProductoState extends State<EditarProducto> {
-  late TextEditingController _nombreController;
-  late TextEditingController _precioController;
-  late TextEditingController _cantidadController;
-  late bool _disponible;
-  late File _selectedImage;
-  final ImagePicker _picker = ImagePicker();
+class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
+  late CollectionReference productosCollection;
+  File? _imagen;
 
   @override
   void initState() {
     super.initState();
-    _nombreController = TextEditingController(text: widget.nombre);
-    _precioController = TextEditingController(text: widget.precio.toString());
-    _cantidadController =
-        TextEditingController(text: widget.cantidad.toString());
-    _disponible = widget.disponible;
-    _selectedImage = File(""); // Initialize with an empty file
+    productosCollection =
+        FirebaseFirestore.instance.collection('disponibilidadproducto');
+  }
 
-    // Set the initial image if available
-    if (widget.imagenURL != null && widget.imagenURL!.isNotEmpty) {
-      _selectedImage = File(widget.imagenURL!);
+  Future<void> editarProducto(Producto producto) async {
+    try {
+      Producto productoEditado = Producto(
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        cantidad: producto.cantidad,
+        disponible: producto.disponible,
+        imagen: producto.imagen,
+      );
+      bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
+      if (confirmacion) {
+        await productosCollection.doc(producto.id).update({
+          'nombre': productoEditado.nombre,
+          'precio': productoEditado.precio,
+          'cantidad': productoEditado.cantidad,
+          'disponible': productoEditado.disponible,
+          'imagen': productoEditado.imagen,
+        });
+
+        print('Producto actualizado: $productoEditado');
+      }
+    } catch (e) {
+      print('Error al editar el producto: $e');
     }
+  }
+
+  Future<void> eliminarProducto(Producto producto) async {
+    try {
+      bool confirmacion = await _mostrarConfirmacionEliminar(context);
+      if (confirmacion) {
+        await productosCollection.doc(producto.id).delete();
+
+        if (producto.imagen != null) {
+          await FirebaseStorage.instance.refFromURL(producto.imagen!).delete();
+        }
+
+        print('Producto eliminado: $producto');
+      }
+    } catch (e) {
+      print('Error al eliminar el producto: $e');
+    }
+  }
+
+  Future<File?> _cargarImagen() async {
+    final picker = ImagePicker();
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        setState(() {
+          _imagen = File(pickedFile.path);
+        });
+        return _imagen;
+      }
+    } catch (e) {
+      print('Error al cargar la imagen: $e');
+    }
+    return null;
+  }
+
+  Future<bool> _mostrarConfirmacion(
+      BuildContext context, Producto producto) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar Edición'),
+              content:
+                  const Text('¿Está seguro de que desea editar este producto?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  Future<bool> _mostrarConfirmacionEliminar(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar Eliminación'),
+              content: const Text(
+                  '¿Está seguro de que desea eliminar este producto?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Eliminar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Disponibilidad de producto'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _imagen != null
+                ? Image.file(
+                    _imagen!,
+                    width: 150.0,
+                    height: 150.0,
+                    fit: BoxFit.cover,
+                  )
+                : const SizedBox.shrink(),
+            const SizedBox(height: 16.0),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: productosCollection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final producto =
+                          Producto.fromSnapshot(snapshot.data!.docs[index]);
+                      return ListTile(
+                        title: Text(producto.nombre),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Precio: \$${producto.precio.toStringAsFixed(2)}'),
+                            Text('Cantidad: ${producto.cantidad}'),
+                            Text(
+                                'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
+                          ],
+                        ),
+                        leading: producto.imagen != null
+                            ? Image.network(
+                                producto.imagen!,
+                                width: 50.0,
+                                height: 50.0,
+                              )
+                            : const SizedBox.shrink(),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          EditarProductoScreen(
+                                        producto: producto,
+                                      ),
+                                    ),
+                                  ).then((productoActualizado) async {
+                                    if (productoActualizado != null) {
+                                      await editarProducto(productoActualizado);
+                                      print(
+                                          'Producto actualizado: $productoActualizado');
+                                    }
+                                  });
+                                }),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                eliminarProducto(producto);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Producto {
+  final String id;
+  final String nombre;
+  final double precio;
+  final int cantidad;
+  final bool disponible;
+  String? imagen;
+
+  Producto({
+    required this.id,
+    required this.nombre,
+    required this.precio,
+    required this.cantidad,
+    required this.disponible,
+    this.imagen,
+  });
+
+  Producto.fromSnapshot(DocumentSnapshot snapshot)
+      : id = snapshot.id,
+        nombre = snapshot['nombre'] ?? '',
+        precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
+        cantidad = (snapshot['cantidad'] as num?)?.toInt() ?? 0,
+        disponible = snapshot['disponible'] ?? false,
+        imagen = snapshot['imagen'] as String?;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'precio': precio,
+      'cantidad': cantidad,
+      'disponible': disponible,
+      'imagen': imagen,
+    };
+  }
+}
+
+class EditarProductoScreen extends StatefulWidget {
+  final Producto producto;
+
+  EditarProductoScreen({required this.producto});
+
+  @override
+  _EditarProductoScreenState createState() => _EditarProductoScreenState();
+}
+
+class _EditarProductoScreenState extends State<EditarProductoScreen> {
+  late TextEditingController nombreController;
+  late TextEditingController precioController;
+  late TextEditingController cantidadController;
+  bool _disponible = true;
+  String _selectedProducto = 'Adoquin jaboncillo peatonal sin color';
+  final List<String> _productos = [
+    'Adoquin clasico peatonal sin color',
+    'Adoquin clasico peatonal con color',
+    'Adoquin clasico peatonal vehicular sin color',
+    'Adoquin clasico peatonal vehicular con color',
+    'Adoquin jaboncillo peatonal sin color',
+    'Adoquin jaboncillo peatonal con color',
+    'Adoquin jaboncillo vehicular sin color',
+    'Adoquin jaboncillo vehicular con color',
+    'Adoquin paleta peatonal sin color',
+    'Adoquin paleta peatonal con color',
+    'Adoquin paleta vehicular sin color',
+    'Adoquin paleta vehicular con color',
+    'Bloque de 10cm alivianado',
+    'Bloque de 10cm estructural',
+    'Bloque de 15cm alivianado',
+    'Bloque de 15cm estructural',
+    'Bloque de 20cm alivianado',
+    'Bloque de 20cm estructural',
+    'Postes de alambrado 1.60m',
+    'Postes de alambrado 2m',
+    'Bloque de anclaje',
+    'Tapas para canaleta',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    nombreController = TextEditingController(text: widget.producto.nombre);
+    precioController =
+        TextEditingController(text: widget.producto.precio.toString());
+    cantidadController =
+        TextEditingController(text: widget.producto.cantidad.toString());
+
+    _selectedProducto = widget.producto.nombre; // Set initial value
   }
 
   @override
@@ -155,23 +354,37 @@ class _EditarProductoState extends State<EditarProducto> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
+            const Text('Nombre:'),
+            const SizedBox(width: 16.0),
+            DropdownButton<String>(
+              value: _selectedProducto,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedProducto = newValue!;
+                });
+              },
+              items: _productos.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 16.0),
             TextField(
-              controller: _precioController,
-              decoration: const InputDecoration(labelText: 'Precio'),
+              controller: precioController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration:
+                  const InputDecoration(labelText: 'Precio del Producto'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: cantidadController,
               keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _cantidadController,
               decoration: const InputDecoration(labelText: 'Cantidad'),
-              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16.0),
             Row(
@@ -187,16 +400,22 @@ class _EditarProductoState extends State<EditarProducto> {
                 ),
               ],
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 32.0),
             ElevatedButton(
-              onPressed: _seleccionarImagen,
-              child: const Text('Seleccionar Imagen'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                _actualizarProducto();
-                Navigator.pop(context);
+              onPressed: () async {
+                if (precioController.text.isNotEmpty &&
+                    cantidadController.text.isNotEmpty) {
+                  final productoActualizado = Producto(
+                    id: widget.producto.id,
+                    nombre: _selectedProducto,
+                    precio: double.tryParse(precioController.text) ?? 0.0,
+                    cantidad: int.tryParse(cantidadController.text) ?? 0,
+                    disponible: _disponible,
+                    imagen: widget.producto.imagen,
+                  );
+
+                  Navigator.pop(context, productoActualizado);
+                }
               },
               child: const Text('Guardar Cambios'),
             ),
@@ -206,46 +425,36 @@ class _EditarProductoState extends State<EditarProducto> {
     );
   }
 
-  Future<void> _seleccionarImagen() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedFile != null) {
-        _selectedImage = File(pickedFile.path);
-      }
-    });
+  String _capitalizeFirstLetter(String text) {
+    return text[0].toUpperCase() + text.substring(1);
   }
+}
 
-  Future<void> _actualizarProducto() async {
-    String imagenURL = widget.imagenURL ?? "";
-
-    // Actualizar la imagen si se seleccionó una nueva
-    if (_selectedImage.path.isNotEmpty) {
-      imagenURL = await _subirImagen(_selectedImage);
-    }
-
-    await FirebaseFirestore.instance
-        .collection('disponibilidadproducto')
-        .doc(widget.productoId)
-        .update({
-      'nombre': _nombreController.text,
-      'precio': double.parse(_precioController.text),
-      'cantidad': int.parse(_cantidadController.text),
-      'disponible': _disponible ? 1 : 0,
-      'imagen': imagenURL,
-    });
-  }
-
-  Future<String> _subirImagen(File imageFile) async {
-    try {
-      final storageReference = firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child('productos/${DateTime.now().toIso8601String()}');
-      await storageReference.putFile(imageFile);
-      return await storageReference.getDownloadURL();
-    } catch (e) {
-      print('Error al subir la imagen: $e');
-      return "";
-    }
-  }
+Future<bool> _mostrarConfirmacion(
+    BuildContext context, Producto producto) async {
+  return await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirmar Edición'),
+            content:
+                const Text('¿Está seguro de que desea editar este producto?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      ) ??
+      false;
 }
