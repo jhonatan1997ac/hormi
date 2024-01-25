@@ -1,11 +1,11 @@
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
-import 'package:apphormi/pages/inicio/vendedor/vendedor.dart';
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'registrar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../inicio/administrador/administrador.dart';
+import '../inicio/vendedores/vendedor.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({Key? key}) : super(key: key);
@@ -251,7 +251,7 @@ class _InicioState extends State<Inicio> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AdminHome(),
+                  builder: (context) => const VendedorHome(),
                 ),
               );
             } else if (userRole == "bodeguero") {
@@ -267,7 +267,7 @@ class _InicioState extends State<Inicio> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const vendedor(),
+                  builder: (context) => const Administrador(),
                 ),
               );
             }

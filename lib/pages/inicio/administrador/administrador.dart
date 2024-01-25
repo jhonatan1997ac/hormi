@@ -1,7 +1,6 @@
+import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../inicio_secion/inicio.dart';
 
 class Administrador extends StatefulWidget {
   const Administrador({Key? key}) : super(key: key);
@@ -13,18 +12,9 @@ class Administrador extends StatefulWidget {
 class _AdministradorState extends State<Administrador> {
   @override
   Widget build(BuildContext context) {
-    return const AdminHome();
-  }
-}
-
-class AdminHome extends StatelessWidget {
-  const AdminHome({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tablero de Control de ventas'),
+        title: const Text("Administrador"),
         leading: IconButton(
           onPressed: () {
             logout(context);
@@ -42,69 +32,70 @@ class AdminHome extends StatelessWidget {
           mainAxisSpacing: 16.0,
           children: [
             HomeCard(
-              title: 'Gestión de Productos',
-              icon: Icons.inventory,
+              title: 'Productos',
+              onTap: () {
+                Navigator.pushNamed(context, '/productosadministrador');
+              },
               color: Colors.blue,
-              onTap: () {
-                Navigator.pushNamed(context, '/gestprod');
-              },
+              icon: Icons.shopping_cart, // Agrega el icono correspondiente
             ),
             HomeCard(
-              title: 'Gestión de Clientes',
-              icon: Icons.people,
+              title: 'Pedidos',
+              onTap: () {
+                Navigator.pushNamed(context, '/pedidovendedor');
+              },
               color: Colors.green,
-              onTap: () {
-                Navigator.pushNamed(context, '/clientes');
-              },
-            ),
-            HomeCard(
-              title: 'Realizar Ventas',
-              icon: Icons.shopping_cart,
-              color: Colors.orange,
-              onTap: () {
-                Navigator.pushNamed(context, '/ventas');
-              },
-            ),
-            HomeCard(
-              title: 'Historial de Ventas',
-              icon: Icons.receipt,
-              color: Colors.purple,
-              onTap: () {
-                Navigator.pushNamed(context, '/historial_ventas');
-              },
+              icon: Icons.assignment,
             ),
             HomeCard(
               title: 'Gestión de Vendedor',
               icon: Icons.person,
               color: Colors.teal,
               onTap: () {
-                Navigator.pushNamed(context, '/empleados');
+                Navigator.pushNamed(context, '/vendedoradministrador');
               },
             ),
             HomeCard(
-              title: 'Configuración del Sistema',
-              icon: Icons.settings,
+              title: 'Gestion de Bodeguero',
+              onTap: () {
+                Navigator.pushNamed(context, '/bodeguero');
+              },
+              color: Colors.orange,
+              icon: Icons.people,
+            ),
+            //HomeCard(
+            //title: 'Configuración',
+            //onTap: () {
+            // Lógica para acceder a la sección de configuración
+            //},
+            //color: Colors.red,
+            //icon: Icons.settings,
+            //),
+            //HomeCard(
+            //title: 'Estadísticas',
+            //onTap: () {
+            //Navigator.pushNamed(context, '/estadisticas');
+            //},
+            //color: Colors.yellow,
+            //icon: Icons.bar_chart,
+            //),
+            //HomeCard(
+            //title: 'Mensajes',
+            //onTap: () {
+            // Lógica para acceder a la sección de mensajes
+            //},
+            //color: Colors.deepOrange,
+            //icon: Icons.message,
+            //),
+            HomeCard(
+              title: 'Configuración de Cuenta',
+              onTap: () {
+                // Lógica para acceder a la sección de configuración de cuenta
+              },
               color: Colors.indigo,
-              onTap: () {
-                Navigator.pushNamed(context, '/configuracion');
-              },
+              icon: Icons.account_circle,
             ),
-            HomeCard(
-              title: 'Notificaciones y Mensajes',
-              icon: Icons.notifications,
-              color: Colors.red,
-              onTap: () {
-                Navigator.pushNamed(context, '/notificacion');
-              },
-            ),
-            HomeCard(
-              title: 'Cerrar Sesión',
-              icon: Icons.exit_to_app,
-              color: Colors.deepPurple,
-              onTap: () {
-                logout(context);
-              },
-            ),
+            // Puedes agregar más HomeCard según sea necesario
           ],
         ),
       ),
@@ -112,8 +103,8 @@ class AdminHome extends StatelessWidget {
   }
 
   Future<void> logout(BuildContext context) async {
+    const CircularProgressIndicator();
     await FirebaseAuth.instance.signOut();
-    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -125,46 +116,47 @@ class AdminHome extends StatelessWidget {
 
 class HomeCard extends StatelessWidget {
   final String title;
-  final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final IconData icon;
 
   const HomeCard({
     Key? key,
     required this.title,
-    required this.icon,
-    required this.color,
     required this.onTap,
+    required this.color,
+    required this.icon,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        color: color,
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        primary: color,
         elevation: 4.0,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48.0,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8.0),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
         ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 48.0,
+            color: Colors.white,
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -2,19 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Bodeguero extends StatefulWidget {
-  const Bodeguero({Key? key}) : super(key: key);
-
-  @override
-  _BodegueroState createState() => _BodegueroState();
+void main() {
+  runApp(const MaterialApp(
+    home: VendedorAdministrador(),
+  ));
 }
 
-class _BodegueroState extends State<Bodeguero> {
+class VendedorAdministrador extends StatefulWidget {
+  const VendedorAdministrador({Key? key}) : super(key: key);
+
+  @override
+  _VendedorAdministradorState createState() => _VendedorAdministradorState();
+}
+
+class _VendedorAdministradorState extends State<VendedorAdministrador> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bodeguero'),
+        title: const Text('Gestionar Vendedor'),
       ),
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -32,8 +38,7 @@ class _BodegueroState extends State<Bodeguero> {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
-                    .where('rool',
-                        isEqualTo: 'bodeguero') // Filtrar por rol 'bodeguero'
+                    .where('rool', isEqualTo: 'vendedor')
                     .snapshots(),
                 builder: (context, usersSnapshot) {
                   if (usersSnapshot.connectionState ==
@@ -45,7 +50,8 @@ class _BodegueroState extends State<Bodeguero> {
                     var users = usersSnapshot.data?.docs;
 
                     if (users == null || users.isEmpty) {
-                      return const Text('No se encontraron usuarios clientes.');
+                      return const Text(
+                          'No se encontraron usuarios vendedores.');
                     } else {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -93,6 +99,20 @@ class _BodegueroState extends State<Bodeguero> {
                                   ),
                                 );
                               },
+                            ),
+                          ),
+                          SizedBox(
+                            height: 16.0,
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: FloatingActionButton.extended(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/agregarvendedor');
+                              },
+                              icon: Icon(Icons.add),
+                              label: Text('Agregar Vendedor'),
                             ),
                           ),
                         ],
@@ -147,7 +167,6 @@ class _BodegueroState extends State<Bodeguero> {
             ),
             TextButton(
               onPressed: () {
-                // Actualizar los datos en Firestore
                 FirebaseFirestore.instance
                     .collection('users')
                     .doc(userId)

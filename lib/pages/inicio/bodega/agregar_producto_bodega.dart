@@ -1,23 +1,58 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, unused_local_variable
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProductoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  Future<void> agregarProducto(Producto nuevoProducto) async {
+  Future<void> agregarProducto(Producto nuevoProducto, String imageUrl) async {
     try {
-      await _firestore.collection('disponibilidadproducto').add({
-        'nombre': nuevoProducto.nombre,
-        'precio': nuevoProducto.precio,
-        'cantidad': nuevoProducto.cantidad,
-        'disponible': nuevoProducto.disponible,
-        'imagen': nuevoProducto.imagen != null
-            ? File(nuevoProducto.imagen!.path).toString()
-            : null,
-      });
+      // Buscar si el producto ya existe en la base de datos
+      var existingProduct = await _firestore
+          .collection('disponibilidadproducto')
+          .where('nombre', isEqualTo: nuevoProducto.nombre)
+          .get();
+
+      if (existingProduct.docs.isNotEmpty) {
+        var existingDoc = existingProduct.docs.first;
+        var existingCantidad = existingDoc['cantidad'] as int;
+        var nuevaCantidad = existingCantidad + nuevoProducto.cantidad;
+        var existingPrecio = existingDoc['precio'] as double;
+
+        // Check if the quality is the same
+        var existingCalidad = existingDoc['calidad'] as String;
+        if (existingCalidad == nuevoProducto.calidad) {
+          // Update the price if the quality is the same
+          await _firestore
+              .collection('disponibilidadproducto')
+              .doc(existingDoc.id)
+              .update({
+            'cantidad': nuevaCantidad,
+            'precio': nuevoProducto.precio,
+            'calidad': nuevoProducto.calidad,
+          });
+        } else {
+          // Handle the case where the quality is different
+          print('Error: Quality is different.');
+        }
+      } else {
+        // Add a new product if it doesn't exist
+        await _firestore.collection('disponibilidadproducto').add({
+          'nombre': nuevoProducto.nombre,
+          'precio': nuevoProducto.precio,
+          'cantidad': nuevoProducto.cantidad,
+          'disponible': nuevoProducto.disponible,
+          'imagen': imageUrl,
+          'calidad': nuevoProducto.calidad,
+        });
+      }
+
       if (kDebugMode) {
         print('Producto agregado correctamente a la base de datos.');
       }
@@ -27,14 +62,32 @@ class ProductoService {
       }
     }
   }
+
+  Future<String?> subirImagen(File? imagen) async {
+    try {
+      if (imagen != null) {
+        Reference storageReference = _storage.ref().child(
+            'imagenes_productos/${DateTime.now().millisecondsSinceEpoch}');
+        UploadTask uploadTask = storageReference.putFile(imagen);
+        await uploadTask.whenComplete(() => null);
+        String imageUrl = await storageReference.getDownloadURL();
+        return imageUrl;
+      }
+      return null; // Retorna null si no hay imagen
+    } catch (e) {
+      print('Error al subir la imagen: $e');
+      throw Exception('Error al subir la imagen');
+    }
+  }
 }
 
 class Producto {
   String nombre;
   double precio;
   int cantidad;
-  int disponible;
+  bool disponible;
   File? imagen;
+  String calidad;
 
   Producto({
     required this.nombre,
@@ -42,9 +95,10 @@ class Producto {
     required this.cantidad,
     required this.disponible,
     this.imagen,
+    required this.calidad,
   });
 
-  bool get estaDisponible => disponible == 1;
+  bool get estaDisponible => disponible;
 }
 
 class AgregarProducto extends StatefulWidget {
@@ -59,6 +113,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _cantidadController = TextEditingController();
   bool _disponible = true;
   String _selectedProducto = 'Adoquin clasico peatonal sin color';
+  String _selectedCalidad = 'Calidad adoquin resistencia 300';
   File? _selectedImage;
 
   final List<String> _productos = [
@@ -85,6 +140,11 @@ class _AgregarProductoState extends State<AgregarProducto> {
     'Bloque de anclaje',
     'Tapas para canaleta',
   ];
+  final List<String> _calidad = [
+    'Calidad adoquin resistencia 300',
+    'Calidad adoquin resistencia 350',
+    'Calidad adoquin resistencia 400',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +153,14 @@ class _AgregarProductoState extends State<AgregarProducto> {
         title: const Text('Agregar Producto'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 const Text('Nombre:'),
-                SizedBox(width: 16.0),
+                const SizedBox(width: 16.0),
                 DropdownButton<String>(
                   value: _selectedProducto,
                   onChanged: (String? newValue) {
@@ -141,6 +201,28 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 'La cantidad debe ser mayor o igual a 1',
                 style: TextStyle(color: Colors.red),
               ),
+            SizedBox(height: 16.0),
+            Row(
+              children: [
+                const Text('Calidad:'),
+                const SizedBox(width: 16.0),
+                DropdownButton<String>(
+                  value: _selectedCalidad,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCalidad = newValue!;
+                    });
+                  },
+                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            SizedBox(height: 16.0),
             Row(
               children: [
                 const Text('Disponible:'),
@@ -161,16 +243,16 @@ class _AgregarProductoState extends State<AgregarProducto> {
               child: const Text('Seleccionar Imagen'),
             ),
             const SizedBox(height: 16.0),
-            const Spacer(), // Agregado para centrar el botón en la pantalla
+            const Spacer(),
             Center(
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_selectedImage != null &&
                       double.tryParse(_precioController.text) != null &&
                       double.parse(_precioController.text) > 0 &&
                       int.tryParse(_cantidadController.text) != null &&
                       int.parse(_cantidadController.text) >= 1) {
-                    _agregarProducto();
+                    await _agregarProducto();
                     Navigator.pushNamed(context, '/disponibilidadproducto');
                   } else {
                     showDialog(
@@ -213,21 +295,24 @@ class _AgregarProductoState extends State<AgregarProducto> {
     });
   }
 
-  void _agregarProducto() {
+  Future<void> _agregarProducto() async {
     final nombre = _selectedProducto;
     final precio = double.parse(_precioController.text);
     final cantidad = int.parse(_cantidadController.text);
+
+    final productoService = ProductoService();
+    final imageUrl = await productoService.subirImagen(_selectedImage);
 
     final nuevoProducto = Producto(
       nombre: nombre,
       precio: precio,
       cantidad: cantidad,
-      disponible: _disponible ? 1 : 0,
+      disponible: _disponible,
       imagen: _selectedImage,
+      calidad: _selectedCalidad,
     );
 
-    final productoService = ProductoService();
-    productoService.agregarProducto(nuevoProducto);
+    await productoService.agregarProducto(nuevoProducto, imageUrl!);
   }
 }
 

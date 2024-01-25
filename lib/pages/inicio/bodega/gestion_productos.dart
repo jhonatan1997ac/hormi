@@ -34,7 +34,8 @@ class _GestionProductosState extends State<GestionProductos> {
   @override
   void initState() {
     super.initState();
-    productosCollection = FirebaseFirestore.instance.collection('productos');
+    productosCollection =
+        FirebaseFirestore.instance.collection('disponibilidadproducto');
   }
 
   Future<void> agregarProducto(Producto nuevoProducto) async {
@@ -44,6 +45,8 @@ class _GestionProductosState extends State<GestionProductos> {
         await productosCollection.add({
           'nombre': nuevoProducto.nombre,
           'precio': nuevoProducto.precio,
+          'cantidad': nuevoProducto.cantidad,
+          'disponible': nuevoProducto.disponible,
           'imagen': imagen,
         });
         setState(() {
@@ -53,6 +56,8 @@ class _GestionProductosState extends State<GestionProductos> {
         await productosCollection.add({
           'nombre': nuevoProducto.nombre,
           'precio': nuevoProducto.precio,
+          'cantidad': nuevoProducto.cantidad,
+          'disponible': nuevoProducto.disponible,
         });
       }
     } catch (e) {
@@ -65,16 +70,18 @@ class _GestionProductosState extends State<GestionProductos> {
       Producto productoEditado = Producto(
         id: producto.id,
         nombre: producto.nombre,
-        precio: producto.precio, // Mantener el mismo precio al editar
+        precio: producto.precio,
+        cantidad: producto.cantidad,
+        disponible: producto.disponible,
         imagen: producto.imagen,
       );
       bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
       if (confirmacion) {
-        // Simulando la actualización en Firestore
-        // Debes implementar la lógica adecuada para actualizar en tu base de datos
         await productosCollection.doc(producto.id).update({
           'nombre': productoEditado.nombre,
           'precio': productoEditado.precio,
+          'cantidad': productoEditado.cantidad,
+          'disponible': productoEditado.disponible,
           'imagen': productoEditado.imagen,
         });
 
@@ -121,7 +128,8 @@ class _GestionProductosState extends State<GestionProductos> {
 
   Future<bool> _mostrarConfirmacion(
       BuildContext context, Producto producto) async {
-    // Implementa la lógica para mostrar el diálogo de confirmación
+    // Aquí puedes implementar la lógica para mostrar la confirmación.
+    // Por ejemplo, puedes usar showDialog().
     return true;
   }
 
@@ -198,7 +206,6 @@ class _GestionProductosState extends State<GestionProductos> {
                             bool confirmacion =
                                 await _mostrarConfirmacion(context, producto);
                             if (confirmacion) {
-                              // ignore: use_build_context_synchronously
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -232,26 +239,33 @@ class Producto {
   final String id;
   final String nombre;
   final double precio;
+  final int cantidad;
+  final bool disponible;
   String? imagen;
 
-  Producto(
-      {required this.id,
-      required this.nombre,
-      required this.precio,
-      this.imagen});
+  Producto({
+    required this.id,
+    required this.nombre,
+    required this.precio,
+    required this.cantidad,
+    required this.disponible,
+    this.imagen,
+  });
 
   Producto.fromSnapshot(DocumentSnapshot snapshot)
       : id = snapshot.id,
         nombre = snapshot['nombre'] ?? '',
         precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
+        cantidad = (snapshot['cantidad'] as num?)?.toInt() ?? 0,
+        disponible = snapshot['disponible'] ?? false,
         imagen = snapshot['imagen'] as String?;
-
-  get stock => null;
 
   Map<String, dynamic> toMap() {
     return {
       'nombre': nombre,
       'precio': precio,
+      'cantidad': cantidad,
+      'disponible': disponible,
       'imagen': imagen,
     };
   }
@@ -265,6 +279,8 @@ class AgregarProductoScreen extends StatefulWidget {
 class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController precioController = TextEditingController();
+  final TextEditingController cantidadController = TextEditingController();
+  final TextEditingController disponibleController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -284,23 +300,39 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
             SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(
-                  decimal: true), // Permitir decimales
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(labelText: 'Precio del Producto'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: cantidadController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Cantidad'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: disponibleController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(labelText: 'Disponible (true/false)'),
             ),
             SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: () async {
                 if (nombreController.text.isNotEmpty &&
-                    precioController.text.isNotEmpty) {
+                    precioController.text.isNotEmpty &&
+                    cantidadController.text.isNotEmpty &&
+                    disponibleController.text.isNotEmpty) {
                   final nombreCapitalizado =
                       _capitalizeFirstLetter(nombreController.text);
 
                   final nuevoProducto = Producto(
-                    id: '', // Asigna el ID adecuadamente en tu aplicación
+                    id: '',
                     nombre: nombreCapitalizado,
                     precio: double.tryParse(precioController.text) ?? 0.0,
-                    imagen: null, // No es necesario asignar imagen aquí
+                    cantidad: int.tryParse(cantidadController.text) ?? 0,
+                    disponible:
+                        disponibleController.text.toLowerCase() == 'true',
+                    imagen: null,
                   );
 
                   Navigator.pop(context, nuevoProducto);
@@ -331,6 +363,8 @@ class EditarProductoScreen extends StatefulWidget {
 class _EditarProductoScreenState extends State<EditarProductoScreen> {
   late TextEditingController nombreController;
   late TextEditingController precioController;
+  late TextEditingController cantidadController;
+  late TextEditingController disponibleController;
 
   @override
   void initState() {
@@ -338,6 +372,10 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     nombreController = TextEditingController(text: widget.producto.nombre);
     precioController =
         TextEditingController(text: widget.producto.precio.toString());
+    cantidadController =
+        TextEditingController(text: widget.producto.cantidad.toString());
+    disponibleController =
+        TextEditingController(text: widget.producto.disponible.toString());
   }
 
   @override
@@ -359,10 +397,22 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
             const SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(
-                  decimal: true), // Permitir decimales
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration:
                   const InputDecoration(labelText: 'Precio del Producto'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: cantidadController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Cantidad'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: disponibleController,
+              keyboardType: TextInputType.text,
+              decoration:
+                  const InputDecoration(labelText: 'Disponible (true/false)'),
             ),
             const SizedBox(height: 32.0),
             ElevatedButton(
@@ -372,7 +422,9 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
                 if (confirmacion) {
                   if (nombreController.text.isNotEmpty &&
-                      precioController.text.isNotEmpty) {
+                      precioController.text.isNotEmpty &&
+                      cantidadController.text.isNotEmpty &&
+                      disponibleController.text.isNotEmpty) {
                     final nombreCapitalizado =
                         _capitalizeFirstLetter(nombreController.text);
 
@@ -380,6 +432,9 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
                       id: widget.producto.id,
                       nombre: nombreCapitalizado,
                       precio: double.tryParse(precioController.text) ?? 0.0,
+                      cantidad: int.tryParse(cantidadController.text) ?? 0,
+                      disponible:
+                          disponibleController.text.toLowerCase() == 'true',
                       imagen: widget.producto.imagen,
                     );
 
@@ -402,6 +457,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
 Future<bool> _mostrarConfirmacion(
     BuildContext context, Producto producto) async {
-  // Implementa la lógica para mostrar el diálogo de confirmación
+  // Aquí puedes implementar la lógica para mostrar la confirmación.
+  // Por ejemplo, puedes usar showDialog().
   return true;
 }
