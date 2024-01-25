@@ -1,26 +1,21 @@
-import 'package:apphormi/pages/inicio/administrador/cliente_admin.dart';
-import 'package:apphormi/pages/inicio/administrador/configuracion_admin.dart';
-import 'package:apphormi/pages/inicio/administrador/empleados.dart';
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/configuracion_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
-import 'package:apphormi/pages/inicio/administrador/historial_venta_admin.dart';
-import 'package:apphormi/pages/inicio/administrador/notificacion_admin.dart';
-import 'package:apphormi/pages/inicio/administrador/venta_administrador.dart';
+import 'package:apphormi/pages/inicio/vendedores/estadisticas.dart';
+import 'package:apphormi/pages/inicio/vendedores/historial_venta_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/home.dart';
-import 'package:apphormi/pages/inicio/usabilidad/calendario.dart';
-import 'package:apphormi/pages/inicio/usabilidad/catalogo.dart';
-import 'package:apphormi/pages/inicio/usabilidad/configuracion.dart';
-import 'package:apphormi/pages/inicio/usabilidad/cotizacion.dart';
-import 'package:apphormi/pages/inicio/usabilidad/factura.dart';
-import 'package:apphormi/pages/inicio/usabilidad/presupuesto.dart';
-import 'package:apphormi/pages/inicio/usabilidad/soporte.dart';
-import 'package:apphormi/pages/inicio/vendedor/cliente_vendedor.dart';
-import 'package:apphormi/pages/inicio/vendedor/pedido_vendedor.dart';
-import 'package:apphormi/pages/inicio/vendedor/producto_vendedor.dart';
+import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/producto_administrador.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
-
-import 'package:apphormi/pages/inicio/usabilidad/usuario.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -59,28 +54,24 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/logpag',
       routes: {
-        '/usu': (context) => const Usuario(),
         '/home': (context) => const Home(),
-        '/conf': (context) => const ConfiguracionPage(),
-        '/pres': (context) => const Presupuesto(),
-        '/cale': (context) => const Calendario(),
-        '/cata': (context) => Catalogo(),
-        '/coti': (context) => const CotizacionesScreen(),
-        '/fact': (context) => const FacturacionScreen(),
-        '/sopor': (context) => const SoporteScreen(),
         '/logpag': (context) => const Inicio(),
         '/gestprod': (context) => GestionProductos(),
-        '/ventas': (context) => Ventas(),
+        '/ventas': (context) => const Ventas(),
         '/historial_ventas': (context) => HistorialVentas(),
         '/empleados': (context) => const Empleados(),
         '/clientes': (context) => const Clientes(),
         '/configuracion': (context) => Configuracion(),
         '/notificacion': (context) => Notificacion(),
-        '/productosvendedor': (context) => ProductosVendedor(),
+        '/productosadministrador': (context) => const ProductosAdministrador(),
         '/pedidovendedor': (context) => PedidoVendedor(),
-        '/bodeguero': (context) => const Bodeguero(),
+        '/bodeguero': (context) => const BodegueroAdmin(),
         '/agregarproducto': (context) => const AgregarProducto(),
-        '/disponibilidadproducto': (context) => DisponibilidadProducto(),
+        '/disponibilidadproducto': (context) => const DisponibilidadProducto(),
+        '/agregarbodeguero': (context) => const AgregarBodeguero(),
+        '/vendedoradministrador': (context) => const VendedorAdministrador(),
+        '/agregarvendedor': (context) => const AgregarVendedor(),
+        '/estadistica': (context) => Estadistica(),
       },
     );
   }

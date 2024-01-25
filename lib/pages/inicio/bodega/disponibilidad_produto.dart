@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: library_private_types_in_public_api
 
 import 'dart:io';
 
@@ -19,12 +19,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: DisponibilidadProducto(),
+      home: const DisponibilidadProducto(),
     );
   }
 }
 
 class DisponibilidadProducto extends StatefulWidget {
+  const DisponibilidadProducto({super.key});
+
   @override
   _DisponibilidadProductoState createState() => _DisponibilidadProductoState();
 }
@@ -49,6 +51,7 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
         cantidad: producto.cantidad,
         disponible: producto.disponible,
         imagen: producto.imagen,
+        calidad: producto.calidad,
       );
       bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
       if (confirmacion) {
@@ -58,6 +61,7 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
           'cantidad': productoEditado.cantidad,
           'disponible': productoEditado.disponible,
           'imagen': productoEditado.imagen,
+          'calidad': productoEditado.calidad,
         });
 
         print('Producto actualizado: $productoEditado');
@@ -205,6 +209,7 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
                             Text('Cantidad: ${producto.cantidad}'),
                             Text(
                                 'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
+                            Text('Calidad: ${producto.calidad}'),
                           ],
                         ),
                         leading: producto.imagen != null
@@ -264,6 +269,7 @@ class Producto {
   final int cantidad;
   final bool disponible;
   String? imagen;
+  String calidad;
 
   Producto({
     required this.id,
@@ -272,6 +278,7 @@ class Producto {
     required this.cantidad,
     required this.disponible,
     this.imagen,
+    required this.calidad,
   });
 
   Producto.fromSnapshot(DocumentSnapshot snapshot)
@@ -280,7 +287,8 @@ class Producto {
         precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
         cantidad = (snapshot['cantidad'] as num?)?.toInt() ?? 0,
         disponible = snapshot['disponible'] ?? false,
-        imagen = snapshot['imagen'] as String?;
+        imagen = snapshot['imagen'] as String?,
+        calidad = snapshot['calidad'] ?? '';
 
   Map<String, dynamic> toMap() {
     return {
@@ -289,6 +297,7 @@ class Producto {
       'cantidad': cantidad,
       'disponible': disponible,
       'imagen': imagen,
+      'calidad': calidad,
     };
   }
 }
@@ -308,11 +317,13 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   late TextEditingController cantidadController;
   bool _disponible = true;
   String _selectedProducto = 'Adoquin jaboncillo peatonal sin color';
+  String _selectedCalidad =
+      'Calidad adoquin resistencia 300'; // Selecciona una calidad por defecto
   final List<String> _productos = [
     'Adoquin clasico peatonal sin color',
     'Adoquin clasico peatonal con color',
-    'Adoquin clasico peatonal vehicular sin color',
-    'Adoquin clasico peatonal vehicular con color',
+    'Adoquin clasico vehicular sin color',
+    'Adoquin clasico vehicular con color',
     'Adoquin jaboncillo peatonal sin color',
     'Adoquin jaboncillo peatonal con color',
     'Adoquin jaboncillo vehicular sin color',
@@ -333,6 +344,12 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     'Tapas para canaleta',
   ];
 
+  final List<String> _calidad = [
+    'Calidad adoquin resistencia 300',
+    'Calidad adoquin resistencia 350',
+    'Calidad adoquin resistencia 400',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -342,7 +359,8 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     cantidadController =
         TextEditingController(text: widget.producto.cantidad.toString());
 
-    _selectedProducto = widget.producto.nombre; // Set initial value
+    _selectedProducto = widget.producto.nombre;
+    _selectedCalidad = widget.producto.calidad; // Set calidad inicial
   }
 
   @override
@@ -387,6 +405,23 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
               decoration: const InputDecoration(labelText: 'Cantidad'),
             ),
             const SizedBox(height: 16.0),
+            const Text('Calidad:'),
+            const SizedBox(width: 16.0),
+            DropdownButton<String>(
+              value: _selectedCalidad,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedCalidad = newValue!;
+                });
+              },
+              items: _calidad.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16.0),
             Row(
               children: [
                 const Text('Disponible:'),
@@ -412,6 +447,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
                     cantidad: int.tryParse(cantidadController.text) ?? 0,
                     disponible: _disponible,
                     imagen: widget.producto.imagen,
+                    calidad: _selectedCalidad,
                   );
 
                   Navigator.pop(context, productoActualizado);

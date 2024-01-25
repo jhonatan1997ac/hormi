@@ -75,7 +75,7 @@ class _PedidoVendedorState extends State<PedidoVendedor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalles del Pedido'),
+        title: const Text('Detalles del Pedido'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -83,7 +83,7 @@ class _PedidoVendedorState extends State<PedidoVendedor> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('ID del Pedido: ${_pedido.id}'),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Producto: ${_pedido.producto}'),
             SizedBox(height: 16),
             Text('Cantidad: ${_pedido.cantidad}'),

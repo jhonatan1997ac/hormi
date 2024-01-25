@@ -13,28 +13,33 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Productos vendedor',
+      title: 'Productos administrador',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ProductosVendedor(),
+      home: ProductosAdministrador(),
     );
   }
 }
 
-class ProductosVendedor extends StatefulWidget {
+class ProductosAdministrador extends StatefulWidget {
+  const ProductosAdministrador({super.key});
+
   @override
-  _ProductosVendedorState createState() => _ProductosVendedorState();
+  // ignore: library_private_types_in_public_api
+  _ProductosAdministradorState createState() => _ProductosAdministradorState();
 }
 
-class _ProductosVendedorState extends State<ProductosVendedor> {
+class _ProductosAdministradorState extends State<ProductosAdministrador> {
   late CollectionReference productosCollection;
   File? _imagen;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    productosCollection = FirebaseFirestore.instance.collection('productos');
+    productosCollection =
+        FirebaseFirestore.instance.collection('disponibilidadproducto');
   }
 
   Future<void> agregarProducto(Producto nuevoProducto) async {
@@ -129,13 +134,88 @@ class _ProductosVendedorState extends State<ProductosVendedor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Productos Vendedor'),
+        title: const Text('Productos Administrador'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: productosCollection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          labelText: 'Buscar Productos',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            final producto = Producto.fromSnapshot(
+                                snapshot.data!.docs[index]);
+                            return ListTile(
+                              title: Text(producto.nombre),
+                              subtitle: Text(
+                                  'Precio: \$${producto.precio.toStringAsFixed(2)}'),
+                              leading: producto.imagen != null
+                                  ? Image.network(
+                                      producto.imagen!,
+                                      width: 50.0,
+                                      height: 50.0,
+                                    )
+                                  : SizedBox.shrink(),
+                              trailing: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () async {
+                                  bool confirmacion =
+                                      await _mostrarConfirmacion(
+                                          context, producto);
+                                  if (confirmacion) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditarProductoScreen(
+                                                producto: producto),
+                                      ),
+                                    ).then((productoActualizado) async {
+                                      if (productoActualizado != null) {
+                                        await editarProducto(
+                                            productoActualizado);
+                                        print(
+                                            'Producto actualizado: $productoActualizado');
+                                      }
+                                    });
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 final nuevoProducto = await Navigator.push(
@@ -153,73 +233,6 @@ class _ProductosVendedorState extends State<ProductosVendedor> {
                 }
               },
               child: Text('Agregar Producto'),
-            ),
-            SizedBox(height: 16.0),
-            _imagen != null
-                ? Image.file(
-                    _imagen!,
-                    width: 150.0,
-                    height: 150.0,
-                    fit: BoxFit.cover,
-                  )
-                : SizedBox.shrink(),
-            SizedBox(height: 16.0),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: productosCollection.snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final producto =
-                          Producto.fromSnapshot(snapshot.data!.docs[index]);
-                      return ListTile(
-                        title: Text(producto.nombre),
-                        subtitle: Text(
-                            'Precio: \$${producto.precio.toStringAsFixed(2)}'),
-                        leading: producto.imagen != null
-                            ? Image.network(
-                                producto.imagen!,
-                                width: 50.0,
-                                height: 50.0,
-                              )
-                            : SizedBox.shrink(),
-                        trailing: IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () async {
-                            bool confirmacion =
-                                await _mostrarConfirmacion(context, producto);
-                            if (confirmacion) {
-                              // ignore: use_build_context_synchronously
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditarProductoScreen(producto: producto),
-                                ),
-                              ).then((productoActualizado) async {
-                                if (productoActualizado != null) {
-                                  await editarProducto(productoActualizado);
-                                  print(
-                                      'Producto actualizado: $productoActualizado');
-                                }
-                              });
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -359,7 +372,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
             const SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(
+              keyboardType: const TextInputType.numberWithOptions(
                   decimal: true), // Permitir decimales
               decoration:
                   const InputDecoration(labelText: 'Precio del Producto'),

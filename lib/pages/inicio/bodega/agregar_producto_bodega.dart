@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, unused_local_variable
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,13 +13,45 @@ class ProductoService {
 
   Future<void> agregarProducto(Producto nuevoProducto, String imageUrl) async {
     try {
-      await _firestore.collection('disponibilidadproducto').add({
-        'nombre': nuevoProducto.nombre,
-        'precio': nuevoProducto.precio,
-        'cantidad': nuevoProducto.cantidad,
-        'disponible': nuevoProducto.disponible,
-        'imagen': imageUrl,
-      });
+      // Buscar si el producto ya existe en la base de datos
+      var existingProduct = await _firestore
+          .collection('disponibilidadproducto')
+          .where('nombre', isEqualTo: nuevoProducto.nombre)
+          .get();
+
+      if (existingProduct.docs.isNotEmpty) {
+        var existingDoc = existingProduct.docs.first;
+        var existingCantidad = existingDoc['cantidad'] as int;
+        var nuevaCantidad = existingCantidad + nuevoProducto.cantidad;
+        var existingPrecio = existingDoc['precio'] as double;
+
+        // Check if the quality is the same
+        var existingCalidad = existingDoc['calidad'] as String;
+        if (existingCalidad == nuevoProducto.calidad) {
+          // Update the price if the quality is the same
+          await _firestore
+              .collection('disponibilidadproducto')
+              .doc(existingDoc.id)
+              .update({
+            'cantidad': nuevaCantidad,
+            'precio': nuevoProducto.precio,
+            'calidad': nuevoProducto.calidad,
+          });
+        } else {
+          // Handle the case where the quality is different
+          print('Error: Quality is different.');
+        }
+      } else {
+        // Add a new product if it doesn't exist
+        await _firestore.collection('disponibilidadproducto').add({
+          'nombre': nuevoProducto.nombre,
+          'precio': nuevoProducto.precio,
+          'cantidad': nuevoProducto.cantidad,
+          'disponible': nuevoProducto.disponible,
+          'imagen': imageUrl,
+          'calidad': nuevoProducto.calidad,
+        });
+      }
 
       if (kDebugMode) {
         print('Producto agregado correctamente a la base de datos.');
@@ -53,6 +87,7 @@ class Producto {
   int cantidad;
   bool disponible;
   File? imagen;
+  String calidad;
 
   Producto({
     required this.nombre,
@@ -60,6 +95,7 @@ class Producto {
     required this.cantidad,
     required this.disponible,
     this.imagen,
+    required this.calidad,
   });
 
   bool get estaDisponible => disponible;
@@ -77,6 +113,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _cantidadController = TextEditingController();
   bool _disponible = true;
   String _selectedProducto = 'Adoquin clasico peatonal sin color';
+  String _selectedCalidad = 'Calidad adoquin resistencia 300';
   File? _selectedImage;
 
   final List<String> _productos = [
@@ -102,6 +139,11 @@ class _AgregarProductoState extends State<AgregarProducto> {
     'Postes de alambrado 2m',
     'Bloque de anclaje',
     'Tapas para canaleta',
+  ];
+  final List<String> _calidad = [
+    'Calidad adoquin resistencia 300',
+    'Calidad adoquin resistencia 350',
+    'Calidad adoquin resistencia 400',
   ];
 
   @override
@@ -159,6 +201,28 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 'La cantidad debe ser mayor o igual a 1',
                 style: TextStyle(color: Colors.red),
               ),
+            SizedBox(height: 16.0),
+            Row(
+              children: [
+                const Text('Calidad:'),
+                const SizedBox(width: 16.0),
+                DropdownButton<String>(
+                  value: _selectedCalidad,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCalidad = newValue!;
+                    });
+                  },
+                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            SizedBox(height: 16.0),
             Row(
               children: [
                 const Text('Disponible:'),
@@ -245,6 +309,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
       cantidad: cantidad,
       disponible: _disponible,
       imagen: _selectedImage,
+      calidad: _selectedCalidad,
     );
 
     await productoService.agregarProducto(nuevoProducto, imageUrl!);

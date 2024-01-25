@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_local_variable, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +26,18 @@ class HistorialVenta {
     required this.total,
     required this.metodoPago,
     required this.fecha,
+  });
+}
+
+class TarjetaCredito {
+  final String numero;
+  final String fechaVencimiento;
+  final String cvv;
+
+  TarjetaCredito({
+    required this.numero,
+    required this.fechaVencimiento,
+    required this.cvv,
   });
 }
 
@@ -104,7 +116,7 @@ class CalculosVenta {
 }
 
 class Ventas extends StatefulWidget {
-  const Ventas({super.key});
+  const Ventas({Key? key}) : super(key: key);
 
   @override
   _VentasState createState() => _VentasState();
@@ -114,6 +126,67 @@ class _VentasState extends State<Ventas> {
   List<Producto> productosDisponibles = [];
   List<Producto> carrito = [];
   String metodoPago = 'Efectivo'; // Por defecto, se asume efectivo
+
+  TextEditingController numeroTarjetaController = TextEditingController();
+  TextEditingController fechaVencimientoController = TextEditingController();
+  TextEditingController cvvController = TextEditingController();
+
+  Future<void> mostrarDatosTarjeta() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Datos de la Tarjeta de Crédito'),
+          content: Column(
+            children: [
+              TextField(
+                controller: numeroTarjetaController,
+                decoration:
+                    const InputDecoration(labelText: 'Número de Tarjeta'),
+              ),
+              TextField(
+                controller: fechaVencimientoController,
+                decoration:
+                    const InputDecoration(labelText: 'Fecha de Vencimiento'),
+              ),
+              TextField(
+                controller: cvvController,
+                decoration: const InputDecoration(labelText: 'CVV'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final numeroTarjeta = numeroTarjetaController.text;
+                final fechaVencimiento = fechaVencimientoController.text;
+                final cvv = cvvController.text;
+
+                TarjetaCredito tarjeta = TarjetaCredito(
+                  numero: numeroTarjeta,
+                  fechaVencimiento: fechaVencimiento,
+                  cvv: cvv,
+                );
+
+                numeroTarjetaController.clear();
+                fechaVencimientoController.clear();
+                cvvController.clear();
+
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -132,6 +205,7 @@ class _VentasState extends State<Ventas> {
       return Producto(
         nombre: data['nombre'] ?? '',
         precio: (data['precio'] ?? 0.0).toDouble(),
+        imagen: data['imagen'] ?? null,
       );
     }).toList();
 
@@ -144,7 +218,7 @@ class _VentasState extends State<Ventas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ventas '),
+        title: const Text('Ventas'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -205,6 +279,9 @@ class _VentasState extends State<Ventas> {
                   onChanged: (String? newValue) {
                     setState(() {
                       metodoPago = newValue!;
+                      if (metodoPago == 'Tarjeta') {
+                        mostrarDatosTarjeta();
+                      }
                     });
                   },
                   items: ['Efectivo', 'Tarjeta']
@@ -238,7 +315,6 @@ class _VentasState extends State<Ventas> {
   void finalizarVenta() {
     CalculosVenta.mostrarTotalVenta(context, carrito, metodoPago);
 
-    // Limpia el carrito después de finalizar la venta
     setState(() {
       carrito.clear();
     });
@@ -246,7 +322,7 @@ class _VentasState extends State<Ventas> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: Ventas(),
   ));
 }
