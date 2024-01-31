@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Producto {
-  final String
-      id; // Agregamos un campo id para identificar de manera única el producto
+  final String id;
   final String nombre;
   final double precio;
   final String? imagen;
@@ -19,6 +18,24 @@ class Producto {
   });
 }
 
+class HistorialVenta {
+  final List<Map<String, dynamic>> productos;
+  final double subtotal;
+  final double iva;
+  final double total;
+  final String metodoPago;
+  final DateTime fecha;
+
+  HistorialVenta({
+    required this.productos,
+    required this.subtotal,
+    required this.iva,
+    required this.total,
+    required this.metodoPago,
+    required this.fecha,
+  });
+}
+
 class Ventas extends StatefulWidget {
   const Ventas({Key? key}) : super(key: key);
 
@@ -29,6 +46,9 @@ class Ventas extends StatefulWidget {
 class _VentasState extends State<Ventas> {
   List<Producto> productosDisponibles = [];
   List<Producto> carrito = [];
+
+  // Variable para almacenar el tipo de pago seleccionado
+  String? tipoPagoSeleccionado;
 
   @override
   void initState() {
@@ -100,7 +120,16 @@ class _VentasState extends State<Ventas> {
               onPressed: () async {
                 if (await verificarDisponibilidad(producto, selectedQuantity)) {
                   agregarAlCarrito(producto, selectedQuantity);
+                  // Cerrar el diálogo antes de registrar en historial
                   Navigator.of(context).pop();
+                  // Guardar en el historial de ventas
+                  registrarVentaEnHistorial(
+                    carrito,
+                    calcularSubtotal(carrito),
+                    calcularIVA(carrito),
+                    calcularTotal(carrito),
+                    tipoPagoSeleccionado ?? 'Sin especificar',
+                  );
                 }
               },
               child: const Text('Aceptar'),
@@ -194,6 +223,109 @@ class _VentasState extends State<Ventas> {
     }
   }
 
+  Future<void> registrarVentaEnHistorial(List<Producto> productos,
+      double subtotal, double iva, double total, String? metodoPago) async {
+    try {
+      // Verificar que se haya seleccionado un método de pago
+      if (metodoPago == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Debe seleccionar un método de pago antes de enviar.'),
+          ),
+        );
+        return;
+      }
+
+      // Verificar que se haya seleccionado un tipo de pago antes de enviar a la base de datos
+      if (tipoPagoSeleccionado == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Debe seleccionar un tipo de pago antes de enviar la venta.'),
+          ),
+        );
+        return;
+      }
+
+      CollectionReference historialVentasCollection =
+          FirebaseFirestore.instance.collection('historial_ventas');
+
+      await historialVentasCollection.add({
+        'productos': productos
+            .map((producto) => {
+                  'producto_id': producto.id,
+                  'nombre': producto.nombre,
+                  'precio': producto.precio,
+                  'imagen': producto.imagen,
+                  'cantidad': producto.cantidad,
+                })
+            .toList(),
+        'subtotal': subtotal,
+        'iva': iva,
+        'total': total,
+        'metodoPago': metodoPago,
+        'fecha': DateTime.now(),
+      });
+
+      // También puedes restablecer la variable tipoPagoSeleccionado a null
+      // para que esté lista para la próxima compra.
+      setState(() {
+        tipoPagoSeleccionado = null;
+      });
+    } catch (error) {
+      print("Error al registrar la venta en el historial: $error");
+      // Puedes manejar el error según tus necesidades
+    }
+  }
+
+  Future<void> mostrarDialogTipoPago() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Seleccione el Tipo de Pago'),
+          content: Column(
+            children: [
+              ListTile(
+                title: const Text('Tarjeta'),
+                onTap: () {
+                  setState(() {
+                    tipoPagoSeleccionado = 'Tarjeta ';
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: const Text('Efectivo'),
+                onTap: () {
+                  setState(() {
+                    tipoPagoSeleccionado = 'Efectivo';
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  double calcularSubtotal(List<Producto> productos) {
+    return productos.fold(0.0, (subtotal, producto) {
+      return subtotal + producto.precio * producto.cantidad;
+    });
+  }
+
+  double calcularIVA(List<Producto> productos) {
+    return calcularSubtotal(productos) * 0.16;
+  }
+
+  double calcularTotal(List<Producto> productos) {
+    return calcularSubtotal(productos) + calcularIVA(productos);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -262,6 +394,41 @@ class _VentasState extends State<Ventas> {
                 },
               ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                mostrarDialogTipoPago();
+              },
+              child: const Text('Escoger Tipo de Pago'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Verificar que se haya seleccionado un método de pago antes de enviar la venta
+                if (tipoPagoSeleccionado == null) {
+                  mostrarDialogTipoPago();
+                } else {
+                  // Si ya se seleccionó un método de pago, proceder con el registro
+                  registrarVentaEnHistorial(
+                    carrito,
+                    calcularSubtotal(carrito),
+                    calcularIVA(carrito),
+                    calcularTotal(carrito),
+                    tipoPagoSeleccionado,
+                  );
+                }
+              },
+              child: const Text('Enviar Venta'),
+              style: ElevatedButton.styleFrom(
+                onPrimary: const Color.fromARGB(255, 241, 241, 241),
+                primary: tipoPagoSeleccionado == null
+                    ? const Color.fromARGB(255, 39, 34, 34)
+                    : Color.fromARGB(255, 1, 243, 142),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+                'Tipo de Pago Seleccionado: ${tipoPagoSeleccionado ?? "Ninguno"}'),
           ],
         ),
       ),
