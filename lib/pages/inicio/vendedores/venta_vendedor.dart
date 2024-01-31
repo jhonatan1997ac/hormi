@@ -1,118 +1,22 @@
-// ignore_for_file: avoid_print, unused_local_variable, library_private_types_in_public_api
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Producto {
+  final String
+      id; // Agregamos un campo id para identificar de manera única el producto
   final String nombre;
   final double precio;
   final String? imagen;
+  int cantidad;
 
-  Producto({required this.nombre, required this.precio, this.imagen});
-}
-
-class HistorialVenta {
-  final List<Producto> productos;
-  final double subtotal;
-  final double iva;
-  final double total;
-  final String metodoPago;
-  final DateTime fecha;
-
-  HistorialVenta({
-    required this.productos,
-    required this.subtotal,
-    required this.iva,
-    required this.total,
-    required this.metodoPago,
-    required this.fecha,
+  Producto({
+    required this.id,
+    required this.nombre,
+    required this.precio,
+    this.imagen,
+    required this.cantidad,
   });
-}
-
-class TarjetaCredito {
-  final String numero;
-  final String fechaVencimiento;
-  final String cvv;
-
-  TarjetaCredito({
-    required this.numero,
-    required this.fechaVencimiento,
-    required this.cvv,
-  });
-}
-
-class CalculosVenta {
-  static void mostrarTotalVenta(
-      BuildContext context, List<Producto> carrito, String metodoPago) {
-    // Calcular el total con el IVA al 0.12%
-    double subtotal =
-        carrito.fold(0.0, (sum, producto) => sum + producto.precio);
-    double iva = subtotal * 0.15;
-    double total = subtotal + iva;
-
-    // Crear instancia de HistorialVenta
-    HistorialVenta historialVenta = HistorialVenta(
-      productos: carrito,
-      subtotal: subtotal,
-      iva: iva,
-      total: total,
-      metodoPago: metodoPago,
-      fecha: DateTime.now(),
-    );
-
-    // Guardar la venta en el historial
-    guardarVentaEnHistorial(historialVenta);
-
-    // Mostrar la factura
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Factura de Venta'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Detalles de la Venta:'),
-              const SizedBox(height: 8),
-              Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
-              Text('IVA (0.15%): \$${iva.toStringAsFixed(2)}'),
-              Text('Total: \$${total.toStringAsFixed(2)}'),
-              const SizedBox(height: 16),
-              Text('Método de Pago: $metodoPago'),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  static void guardarVentaEnHistorial(HistorialVenta venta) {
-    FirebaseFirestore.instance
-        .collection('historial_ventas')
-        .add({
-          'disponibilidadproducto': venta.productos
-              .map((producto) => {
-                    'nombre': producto.nombre,
-                    'precio': producto.precio,
-                  })
-              .toList(),
-          'subtotal': venta.subtotal,
-          'iva': venta.iva,
-          'total': venta.total,
-          'metodoPago': venta.metodoPago,
-          'fecha': venta.fecha,
-        })
-        .then((value) => print("Venta guardada en historial"))
-        .catchError((error) => print("Error al guardar la venta: $error"));
-  }
 }
 
 class Ventas extends StatefulWidget {
@@ -125,68 +29,6 @@ class Ventas extends StatefulWidget {
 class _VentasState extends State<Ventas> {
   List<Producto> productosDisponibles = [];
   List<Producto> carrito = [];
-  String metodoPago = 'Efectivo'; // Por defecto, se asume efectivo
-
-  TextEditingController numeroTarjetaController = TextEditingController();
-  TextEditingController fechaVencimientoController = TextEditingController();
-  TextEditingController cvvController = TextEditingController();
-
-  Future<void> mostrarDatosTarjeta() async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Datos de la Tarjeta de Crédito'),
-          content: Column(
-            children: [
-              TextField(
-                controller: numeroTarjetaController,
-                decoration:
-                    const InputDecoration(labelText: 'Número de Tarjeta'),
-              ),
-              TextField(
-                controller: fechaVencimientoController,
-                decoration:
-                    const InputDecoration(labelText: 'Fecha de Vencimiento'),
-              ),
-              TextField(
-                controller: cvvController,
-                decoration: const InputDecoration(labelText: 'CVV'),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                final numeroTarjeta = numeroTarjetaController.text;
-                final fechaVencimiento = fechaVencimientoController.text;
-                final cvv = cvvController.text;
-
-                TarjetaCredito tarjeta = TarjetaCredito(
-                  numero: numeroTarjeta,
-                  fechaVencimiento: fechaVencimiento,
-                  cvv: cvv,
-                );
-
-                numeroTarjetaController.clear();
-                fechaVencimientoController.clear();
-                cvvController.clear();
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   void initState() {
@@ -203,15 +45,153 @@ class _VentasState extends State<Ventas> {
     List<Producto> productos = querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return Producto(
+        id: doc.id,
         nombre: data['nombre'] ?? '',
         precio: (data['precio'] ?? 0.0).toDouble(),
-        imagen: data['imagen'] ?? null,
+        imagen: data['imagen'],
+        cantidad: data['cantidad'] ?? 0,
       );
     }).toList();
 
     setState(() {
       productosDisponibles = productos;
     });
+  }
+
+  Future<void> mostrarDialogCantidad(Producto producto) async {
+    int selectedQuantity = 1;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cantidad de Productos'),
+          content: Column(
+            children: [
+              Text(
+                  'Ingrese la cantidad de ${producto.nombre} que desea comprar:'),
+              TextField(
+                controller:
+                    TextEditingController(text: selectedQuantity.toString()),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  int? parsedValue = int.tryParse(value);
+                  if (parsedValue != null && parsedValue > 0) {
+                    selectedQuantity = parsedValue;
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('La cantidad no puede ser negativa'),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (await verificarDisponibilidad(producto, selectedQuantity)) {
+                  agregarAlCarrito(producto, selectedQuantity);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> verificarDisponibilidad(
+      Producto producto, int selectedQuantity) async {
+    // Verificar si hay suficiente cantidad disponible en la base de datos
+    if (producto.cantidad >= selectedQuantity) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay suficiente cantidad disponible'),
+        ),
+      );
+      return false;
+    }
+  }
+
+  Future<void> restarCantidadEnFirestore(
+      Producto producto, int quantityToSubtract) async {
+    try {
+      DocumentReference productoRef = FirebaseFirestore.instance
+          .collection('disponibilidadproducto')
+          .doc(producto.id);
+
+      DocumentSnapshot snapshot = await productoRef.get();
+
+      if (!snapshot.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('El producto no existe en la base de datos.'),
+          ),
+        );
+        return;
+      }
+
+      int cantidadActual = snapshot['cantidad'] ?? 0;
+      if (cantidadActual >= quantityToSubtract) {
+        // Utilizar update para realizar una actualización atómica
+        await productoRef
+            .update({'cantidad': FieldValue.increment(-quantityToSubtract)});
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No hay suficiente cantidad disponible'),
+          ),
+        );
+      }
+
+      // Cargar los productos actualizados desde Firestore
+      await cargarProductosDesdeFirestore();
+    } catch (error) {
+      print("Error al restar la cantidad en Firestore: $error");
+      // Puedes manejar el error según tus necesidades
+    }
+  }
+
+  Future<void> agregarAlCarrito(Producto producto, int quantity) async {
+    try {
+      // Restar la cantidad en Firestore
+      await restarCantidadEnFirestore(producto, quantity);
+
+      // Actualizar el carrito en el estado
+      setState(() {
+        carrito.add(
+          Producto(
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            cantidad: quantity,
+          ),
+        );
+      });
+
+      // Mostrar mensaje
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Producto agregado al carrito'),
+        ),
+      );
+    } catch (error) {
+      print("Error al agregar al carrito: $error");
+    }
   }
 
   @override
@@ -232,19 +212,25 @@ class _VentasState extends State<Ventas> {
                 itemBuilder: (context, index) {
                   final producto = productosDisponibles[index];
                   return ListTile(
-                    title: Text(producto.nombre),
-                    subtitle: Text('\$${producto.precio.toStringAsFixed(2)}'),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${producto.nombre} '),
+                        Text('Cantidad: ${producto.cantidad}'),
+                        Text('\$${producto.precio.toStringAsFixed(2)}'),
+                        ElevatedButton(
+                          onPressed: () {
+                            mostrarDialogCantidad(producto);
+                          },
+                          child: const Text('Agregar al Carrito'),
+                        ),
+                      ],
+                    ),
                     leading: SizedBox(
                       width: 50.0,
                       child: producto.imagen != null
                           ? Image.network(producto.imagen!)
                           : const Placeholder(),
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        agregarAlCarrito(producto);
-                      },
-                      child: const Text('Agregar al Carrito'),
                     ),
                   );
                 },
@@ -258,8 +244,14 @@ class _VentasState extends State<Ventas> {
                 itemBuilder: (context, index) {
                   final producto = carrito[index];
                   return ListTile(
-                    title: Text(producto.nombre),
-                    subtitle: Text('\$${producto.precio.toStringAsFixed(2)}'),
+                    title: Text('${producto.nombre} '),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('\$${producto.precio.toStringAsFixed(2)}'),
+                        Text('Cantidad: ${producto.cantidad}'),
+                      ],
+                    ),
                     leading: SizedBox(
                       width: 50.0,
                       child: producto.imagen != null
@@ -270,54 +262,10 @@ class _VentasState extends State<Ventas> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                DropdownButton<String>(
-                  value: metodoPago,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      metodoPago = newValue!;
-                      if (metodoPago == 'Tarjeta') {
-                        mostrarDatosTarjeta();
-                      }
-                    });
-                  },
-                  items: ['Efectivo', 'Tarjeta']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    finalizarVenta();
-                  },
-                  child: const Text('Finalizar Venta'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
     );
-  }
-
-  void agregarAlCarrito(Producto producto) {
-    setState(() {
-      carrito.add(producto);
-    });
-  }
-
-  void finalizarVenta() {
-    CalculosVenta.mostrarTotalVenta(context, carrito, metodoPago);
-
-    setState(() {
-      carrito.clear();
-    });
   }
 }
 

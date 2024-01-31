@@ -5,9 +5,12 @@ import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/configuracion_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
-import 'package:apphormi/pages/inicio/vendedores/estadisticas.dart';
+import 'package:apphormi/pages/inicio/vendedores/estadisticas/estadisticas_pago.dart';
+import 'package:apphormi/pages/inicio/vendedores/estadisticas/fecha_ventas.dart';
+import 'package:apphormi/pages/inicio/vendedores/estadisticas/menu_estadisticas.dart';
 import 'package:apphormi/pages/inicio/vendedores/historial_venta_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/vender.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/agregar_producto_bodega.dart';
@@ -71,7 +74,10 @@ class _MyAppState extends State<MyApp> {
         '/agregarbodeguero': (context) => const AgregarBodeguero(),
         '/vendedoradministrador': (context) => const VendedorAdministrador(),
         '/agregarvendedor': (context) => const AgregarVendedor(),
-        '/estadistica': (context) => Estadistica(),
+        '/estadisticapago': (context) => const Estadisticapago(),
+        '/menuestadisticas': (context) => const MenuEstadisticas(),
+        '/fechaventas': (context) => const FechaVentas(),
+        '/vender': (context) => Vender(),
       },
     );
   }

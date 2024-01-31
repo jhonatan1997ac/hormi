@@ -1,36 +1,41 @@
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
+import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../inicio_secion/inicio.dart';
-
-class Vendedor extends StatefulWidget {
-  const Vendedor({Key? key}) : super(key: key);
+class MenuEstadisticas extends StatefulWidget {
+  const MenuEstadisticas({Key? key}) : super(key: key);
 
   @override
-  State<Vendedor> createState() => _VendedorState();
+  State<MenuEstadisticas> createState() => _MenuEstadisticasState();
 }
 
-class _VendedorState extends State<Vendedor> {
+class _MenuEstadisticasState extends State<MenuEstadisticas> {
   @override
   Widget build(BuildContext context) {
-    return const VendedorHome();
+    return const MenuEstadisticasHome();
   }
 }
 
-class VendedorHome extends StatelessWidget {
-  const VendedorHome({Key? key}) : super(key: key);
+class MenuEstadisticasHome extends StatelessWidget {
+  const MenuEstadisticasHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tablero de Control de ventas'),
+        title: const Text('Escoja la Estadistica'),
         leading: IconButton(
           onPressed: () {
-            logout(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const VendedorHome(),
+              ),
+            );
           },
           icon: const Icon(
-            Icons.logout,
+            Icons.arrow_back,
           ),
         ),
       ),
@@ -42,32 +47,32 @@ class VendedorHome extends StatelessWidget {
           mainAxisSpacing: 16.0,
           children: [
             HomeCard(
-              title: 'Realizar Ventas',
-              icon: Icons.shopping_cart,
-              color: Colors.orange,
+              title: 'Estadísticas de pago',
+              icon: Icons.pie_chart,
+              color: Color.fromARGB(255, 60, 59, 155),
               onTap: () {
-                Navigator.pushNamed(context, '/ventas');
+                Navigator.pushNamed(context, '/estadisticapago');
               },
             ),
             HomeCard(
-              title: 'Historial de Ventas',
-              icon: Icons.receipt,
+              title: 'Estadistica de fecha de ventas',
+              icon: Icons.pie_chart_outline_rounded,
               color: Colors.purple,
               onTap: () {
-                Navigator.pushNamed(context, '/historial_ventas');
+                Navigator.pushNamed(context, '/fechaventas');
               },
             ),
             HomeCard(
-              title: 'Estadistica',
-              icon: Icons.dashboard,
-              color: Color.fromARGB(255, 14, 61, 22),
+              title: 'Estadistica del producto vendido',
+              icon: Icons.pie_chart_outline_rounded,
+              color: const Color.fromARGB(255, 14, 61, 22),
               onTap: () {
-                Navigator.pushNamed(context, '/menuestadisticas');
+                Navigator.pushNamed(context, '/estadisticas');
               },
             ),
             HomeCard(
               title: 'Configuración del Sistema',
-              icon: Icons.settings,
+              icon: Icons.pie_chart,
               color: Colors.indigo,
               onTap: () {
                 Navigator.pushNamed(context, '/configuracion');
@@ -75,18 +80,10 @@ class VendedorHome extends StatelessWidget {
             ),
             HomeCard(
               title: 'Notificaciones y Mensajes',
-              icon: Icons.notifications,
+              icon: Icons.pie_chart,
               color: Colors.red,
               onTap: () {
                 Navigator.pushNamed(context, '/notificacion');
-              },
-            ),
-            HomeCard(
-              title: 'Venta',
-              icon: Icons.send,
-              color: Colors.red,
-              onTap: () {
-                Navigator.pushNamed(context, '/vender');
               },
             ),
             HomeCard(
