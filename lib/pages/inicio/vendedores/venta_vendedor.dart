@@ -224,8 +224,30 @@ class _VentasState extends State<Ventas> {
   }
 
   Future<void> registrarVentaEnHistorial(List<Producto> productos,
-      double subtotal, double iva, double total, String metodoPago) async {
+      double subtotal, double iva, double total, String? metodoPago) async {
     try {
+      // Verificar que se haya seleccionado un método de pago
+      if (metodoPago == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Debe seleccionar un método de pago antes de enviar.'),
+          ),
+        );
+        return;
+      }
+
+      // Verificar que se haya seleccionado un tipo de pago antes de enviar a la base de datos
+      if (tipoPagoSeleccionado == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Debe seleccionar un tipo de pago antes de enviar la venta.'),
+          ),
+        );
+        return;
+      }
+
       CollectionReference historialVentasCollection =
           FirebaseFirestore.instance.collection('historial_ventas');
 
@@ -245,13 +267,18 @@ class _VentasState extends State<Ventas> {
         'metodoPago': metodoPago,
         'fecha': DateTime.now(),
       });
+
+      // También puedes restablecer la variable tipoPagoSeleccionado a null
+      // para que esté lista para la próxima compra.
+      setState(() {
+        tipoPagoSeleccionado = null;
+      });
     } catch (error) {
       print("Error al registrar la venta en el historial: $error");
       // Puedes manejar el error según tus necesidades
     }
   }
 
-  // Función para mostrar el diálogo de selección de tipo de pago
   Future<void> mostrarDialogTipoPago() async {
     await showDialog(
       context: context,
@@ -261,10 +288,10 @@ class _VentasState extends State<Ventas> {
           content: Column(
             children: [
               ListTile(
-                title: const Text('Tarjeta de Crédito'),
+                title: const Text('Tarjeta'),
                 onTap: () {
                   setState(() {
-                    tipoPagoSeleccionado = 'Tarjeta de Crédito';
+                    tipoPagoSeleccionado = 'Tarjeta ';
                   });
                   Navigator.of(context).pop();
                 },
@@ -278,7 +305,6 @@ class _VentasState extends State<Ventas> {
                   Navigator.of(context).pop();
                 },
               ),
-              // Puedes agregar más opciones de tipo de pago según tus necesidades
             ],
           ),
         );
@@ -293,7 +319,7 @@ class _VentasState extends State<Ventas> {
   }
 
   double calcularIVA(List<Producto> productos) {
-    return calcularSubtotal(productos) * 0.16; // Suponiendo un IVA del 16%
+    return calcularSubtotal(productos) * 0.16;
   }
 
   double calcularTotal(List<Producto> productos) {
@@ -374,6 +400,31 @@ class _VentasState extends State<Ventas> {
                 mostrarDialogTipoPago();
               },
               child: const Text('Escoger Tipo de Pago'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Verificar que se haya seleccionado un método de pago antes de enviar la venta
+                if (tipoPagoSeleccionado == null) {
+                  mostrarDialogTipoPago();
+                } else {
+                  // Si ya se seleccionó un método de pago, proceder con el registro
+                  registrarVentaEnHistorial(
+                    carrito,
+                    calcularSubtotal(carrito),
+                    calcularIVA(carrito),
+                    calcularTotal(carrito),
+                    tipoPagoSeleccionado,
+                  );
+                }
+              },
+              child: const Text('Enviar Venta'),
+              style: ElevatedButton.styleFrom(
+                onPrimary: const Color.fromARGB(255, 241, 241, 241),
+                primary: tipoPagoSeleccionado == null
+                    ? const Color.fromARGB(255, 39, 34, 34)
+                    : Color.fromARGB(255, 1, 243, 142),
+              ),
             ),
             const SizedBox(height: 16),
             Text(

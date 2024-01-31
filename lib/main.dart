@@ -1,6 +1,8 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/agregar_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
 import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/configuracion_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
@@ -71,6 +73,7 @@ class _MyAppState extends State<MyApp> {
         '/bodeguero': (context) => const BodegueroAdmin(),
         '/agregarproducto': (context) => const AgregarProducto(),
         '/disponibilidadproducto': (context) => const DisponibilidadProducto(),
+        '/disponibilidadmaterial': (context) => const DisponibilidadMaterial(),
         '/agregarbodeguero': (context) => const AgregarBodeguero(),
         '/vendedoradministrador': (context) => const VendedorAdministrador(),
         '/agregarvendedor': (context) => const AgregarVendedor(),
@@ -78,6 +81,7 @@ class _MyAppState extends State<MyApp> {
         '/menuestadisticas': (context) => const MenuEstadisticas(),
         '/fechaventas': (context) => const FechaVentas(),
         '/vender': (context) => Vender(),
+        '/agregarmaterial': (context) => const AgregarMaterial(),
       },
     );
   }

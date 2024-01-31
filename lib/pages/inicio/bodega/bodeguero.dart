@@ -59,9 +59,25 @@ class BodegueroHome extends StatelessWidget {
             HomeCard(
               title: 'Disponibilidad de producto',
               icon: Icons.check_circle,
-              color: Colors.blue,
+              color: Color.fromARGB(255, 243, 159, 33),
               onTap: () {
                 Navigator.pushNamed(context, '/disponibilidadproducto');
+              },
+            ),
+            HomeCard(
+              title: 'Agregar material ',
+              icon: Icons.inventory_outlined,
+              color: Color.fromARGB(255, 102, 9, 82),
+              onTap: () {
+                Navigator.pushNamed(context, '/agregarmaterial');
+              },
+            ),
+            HomeCard(
+              title: 'Disponibilidad material',
+              icon: Icons.data_thresholding,
+              color: Color.fromARGB(255, 114, 173, 18),
+              onTap: () {
+                Navigator.pushNamed(context, '/disponibilidadmaterial');
               },
             ),
             HomeCard(
