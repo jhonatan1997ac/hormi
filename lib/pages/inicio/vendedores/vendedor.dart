@@ -82,14 +82,6 @@ class VendedorHome extends StatelessWidget {
               },
             ),
             HomeCard(
-              title: 'Venta',
-              icon: Icons.send,
-              color: Colors.red,
-              onTap: () {
-                Navigator.pushNamed(context, '/vender');
-              },
-            ),
-            HomeCard(
               title: 'Cerrar Sesión',
               icon: Icons.exit_to_app,
               color: Colors.deepPurple,

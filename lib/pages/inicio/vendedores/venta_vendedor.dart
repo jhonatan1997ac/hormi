@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -46,9 +45,10 @@ class Ventas extends StatefulWidget {
 class _VentasState extends State<Ventas> {
   List<Producto> productosDisponibles = [];
   List<Producto> carrito = [];
-
-  // Variable para almacenar el tipo de pago seleccionado
   String? tipoPagoSeleccionado;
+  String? errorMessage;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -99,14 +99,17 @@ class _VentasState extends State<Ventas> {
                   if (parsedValue != null && parsedValue > 0) {
                     selectedQuantity = parsedValue;
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('La cantidad no puede ser negativa'),
-                      ),
-                    );
+                    setState(() {
+                      errorMessage = 'La cantidad no puede ser negativa';
+                    });
                   }
                 },
               ),
+              if (errorMessage != null)
+                Text(
+                  errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
             ],
           ),
           actions: <Widget>[
@@ -140,17 +143,51 @@ class _VentasState extends State<Ventas> {
     );
   }
 
+  void mostrarMensajeEmergente(String mensaje) {
+    OverlayEntry overlayEntry;
+
+    // Calcula la posición vertical para centrar la superposición debajo del número ingresado
+    double overlayTop = MediaQuery.of(context).viewInsets.bottom +
+        MediaQuery.of(context).size.height * 0.12;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: overlayTop,
+        width: MediaQuery.of(context).size.width,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 50),
+            color: Colors.red,
+            child: Center(
+              child: Text(
+                mensaje,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 5), () {
+      overlayEntry.remove();
+    });
+  }
+
   Future<bool> verificarDisponibilidad(
       Producto producto, int selectedQuantity) async {
-    // Verificar si hay suficiente cantidad disponible en la base de datos
-    if (producto.cantidad >= selectedQuantity) {
+    if (producto.cantidad >= selectedQuantity &&
+        (producto.cantidad - selectedQuantity) >= 10) {
+      setState(() {
+        errorMessage = null;
+      });
       return true;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay suficiente cantidad disponible'),
-        ),
-      );
+      mostrarMensajeEmergente(
+          'No hay suficiente cantidad disponible o el stock mínimo no se alcanza');
       return false;
     }
   }
@@ -175,7 +212,6 @@ class _VentasState extends State<Ventas> {
 
       int cantidadActual = snapshot['cantidad'] ?? 0;
       if (cantidadActual >= quantityToSubtract) {
-        // Utilizar update para realizar una actualización atómica
         await productoRef
             .update({'cantidad': FieldValue.increment(-quantityToSubtract)});
       } else {
@@ -186,20 +222,16 @@ class _VentasState extends State<Ventas> {
         );
       }
 
-      // Cargar los productos actualizados desde Firestore
       await cargarProductosDesdeFirestore();
     } catch (error) {
       print("Error al restar la cantidad en Firestore: $error");
-      // Puedes manejar el error según tus necesidades
     }
   }
 
   Future<void> agregarAlCarrito(Producto producto, int quantity) async {
     try {
-      // Restar la cantidad en Firestore
       await restarCantidadEnFirestore(producto, quantity);
 
-      // Actualizar el carrito en el estado
       setState(() {
         carrito.add(
           Producto(
@@ -212,7 +244,6 @@ class _VentasState extends State<Ventas> {
         );
       });
 
-      // Mostrar mensaje
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Producto agregado al carrito'),
@@ -226,7 +257,6 @@ class _VentasState extends State<Ventas> {
   Future<void> registrarVentaEnHistorial(List<Producto> productos,
       double subtotal, double iva, double total, String? metodoPago) async {
     try {
-      // Verificar que se haya seleccionado un método de pago
       if (metodoPago == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -237,7 +267,6 @@ class _VentasState extends State<Ventas> {
         return;
       }
 
-      // Verificar que se haya seleccionado un tipo de pago antes de enviar a la base de datos
       if (tipoPagoSeleccionado == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -267,15 +296,15 @@ class _VentasState extends State<Ventas> {
         'metodoPago': metodoPago,
         'fecha': DateTime.now(),
       });
-
-      // También puedes restablecer la variable tipoPagoSeleccionado a null
-      // para que esté lista para la próxima compra.
+      // Limpiar el carrito después de enviar la venta
+      setState(() {
+        carrito = [];
+      });
       setState(() {
         tipoPagoSeleccionado = null;
       });
     } catch (error) {
       print("Error al registrar la venta en el historial: $error");
-      // Puedes manejar el error según tus necesidades
     }
   }
 
@@ -329,6 +358,7 @@ class _VentasState extends State<Ventas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Ventas'),
       ),
@@ -404,11 +434,9 @@ class _VentasState extends State<Ventas> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Verificar que se haya seleccionado un método de pago antes de enviar la venta
                 if (tipoPagoSeleccionado == null) {
                   mostrarDialogTipoPago();
                 } else {
-                  // Si ya se seleccionó un método de pago, proceder con el registro
                   registrarVentaEnHistorial(
                     carrito,
                     calcularSubtotal(carrito),
