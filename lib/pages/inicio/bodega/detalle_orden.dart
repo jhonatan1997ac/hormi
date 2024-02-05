@@ -35,23 +35,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pedidos',
+      title: 'Detalle de Órdenes',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Detallepedidoadmin(),
+      home: const DetalleOrdenes(),
     );
   }
 }
 
-class Detallepedidoadmin extends StatefulWidget {
-  const Detallepedidoadmin({Key? key});
+class DetalleOrdenes extends StatefulWidget {
+  const DetalleOrdenes({Key? key});
 
   @override
-  _DetallepedidoadminState createState() => _DetallepedidoadminState();
+  _DetalleOrdenesState createState() => _DetalleOrdenesState();
 }
 
-class _DetallepedidoadminState extends State<Detallepedidoadmin> {
+class _DetalleOrdenesState extends State<DetalleOrdenes> {
   final TextEditingController idDetalleController = TextEditingController();
   final TextEditingController idOrdenController = TextEditingController();
   final TextEditingController idProductoController = TextEditingController();

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -143,7 +145,7 @@ class _VentasState extends State<Ventas> {
     );
   }
 
-  void mostrarMensajeEmergente(String mensaje) {
+  void mostrarMensajeEmergente(String mensaje, {Color color = Colors.white}) {
     OverlayEntry overlayEntry;
 
     // Calcula la posición vertical para centrar la superposición debajo del número ingresado
@@ -158,7 +160,7 @@ class _VentasState extends State<Ventas> {
           color: Colors.transparent,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 50),
-            color: Colors.red,
+            color: color, // Cambia el color del fondo del mensaje
             child: Center(
               child: Text(
                 mensaje,
@@ -187,7 +189,8 @@ class _VentasState extends State<Ventas> {
       return true;
     } else {
       mostrarMensajeEmergente(
-          'No hay suficiente cantidad disponible o el stock mínimo no se alcanza');
+          'No hay suficiente cantidad disponible o el stock mínimo no se alcanza',
+          color: Colors.green);
       return false;
     }
   }
@@ -278,7 +281,7 @@ class _VentasState extends State<Ventas> {
       }
 
       CollectionReference historialVentasCollection =
-          FirebaseFirestore.instance.collection('historial_ventas');
+          FirebaseFirestore.instance.collection('historialventas');
 
       await historialVentasCollection.add({
         'productos': productos
@@ -319,23 +322,129 @@ class _VentasState extends State<Ventas> {
               ListTile(
                 title: const Text('Tarjeta'),
                 onTap: () {
-                  setState(() {
-                    tipoPagoSeleccionado = 'Tarjeta ';
-                  });
                   Navigator.of(context).pop();
+                  mostrarDialogDatosTarjeta();
                 },
               ),
               ListTile(
                 title: const Text('Efectivo'),
                 onTap: () {
-                  setState(() {
-                    tipoPagoSeleccionado = 'Efectivo';
-                  });
                   Navigator.of(context).pop();
+                  mostrarDialogDatosEfectivo();
                 },
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> mostrarDialogDatosTarjeta() async {
+    TextEditingController numeroTarjetaController = TextEditingController();
+    TextEditingController fechaVencimientoController = TextEditingController();
+    TextEditingController codigoSeguridadController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ingrese los Datos de la Tarjeta'),
+          content: Column(
+            children: [
+              TextField(
+                controller: numeroTarjetaController,
+                decoration: InputDecoration(labelText: 'Número de Tarjeta'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: fechaVencimientoController,
+                decoration: InputDecoration(labelText: 'Fecha de Vencimiento'),
+              ),
+              TextField(
+                controller: codigoSeguridadController,
+                decoration: InputDecoration(labelText: 'Código de Seguridad'),
+                keyboardType: TextInputType.number,
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Aquí puedes acceder a los datos ingresados y realizar la validación necesaria
+                String numeroTarjeta = numeroTarjetaController.text;
+                String fechaVencimiento = fechaVencimientoController.text;
+                String codigoSeguridad = codigoSeguridadController.text;
+
+                // Realiza la lógica de validación aquí
+                if (numeroTarjeta.isNotEmpty &&
+                    fechaVencimiento.isNotEmpty &&
+                    codigoSeguridad.isNotEmpty) {
+                  // Datos válidos, cierra el diálogo
+                  Navigator.of(context).pop();
+                } else {
+                  // Muestra un mensaje de error o realiza la acción correspondiente
+                }
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> mostrarDialogDatosEfectivo() async {
+    TextEditingController montoRecibidoController = TextEditingController();
+    TextEditingController cambioEntregarController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ingrese los Datos de Efectivo'),
+          content: Column(
+            children: [
+              TextField(
+                controller: montoRecibidoController,
+                decoration: const InputDecoration(labelText: 'Monto Recibido'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                String montoRecibido = montoRecibidoController.text;
+
+                if (montoRecibido.isNotEmpty) {
+                  double montoRecibidoDouble = double.parse(montoRecibido);
+                  double cambio = montoRecibidoDouble - calcularTotal(carrito);
+
+                  mostrarMensajeEmergente('Cambio a entregar: $cambio',
+                      color: Colors.green);
+
+                  Navigator.of(context).pop();
+                } else {
+                  // Muestra un mensaje de error o realiza la acción correspondiente
+                }
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
         );
       },
     );

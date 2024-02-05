@@ -57,7 +57,7 @@ class HistorialVentas extends StatefulWidget {
 
 class _HistorialVentasState extends State<HistorialVentas> {
   CollectionReference historialCollection =
-      FirebaseFirestore.instance.collection('historial_ventas');
+      FirebaseFirestore.instance.collection('historialventas');
 
   @override
   Widget build(BuildContext context) {

@@ -43,7 +43,7 @@ class BodegueroHome extends StatelessWidget {
             HomeCard(
               title: 'Gestión de Productos',
               icon: Icons.inventory,
-              color: Color.fromARGB(255, 28, 168, 168),
+              color: const Color.fromARGB(255, 28, 168, 168),
               onTap: () {
                 Navigator.pushNamed(context, '/gestprod');
               },
@@ -59,7 +59,7 @@ class BodegueroHome extends StatelessWidget {
             HomeCard(
               title: 'Disponibilidad de producto',
               icon: Icons.check_circle,
-              color: Color.fromARGB(255, 243, 159, 33),
+              color: const Color.fromARGB(255, 243, 159, 33),
               onTap: () {
                 Navigator.pushNamed(context, '/disponibilidadproducto');
               },
@@ -67,7 +67,7 @@ class BodegueroHome extends StatelessWidget {
             HomeCard(
               title: 'Agregar material ',
               icon: Icons.inventory_outlined,
-              color: Color.fromARGB(255, 102, 9, 82),
+              color: const Color.fromARGB(255, 102, 9, 82),
               onTap: () {
                 Navigator.pushNamed(context, '/agregarmaterial');
               },
@@ -75,9 +75,57 @@ class BodegueroHome extends StatelessWidget {
             HomeCard(
               title: 'Disponibilidad material',
               icon: Icons.data_thresholding,
-              color: Color.fromARGB(255, 114, 173, 18),
+              color: const Color.fromARGB(255, 114, 173, 18),
               onTap: () {
                 Navigator.pushNamed(context, '/disponibilidadmaterial');
+              },
+            ),
+            HomeCard(
+              title: 'Ordenes',
+              icon: Icons.add_shopping_cart,
+              color: const Color.fromARGB(255, 32, 32, 85),
+              onTap: () {
+                Navigator.pushNamed(context, '/ordenes');
+              },
+            ),
+            HomeCard(
+              title: 'Detalle de Ordenes',
+              icon: Icons.shopping_bag_outlined,
+              color: const Color.fromARGB(255, 36, 85, 32),
+              onTap: () {
+                Navigator.pushNamed(context, '/detalleorden');
+              },
+            ),
+            HomeCard(
+              title: 'Provedores',
+              icon: Icons.supervised_user_circle,
+              color: const Color.fromARGB(255, 53, 179, 179),
+              onTap: () {
+                Navigator.pushNamed(context, '/proveedor');
+              },
+            ),
+            HomeCard(
+              title: 'Historial de Inventarios',
+              icon: Icons.history_toggle_off_rounded,
+              color: const Color.fromARGB(255, 183, 231, 11),
+              onTap: () {
+                Navigator.pushNamed(context, '/historialinventario');
+              },
+            ),
+            HomeCard(
+              title: 'Categorias producto',
+              icon: Icons.label_important_rounded,
+              color: const Color.fromARGB(255, 177, 103, 53),
+              onTap: () {
+                Navigator.pushNamed(context, '/categoriaproducto');
+              },
+            ),
+            HomeCard(
+              title: 'Promoción',
+              icon: Icons.local_offer_sharp,
+              color: const Color.fromARGB(255, 177, 53, 90),
+              onTap: () {
+                Navigator.pushNamed(context, '/promocion');
               },
             ),
             HomeCard(

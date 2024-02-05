@@ -66,19 +66,19 @@ class VendedorHome extends StatelessWidget {
               },
             ),
             HomeCard(
-              title: 'Configuración del Sistema',
-              icon: Icons.settings,
+              title: 'Reclamaciones',
+              icon: Icons.apps_outage,
               color: Colors.indigo,
               onTap: () {
-                Navigator.pushNamed(context, '/configuracion');
+                Navigator.pushNamed(context, '/reclamaciones');
               },
             ),
             HomeCard(
-              title: 'Notificaciones y Mensajes',
-              icon: Icons.notifications,
+              title: 'Clientes',
+              icon: Icons.account_circle_outlined,
               color: Colors.red,
               onTap: () {
-                Navigator.pushNamed(context, '/notificacion');
+                Navigator.pushNamed(context, '/clientes');
               },
             ),
             HomeCard(

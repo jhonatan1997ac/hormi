@@ -37,20 +37,44 @@ class _AdministradorState extends State<Administrador> {
                 Navigator.pushNamed(context, '/productosadministrador');
               },
               color: Colors.blue,
-              icon: Icons.shopping_cart, // Agrega el icono correspondiente
+              icon: Icons.shopping_cart,
             ),
             HomeCard(
               title: 'Pedidos',
+              color: const Color.fromARGB(255, 175, 76, 170),
+              icon: Icons.assignment,
               onTap: () {
                 Navigator.pushNamed(context, '/pedidovendedor');
               },
-              color: Colors.green,
-              icon: Icons.assignment,
+            ),
+            HomeCard(
+              title: 'Departamento',
+              icon: Icons.work_history,
+              color: const Color.fromARGB(255, 88, 146, 73),
+              onTap: () {
+                Navigator.pushNamed(context, '/departamento');
+              },
+            ),
+            HomeCard(
+              title: 'Transportista',
+              icon: Icons.car_repair_rounded,
+              color: const Color.fromARGB(255, 80, 73, 146),
+              onTap: () {
+                Navigator.pushNamed(context, '/transporte');
+              },
+            ),
+            HomeCard(
+              title: 'Ruta de envio',
+              icon: Icons.alt_route_rounded,
+              color: const Color.fromARGB(255, 48, 17, 31),
+              onTap: () {
+                Navigator.pushNamed(context, '/rutaenvio');
+              },
             ),
             HomeCard(
               title: 'Gestión de Vendedor',
               icon: Icons.person,
-              color: Colors.teal,
+              color: const Color.fromARGB(255, 192, 80, 80),
               onTap: () {
                 Navigator.pushNamed(context, '/vendedoradministrador');
               },
@@ -63,30 +87,7 @@ class _AdministradorState extends State<Administrador> {
               color: Colors.orange,
               icon: Icons.people,
             ),
-            //HomeCard(
-            //title: 'Configuración',
-            //onTap: () {
-            // Lógica para acceder a la sección de configuración
-            //},
-            //color: Colors.red,
-            //icon: Icons.settings,
-            //),
-            //HomeCard(
-            //title: 'Estadísticas',
-            //onTap: () {
-            //Navigator.pushNamed(context, '/estadisticas');
-            //},
-            //color: Colors.yellow,
-            //icon: Icons.bar_chart,
-            //),
-            //HomeCard(
-            //title: 'Mensajes',
-            //onTap: () {
-            // Lógica para acceder a la sección de mensajes
-            //},
-            //color: Colors.deepOrange,
-            //icon: Icons.message,
-            //),
+
             HomeCard(
               title: 'Configuración de Cuenta',
               onTap: () {
@@ -105,6 +106,7 @@ class _AdministradorState extends State<Administrador> {
   Future<void> logout(BuildContext context) async {
     const CircularProgressIndicator();
     await FirebaseAuth.instance.signOut();
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -133,7 +135,7 @@ class HomeCard extends StatelessWidget {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        primary: color,
+        backgroundColor: color,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
