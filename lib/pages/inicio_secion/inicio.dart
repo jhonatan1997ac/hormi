@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/foundation.dart';
@@ -183,7 +185,7 @@ class _InicioState extends State<Inicio> {
               ),
             ),
             Container(
-              color: Colors.white,
+              color: const Color.fromARGB(255, 255, 255, 255),
               width: MediaQuery.of(context).size.width,
               child: Center(
                 child: Column(

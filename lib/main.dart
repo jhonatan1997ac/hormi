@@ -1,10 +1,19 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_departamento.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/departamento.dart';
+import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
+import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/bodega/agregar_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/categoria_producto.dart';
+import 'package:apphormi/pages/inicio/bodega/detalle_orden.dart';
 import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/historial_inventarios.dart';
+import 'package:apphormi/pages/inicio/bodega/ordenes.dart';
+import 'package:apphormi/pages/inicio/bodega/promocion.dart';
+import 'package:apphormi/pages/inicio/bodega/proveedor.dart';
 import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
-import 'package:apphormi/pages/inicio/vendedores/configuracion_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/estadisticas_pago.dart';
@@ -12,6 +21,7 @@ import 'package:apphormi/pages/inicio/vendedores/estadisticas/fecha_ventas.dart'
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/menu_estadisticas.dart';
 import 'package:apphormi/pages/inicio/vendedores/historial_venta_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/reclamaciones.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/agregar_producto_bodega.dart';
@@ -24,7 +34,7 @@ import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
+import 'pages/servicio/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,10 +75,9 @@ class _MyAppState extends State<MyApp> {
         '/historial_ventas': (context) => HistorialVentas(),
         '/empleados': (context) => const Empleados(),
         '/clientes': (context) => const Clientes(),
-        '/configuracion': (context) => Configuracion(),
         '/notificacion': (context) => Notificacion(),
         '/productosadministrador': (context) => const ProductosAdministrador(),
-        '/pedidovendedor': (context) => PedidoVendedor(),
+        '/pedidovendedor': (context) => const Detallepedidoadmin(),
         '/bodeguero': (context) => const BodegueroAdmin(),
         '/agregarproducto': (context) => const AgregarProducto(),
         '/disponibilidadproducto': (context) => const DisponibilidadProducto(),
@@ -80,6 +89,17 @@ class _MyAppState extends State<MyApp> {
         '/menuestadisticas': (context) => const MenuEstadisticas(),
         '/fechaventas': (context) => const FechaVentas(),
         '/agregarmaterial': (context) => const AgregarMaterial(),
+        '/ordenes': (context) => Orden(),
+        '/detalleorden': (context) => const DetalleOrdenes(),
+        '/proveedor': (context) => const Proveedor(),
+        '/historialinventario': (context) => HistorialInventario(),
+        '/categoriaproducto': (context) => const CategoriaProducto(),
+        '/promocion': (context) => const Promocion(),
+        '/reclamaciones': (context) => const Reclamaciones(),
+        '/departamento': (context) => const Departamento(),
+        '/agregardepartamento': (context) => const AgregarDepartamento(),
+        '/transporte': (context) => const Transporte(),
+        '/rutaenvio': (context) => const RutaEnvio(),
       },
     );
   }

@@ -12,6 +12,7 @@ class VendedorAdministrador extends StatefulWidget {
   const VendedorAdministrador({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _VendedorAdministradorState createState() => _VendedorAdministradorState();
 }
 

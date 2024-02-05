@@ -1,22 +1,26 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Clientes extends StatefulWidget {
-  const Clientes({Key? key}) : super(key: key);
-
-  @override
-  _ClientesState createState() => _ClientesState();
+void main() {
+  runApp(const MaterialApp(
+    home: Departamento(),
+  ));
 }
 
-class _ClientesState extends State<Clientes> {
+class Departamento extends StatefulWidget {
+  const Departamento({Key? key}) : super(key: key);
+
+  @override
+  _DepartamentoState createState() => _DepartamentoState();
+}
+
+class _DepartamentoState extends State<Departamento> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Usuarios Cliente'),
+        title: const Text('Gestionar Departamentos'),
       ),
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -33,21 +37,19 @@ class _ClientesState extends State<Clientes> {
             } else {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .where('rool',
-                        isEqualTo: 'cliente') // Filtrar por rol 'cliente'
+                    .collection('departamento')
                     .snapshots(),
-                builder: (context, usersSnapshot) {
-                  if (usersSnapshot.connectionState ==
+                builder: (context, departamentosSnapshot) {
+                  if (departamentosSnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return const CircularProgressIndicator();
-                  } else if (usersSnapshot.hasError) {
-                    return Text('Error: ${usersSnapshot.error}');
+                  } else if (departamentosSnapshot.hasError) {
+                    return Text('Error: ${departamentosSnapshot.error}');
                   } else {
-                    var users = usersSnapshot.data?.docs;
+                    var departamentos = departamentosSnapshot.data?.docs;
 
-                    if (users == null || users.isEmpty) {
-                      return const Text('No se encontraron usuarios clientes.');
+                    if (departamentos == null || departamentos.isEmpty) {
+                      return const Text('No se encontraron departamentos.');
                     } else {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -55,17 +57,21 @@ class _ClientesState extends State<Clientes> {
                         children: [
                           Expanded(
                             child: ListView.builder(
-                              itemCount: users.length,
+                              itemCount: departamentos.length,
                               itemBuilder: (context, index) {
-                                var userData = users[index].data();
+                                var departamentoData =
+                                    departamentos[index].data();
                                 return ListTile(
-                                  title: Text('Usuario ID: ${users[index].id}'),
+                                  title: Text(
+                                      'Departamento ID: ${departamentos[index].id}'),
                                   subtitle: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text('Email: ${userData['email']}'),
-                                      Text('Rol: ${userData['rool']}'),
+                                      Text(
+                                          'Nombre: ${departamentoData['nombre']}'),
+                                      Text(
+                                          'Ubicación: ${departamentoData['ubicacion']}'),
                                     ],
                                   ),
                                   trailing: Row(
@@ -76,18 +82,18 @@ class _ClientesState extends State<Clientes> {
                                         onPressed: () {
                                           _showEditDialog(
                                             context,
-                                            users[index].id,
-                                            userData['email'],
-                                            userData['rool'],
+                                            departamentos[index].id,
+                                            departamentoData['nombre'],
+                                            departamentoData['ubicacion'],
                                           );
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete),
+                                        icon: Icon(Icons.delete),
                                         onPressed: () {
                                           FirebaseFirestore.instance
-                                              .collection('users')
-                                              .doc(users[index].id)
+                                              .collection('departamento')
+                                              .doc(departamentos[index].id)
                                               .delete();
                                         },
                                       ),
@@ -95,6 +101,20 @@ class _ClientesState extends State<Clientes> {
                                   ),
                                 );
                               },
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 16.0,
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: FloatingActionButton.extended(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/agregardepartamento');
+                              },
+                              icon: Icon(Icons.add),
+                              label: Text('Agregar Departamento'),
                             ),
                           ),
                         ],
@@ -112,31 +132,31 @@ class _ClientesState extends State<Clientes> {
 
   void _showEditDialog(
     BuildContext context,
-    String userId,
-    String currentEmail,
-    String currentRool,
+    String departamentoId,
+    String currentNombre,
+    String currentUbicacion,
   ) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController roolController = TextEditingController();
+    TextEditingController nombreController = TextEditingController();
+    TextEditingController ubicacionController = TextEditingController();
 
-    emailController.text = currentEmail;
-    roolController.text = currentRool;
+    nombreController.text = currentNombre;
+    ubicacionController.text = currentUbicacion;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Editar Usuario'),
+          title: const Text('Editar Departamento'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: 'Nuevo Email'),
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nuevo Nombre'),
               ),
               TextField(
-                controller: roolController,
-                decoration: const InputDecoration(labelText: 'Nuevo Rol'),
+                controller: ubicacionController,
+                decoration: const InputDecoration(labelText: 'Nueva Ubicación'),
               ),
             ],
           ),
@@ -149,13 +169,12 @@ class _ClientesState extends State<Clientes> {
             ),
             TextButton(
               onPressed: () {
-                // Actualizar los datos en Firestore
                 FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(userId)
+                    .collection('departamento')
+                    .doc(departamentoId)
                     .update({
-                  'email': emailController.text,
-                  'rool': roolController.text,
+                  'nombre': nombreController.text,
+                  'ubicacion': ubicacionController.text,
                 });
 
                 Navigator.of(context).pop();
