@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -127,14 +127,7 @@ class _VentasState extends State<Ventas> {
                   agregarAlCarrito(producto, selectedQuantity);
                   // Cerrar el diálogo antes de registrar en historial
                   Navigator.of(context).pop();
-                  // Guardar en el historial de ventas
-                  registrarVentaEnHistorial(
-                    carrito,
-                    calcularSubtotal(carrito),
-                    calcularIVA(carrito),
-                    calcularTotal(carrito),
-                    tipoPagoSeleccionado ?? 'Sin especificar',
-                  );
+                  // No es necesario registrar en historial aquí, ya que se hace al final al presionar "Enviar Venta"
                 }
               },
               child: const Text('Aceptar'),
@@ -258,23 +251,13 @@ class _VentasState extends State<Ventas> {
   }
 
   Future<void> registrarVentaEnHistorial(List<Producto> productos,
-      double subtotal, double iva, double total, String? metodoPago) async {
+      double subtotal, double iva, double total, String metodoPago) async {
     try {
       if (metodoPago == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content:
                 Text('Debe seleccionar un método de pago antes de enviar.'),
-          ),
-        );
-        return;
-      }
-
-      if (tipoPagoSeleccionado == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Debe seleccionar un tipo de pago antes de enviar la venta.'),
           ),
         );
         return;
@@ -303,9 +286,7 @@ class _VentasState extends State<Ventas> {
       setState(() {
         carrito = [];
       });
-      setState(() {
-        tipoPagoSeleccionado = null;
-      });
+      // No es necesario limpiar tipoPagoSeleccionado aquí, ya que se maneja en el método mostrarDialogTipoPago
     } catch (error) {
       print("Error al registrar la venta en el historial: $error");
     }
@@ -378,19 +359,23 @@ class _VentasState extends State<Ventas> {
             ),
             TextButton(
               onPressed: () {
-                // Aquí puedes acceder a los datos ingresados y realizar la validación necesaria
                 String numeroTarjeta = numeroTarjetaController.text;
                 String fechaVencimiento = fechaVencimientoController.text;
                 String codigoSeguridad = codigoSeguridadController.text;
 
-                // Realiza la lógica de validación aquí
                 if (numeroTarjeta.isNotEmpty &&
                     fechaVencimiento.isNotEmpty &&
                     codigoSeguridad.isNotEmpty) {
-                  // Datos válidos, cierra el diálogo
                   Navigator.of(context).pop();
+                  registrarVentaEnHistorial(
+                    carrito,
+                    calcularSubtotal(carrito),
+                    calcularIVA(carrito),
+                    calcularTotal(carrito),
+                    'Tarjeta',
+                  );
                 } else {
-                  // Muestra un mensaje de error o realiza la acción correspondiente
+                  // Puedes mostrar un mensaje de error aquí
                 }
               },
               child: const Text('Aceptar'),
@@ -403,7 +388,6 @@ class _VentasState extends State<Ventas> {
 
   Future<void> mostrarDialogDatosEfectivo() async {
     TextEditingController montoRecibidoController = TextEditingController();
-    TextEditingController cambioEntregarController = TextEditingController();
 
     await showDialog(
       context: context,
@@ -437,9 +421,17 @@ class _VentasState extends State<Ventas> {
                   mostrarMensajeEmergente('Cambio a entregar: $cambio',
                       color: Colors.green);
 
+                  registrarVentaEnHistorial(
+                    carrito,
+                    calcularSubtotal(carrito),
+                    calcularIVA(carrito),
+                    calcularTotal(carrito),
+                    'Efectivo',
+                  );
+
                   Navigator.of(context).pop();
                 } else {
-                  // Muestra un mensaje de error o realiza la acción correspondiente
+                  // Puedes mostrar un mensaje de error aquí
                 }
               },
               child: const Text('Aceptar'),
@@ -546,13 +538,14 @@ class _VentasState extends State<Ventas> {
                 if (tipoPagoSeleccionado == null) {
                   mostrarDialogTipoPago();
                 } else {
-                  registrarVentaEnHistorial(
-                    carrito,
-                    calcularSubtotal(carrito),
-                    calcularIVA(carrito),
-                    calcularTotal(carrito),
-                    tipoPagoSeleccionado,
-                  );
+                  if (tipoPagoSeleccionado == 'Tarjeta') {
+                    mostrarDialogDatosTarjeta();
+                  } else if (tipoPagoSeleccionado == 'Efectivo') {
+                    mostrarDialogDatosEfectivo();
+                  } else {
+                    mostrarMensajeEmergente(
+                        'Tipo de pago no reconocido: $tipoPagoSeleccionado');
+                  }
                 }
               },
               child: const Text('Enviar Venta'),

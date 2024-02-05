@@ -32,7 +32,7 @@ class FechaVentas extends StatefulWidget {
 
 class _FechaVentasState extends State<FechaVentas> {
   final CollectionReference historialVentasCollection =
-      FirebaseFirestore.instance.collection('historial_ventas');
+      FirebaseFirestore.instance.collection('historialventas');
 
   final List<Color> fixedColors = [
     Colors.red,

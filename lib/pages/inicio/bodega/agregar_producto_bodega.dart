@@ -286,7 +286,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
 
   Future<void> _seleccionarImagen() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       if (pickedFile != null) {

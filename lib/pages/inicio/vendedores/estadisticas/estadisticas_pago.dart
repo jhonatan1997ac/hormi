@@ -30,7 +30,7 @@ class Estadisticapago extends StatefulWidget {
 
 class _EstadisticapagoState extends State<Estadisticapago> {
   final CollectionReference historialVentasCollection =
-      FirebaseFirestore.instance.collection('historial_ventas');
+      FirebaseFirestore.instance.collection('historialventas');
 
   @override
   Widget build(BuildContext context) {
