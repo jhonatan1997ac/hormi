@@ -63,30 +63,6 @@ class MenuEstadisticasHome extends StatelessWidget {
               },
             ),
             HomeCard(
-              title: 'Estadistica del producto vendido',
-              icon: Icons.pie_chart_outline_rounded,
-              color: const Color.fromARGB(255, 14, 61, 22),
-              onTap: () {
-                Navigator.pushNamed(context, '/estadisticas');
-              },
-            ),
-            HomeCard(
-              title: 'Configuración del Sistema',
-              icon: Icons.pie_chart,
-              color: Colors.indigo,
-              onTap: () {
-                Navigator.pushNamed(context, '/configuracion');
-              },
-            ),
-            HomeCard(
-              title: 'Notificaciones y Mensajes',
-              icon: Icons.pie_chart,
-              color: Colors.red,
-              onTap: () {
-                Navigator.pushNamed(context, '/notificacion');
-              },
-            ),
-            HomeCard(
               title: 'Cerrar Sesión',
               icon: Icons.exit_to_app,
               color: Colors.deepPurple,

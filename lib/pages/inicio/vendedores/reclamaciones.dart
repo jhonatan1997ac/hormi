@@ -86,7 +86,7 @@ class _ReclamacionesState extends State<Reclamaciones> {
               onPressed: () {
                 _guardarReclamacion();
               },
-              child: const Text('Enviar Reclamación'),
+              child: const Text('Notificar Reclamación'),
             ),
           ],
         ),
