@@ -33,11 +33,20 @@ class _AdministradorState extends State<Administrador> {
           children: [
             HomeCard(
               title: 'Productos',
+              color: Colors.blue,
+              icon: Icons.shopping_cart,
               onTap: () {
                 Navigator.pushNamed(context, '/productosadministrador');
               },
-              color: Colors.blue,
-              icon: Icons.shopping_cart,
+            ),
+            HomeCard(
+              title: 'Disponibilidad de Productos',
+              color: Color.fromARGB(193, 211, 132, 96),
+              icon: Icons.data_thresholding,
+              onTap: () {
+                Navigator.pushNamed(
+                    context, '/disponibilidadproductoadministrador');
+              },
             ),
             HomeCard(
               title: 'Pedidos',
@@ -87,16 +96,14 @@ class _AdministradorState extends State<Administrador> {
               color: Colors.orange,
               icon: Icons.people,
             ),
-
             HomeCard(
-              title: 'Configuración de Cuenta',
+              title: 'Cerrar Sesión',
+              icon: Icons.exit_to_app,
+              color: Colors.deepPurple,
               onTap: () {
-                // Lógica para acceder a la sección de configuración de cuenta
+                logout(context);
               },
-              color: Colors.indigo,
-              icon: Icons.account_circle,
             ),
-            // Puedes agregar más HomeCard según sea necesario
           ],
         ),
       ),

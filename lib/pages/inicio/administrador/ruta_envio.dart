@@ -105,6 +105,9 @@ class _RutaEnvioState extends State<RutaEnvio> {
               DataColumn(label: Text('Costos y Tarifas')),
               DataColumn(label: Text('Documentación')),
               DataColumn(label: Text('Notas y Comentarios')),
+              DataColumn(
+                label: Text('Acciones'), // Columna para botones de acciones
+              ),
             ],
             rows: rutaenvios.map((rutaenvio) {
               var id = rutaenvio['idrutaenvio'];
@@ -129,6 +132,23 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 DataCell(Text(costosTarifas)),
                 DataCell(Text(documentacion)),
                 DataCell(Text(notasComentarios)),
+                // Botones de acciones
+                DataCell(Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        _mostrarDialogoEditarRutaenvio(context, rutaenvio);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _eliminarRutaenvio(id);
+                      },
+                    ),
+                  ],
+                )),
               ]);
             }).toList(),
           ),
@@ -190,6 +210,82 @@ class _RutaEnvioState extends State<RutaEnvio> {
                     setState(() {}); // Actualizar el estado del diálogo
                   },
                   child: const Text('Agregar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _mostrarDialogoEditarRutaenvio(
+      BuildContext context, DocumentSnapshot rutaenvio) async {
+    // Inicializar los controladores con los datos existentes
+    idController.text = rutaenvio['idrutaenvio'];
+    origenController.text = rutaenvio['origen'];
+    destinoController.text = rutaenvio['destino'];
+    detallesEnvioController.text = rutaenvio['detalles_envio'];
+    infoTransportistaController.text = rutaenvio['info_transportista'];
+    estadoEnvioController.text = rutaenvio['estado_envio'];
+    instruccionesController.text = rutaenvio['instrucciones'];
+    costosTarifasController.text = rutaenvio['costos_tarifas'];
+    documentacionController.text = rutaenvio['documentacion'];
+    notasComentariosController.text = rutaenvio['notas_comentarios'];
+
+    errores.clear(); // Limpiar mensajes de error al abrir el diálogo
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Editar Rutaenvio'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Icon(Icons.route),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Información sobre Rutaenvios',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    _buildTextField('ID de la Rutaenvio', idController),
+                    _buildTextField('Origen', origenController),
+                    _buildTextField('Destino', destinoController),
+                    _buildTextField(
+                        'Detalles del Envío', detallesEnvioController),
+                    _buildTextField('Información del Transportista',
+                        infoTransportistaController),
+                    _buildTextField('Estado del Envío', estadoEnvioController),
+                    _buildTextField(
+                        'Instrucciones Especiales', instruccionesController),
+                    _buildTextField(
+                        'Costos y Tarifas', costosTarifasController),
+                    _buildTextField('Documentación', documentacionController),
+                    _buildTextField(
+                        'Notas y Comentarios', notasComentariosController),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _validarCampos();
+                    _editarRutaenvio(rutaenvio.id);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Guardar'),
                 ),
               ],
             );
@@ -294,6 +390,57 @@ class _RutaEnvioState extends State<RutaEnvio> {
     } catch (e) {
       if (kDebugMode) {
         print('Error al agregar Rutaenvio: $e');
+      }
+    }
+  }
+
+  Future<void> _editarRutaenvio(String id) async {
+    CollectionReference rutaenvioCollection =
+        _firestore.collection('rutaenvio');
+
+    // Obtener la referencia al documento específico que deseamos actualizar
+    DocumentReference rutaenvioRef = rutaenvioCollection.doc(id);
+
+    Map<String, dynamic> datosActualizados = {
+      'idrutaenvio': idController.text,
+      'origen': origenController.text,
+      'destino': destinoController.text,
+      'detalles_envio': detallesEnvioController.text,
+      'info_transportista': infoTransportistaController.text,
+      'estado_envio': estadoEnvioController.text,
+      'instrucciones': instruccionesController.text,
+      'costos_tarifas': costosTarifasController.text,
+      'documentacion': documentacionController.text,
+      'notas_comentarios': notasComentariosController.text,
+    };
+
+    try {
+      await rutaenvioRef.update(datosActualizados);
+      if (kDebugMode) {
+        print('Rutaenvio actualizada correctamente');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al actualizar Rutaenvio: $e');
+      }
+    }
+  }
+
+  Future<void> _eliminarRutaenvio(String id) async {
+    try {
+      await _firestore
+          .collection('rutaenvio')
+          .where('idrutaenvio', isEqualTo: id)
+          .get()
+          .then((snapshot) {
+        snapshot.docs.first.reference.delete();
+      });
+      if (kDebugMode) {
+        print('Rutaenvio eliminada correctamente');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al eliminar Rutaenvio: $e');
       }
     }
   }

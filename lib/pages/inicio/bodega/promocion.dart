@@ -1,20 +1,21 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Promocion extends StatefulWidget {
   const Promocion({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _PromocionState createState() => _PromocionState();
 }
 
 class _PromocionState extends State<Promocion> {
   int _ultimoIdPromocion = 0;
+  File? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +72,8 @@ class _PromocionState extends State<Promocion> {
                                 var datosPromocion = promociones[index].data();
                                 var idpromocion = promociones[index].id;
                                 return ListTile(
+                                  leading:
+                                      Image.network(datosPromocion['imageUrl']),
                                   title: Text(
                                     'Promoción ID: ${datosPromocion['idpromocion']}',
                                   ),
@@ -216,7 +219,6 @@ class _PromocionState extends State<Promocion> {
   }
 
   void _mostrarDialogoAgregar(BuildContext context) async {
-    // Obtener el último idpromocion de la base de datos
     var ultimasPromociones = await FirebaseFirestore.instance
         .collection('promocion')
         .orderBy('idpromocion', descending: true)
@@ -227,7 +229,6 @@ class _PromocionState extends State<Promocion> {
       var ultimaPromocion = ultimasPromociones.docs.first;
       _ultimoIdPromocion = (ultimaPromocion.data()['idpromocion'] ?? 0) + 1;
     } else {
-      // Si no hay promociones en la base de datos, comienza desde 1
       _ultimoIdPromocion = 1;
     }
 
@@ -246,6 +247,15 @@ class _PromocionState extends State<Promocion> {
             children: [
               Text(
                 'ID Promoción: $_ultimoIdPromocion',
+              ),
+              _selectedImage != null
+                  ? Image.file(_selectedImage!)
+                  : Text('Seleccionar imagen'),
+              ElevatedButton(
+                onPressed: () {
+                  _mostrarOpcionesImagen(context);
+                },
+                child: Text('Seleccionar imagen'),
               ),
               TextField(
                 controller: idproductoControlador,
@@ -274,12 +284,17 @@ class _PromocionState extends State<Promocion> {
             ),
             TextButton(
               onPressed: () async {
+                // Subir imagen a Firebase Storage
+                String imageUrl = await _subirImagenFirebaseStorage();
+
+                // Guardar datos en Firestore
                 await FirebaseFirestore.instance.collection('promocion').add({
                   'idpromocion': _ultimoIdPromocion,
                   'idproducto': idproductoControlador.text,
                   'descuento': descuentoControlador.text,
                   'fechainicio': fechainicioControlador.text,
                   'fechafin': fechafinControlador.text,
+                  'imageUrl': imageUrl, // Guardar la URL de la imagen
                 }).then((value) {
                   if (kDebugMode) {
                     print('Promoción agregada correctamente');
@@ -294,5 +309,86 @@ class _PromocionState extends State<Promocion> {
         );
       },
     );
+  }
+
+  Future<String> _subirImagenFirebaseStorage() async {
+    String imageUrl = '';
+
+    if (_selectedImage != null) {
+      try {
+        // Obtener referencia de Firebase Storage
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('promocion')
+            .child('imagen_$_ultimoIdPromocion.jpg');
+
+        // Subir imagen a Firebase Storage
+        await ref.putFile(_selectedImage!);
+
+        // Obtener la URL de la imagen subida
+        imageUrl = await ref.getDownloadURL();
+      } catch (e) {
+        print('Error al subir la imagen: $e');
+      }
+    }
+
+    return imageUrl;
+  }
+
+  void _mostrarOpcionesImagen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.camera),
+                title: Text('Tomar foto'),
+                onTap: () {
+                  _tomarFoto();
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.image),
+                title: Text('Seleccionar de galería'),
+                onTap: () {
+                  _seleccionarImagenGaleria();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _tomarFoto() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+      } else {
+        print('No se ha seleccionado ninguna imagen.');
+      }
+    });
+  }
+
+  void _seleccionarImagenGaleria() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+      } else {
+        print('No se ha seleccionado ninguna imagen.');
+      }
+    });
   }
 }

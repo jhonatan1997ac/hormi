@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,20 +12,19 @@ void main() async {
 }
 
 class Transporte extends StatefulWidget {
-  const Transporte({super.key});
+  const Transporte({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _TransporteState createState() => _TransporteState();
 }
 
 class _TransporteState extends State<Transporte> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ImagePicker _picker = ImagePicker();
   TextEditingController idController = TextEditingController();
   TextEditingController nombreController = TextEditingController();
   TextEditingController contactoController = TextEditingController();
-  TextEditingController extra1Controller = TextEditingController();
-  TextEditingController extra2Controller = TextEditingController();
+  TextEditingController imagenController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +60,18 @@ class _TransporteState extends State<Transporte> {
               child: _buildTransportesTable(),
             ),
             Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _mostrarDialogoAgregarTransporte(context);
-                },
-                child: const Text('Agregar Transporte'),
+              child: SizedBox(
+                width: 450,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _mostrarDialogoAgregarTransporte(context);
+                  },
+                  child: const Text(
+                    'Agregar Transporte',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               ),
             ),
           ],
@@ -94,22 +102,38 @@ class _TransporteState extends State<Transporte> {
               DataColumn(label: Text('ID')),
               DataColumn(label: Text('Nombre')),
               DataColumn(label: Text('Contacto')),
-              DataColumn(label: Text('Extra 1')),
-              DataColumn(label: Text('Extra 2')),
+              DataColumn(label: Text('Imagen')),
+              DataColumn(label: Text('Acciones')),
             ],
             rows: transportes.map((transporte) {
               var id = transporte['idtransporte'];
               var nombre = transporte['nombre'];
               var contacto = transporte['contacto'];
-              var extra1 = transporte['campo_extra_1'];
-              var extra2 = transporte['campo_extra_2'];
+              var imagen = transporte['imagen'];
 
               return DataRow(cells: [
                 DataCell(Text(id)),
                 DataCell(Text(nombre)),
                 DataCell(Text(contacto)),
-                DataCell(Text(extra1)),
-                DataCell(Text(extra2)),
+                DataCell(
+                  Image.file(File(imagen), width: 100, height: 100),
+                ),
+                DataCell(Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        _mostrarDialogoEditarTransporte(context, transporte);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _eliminarTransporte(transporte.id);
+                      },
+                    ),
+                  ],
+                )),
               ]);
             }).toList(),
           ),
@@ -127,7 +151,7 @@ class _TransporteState extends State<Transporte> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                const Icon(Icons.directions_bus), // Icono de transporte
+                const Icon(Icons.directions_bus),
                 const SizedBox(width: 8),
                 const Text(
                   'Información sobre Transportes',
@@ -143,21 +167,17 @@ class _TransporteState extends State<Transporte> {
                 ),
                 TextField(
                   controller: nombreController,
-                  decoration:
-                      const InputDecoration(labelText: 'Nombre del Transporte'),
+                  decoration: const InputDecoration(
+                      labelText: 'Nombre del Transporte'),
                 ),
                 TextField(
                   controller: contactoController,
                   decoration: const InputDecoration(
                       labelText: 'Contacto del Transporte'),
                 ),
-                TextField(
-                  controller: extra1Controller,
-                  decoration: const InputDecoration(labelText: 'Campo Extra 1'),
-                ),
-                TextField(
-                  controller: extra2Controller,
-                  decoration: const InputDecoration(labelText: 'Campo Extra 2'),
+                ElevatedButton(
+                  onPressed: _tomarFoto,
+                  child: const Text('Tomar Foto'),
                 ),
               ],
             ),
@@ -182,6 +202,15 @@ class _TransporteState extends State<Transporte> {
     );
   }
 
+  Future<void> _tomarFoto() async {
+    final XFile? foto = await _picker.pickImage(source: ImageSource.camera);
+    if (foto != null) {
+      setState(() {
+        imagenController.text = foto.path;
+      });
+    }
+  }
+
   Future<void> agregarTransporte() async {
     CollectionReference transporteCollection =
         _firestore.collection('transporte');
@@ -190,8 +219,7 @@ class _TransporteState extends State<Transporte> {
       'idtransporte': idController.text,
       'nombre': nombreController.text,
       'contacto': contactoController.text,
-      'tipotransporte': extra1Controller.text,
-      'campo_extra_2': extra2Controller.text,
+      'imagen': imagenController.text,
     };
 
     try {
@@ -199,22 +227,121 @@ class _TransporteState extends State<Transporte> {
       if (kDebugMode) {
         print('Transporte agregado correctamente');
       }
-      // Puedes limpiar los controladores después de agregar el transporte si es necesario
       idController.clear();
       nombreController.clear();
       contactoController.clear();
-      extra1Controller.clear();
-      extra2Controller.clear();
+      imagenController.clear();
     } catch (e) {
       if (kDebugMode) {
         print('Error al agregar transporte: $e');
       }
     }
   }
+
+  Future<void> _mostrarDialogoEditarTransporte(
+      BuildContext context, DocumentSnapshot transporte) async {
+    idController.text = transporte['idtransporte'];
+    nombreController.text = transporte['nombre'];
+    contactoController.text = transporte['contacto'];
+    imagenController.text = transporte['imagen'];
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Editar Transporte'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Icon(Icons.directions_bus),
+                const SizedBox(width: 8),
+                const Text(
+                  'Información sobre Transportes',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextField(
+                  controller: idController,
+                  decoration:
+                      const InputDecoration(labelText: 'ID del Transporte'),
+                ),
+                TextField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(
+                      labelText: 'Nombre del Transporte'),
+                ),
+                TextField(
+                  controller: contactoController,
+                  decoration: const InputDecoration(
+                      labelText: 'Contacto del Transporte'),
+                ),
+                ElevatedButton(
+                  onPressed: _tomarFoto,
+                  child: const Text('Tomar Foto'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                _actualizarTransporte(transporte.id);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _eliminarTransporte(String transporteId) async {
+    try {
+      await _firestore.collection('transporte').doc(transporteId).delete();
+      if (kDebugMode) {
+        print('Transporte eliminado correctamente');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al eliminar transporte: $e');
+      }
+    }
+  }
+
+  Future<void> _actualizarTransporte(String transporteId) async {
+    try {
+      await _firestore.collection('transporte').doc(transporteId).update({
+        'idtransporte': idController.text,
+        'nombre': nombreController.text,
+        'contacto': contactoController.text,
+        'imagen': imagenController.text,
+      });
+      if (kDebugMode) {
+        print('Transporte actualizado correctamente');
+      }
+      idController.clear();
+      nombreController.clear();
+      contactoController.clear();
+      imagenController.clear();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al actualizar transporte: $e');
+      }
+    }
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -2,10 +2,11 @@ import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_departamento.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/departamento.dart';
+import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
-import 'package:apphormi/pages/inicio/bodega/agregar_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_material_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/categoria_producto.dart';
 import 'package:apphormi/pages/inicio/bodega/detalle_orden.dart';
 import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
@@ -24,7 +25,7 @@ import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/reclamaciones.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
-import 'package:apphormi/pages/inicio/bodega/agregar_producto_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
@@ -100,6 +101,8 @@ class _MyAppState extends State<MyApp> {
         '/agregardepartamento': (context) => const AgregarDepartamento(),
         '/transporte': (context) => const Transporte(),
         '/rutaenvio': (context) => const RutaEnvio(),
+        '/disponibilidadproductoadministrador': (context) =>
+            const DisponibilidadProductoAdministrador(),
       },
     );
   }

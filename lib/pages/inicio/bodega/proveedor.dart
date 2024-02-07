@@ -1,9 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Proveedor extends StatefulWidget {
   const Proveedor({Key? key}) : super(key: key);
@@ -14,6 +16,7 @@ class Proveedor extends StatefulWidget {
 
 class _ProveedorState extends State<Proveedor> {
   int _ultimoIdProveedor = 0;
+  File? _imageFile;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,7 @@ class _ProveedorState extends State<Proveedor> {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('proveedor')
-                    .orderBy('idproveedor') // Ordena por el campo idproveedor
+                    .orderBy('idproveedor')
                     .snapshots(),
                 builder: (context, snapshotProveedores) {
                   if (snapshotProveedores.connectionState ==
@@ -60,70 +63,77 @@ class _ProveedorState extends State<Proveedor> {
                       return const Text(
                           'No se encontraron usuarios proveedores.');
                     } else {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: proveedores.length,
-                              itemBuilder: (context, index) {
-                                var datosProveedor = proveedores[index].data();
-                                var idproveedor = proveedores[index].id;
-                                return ListTile(
-                                  title: Text(
+                      return ListView.builder(
+                        itemCount: proveedores.length,
+                        itemBuilder: (context, index) {
+                          var datosProveedor = proveedores[index].data();
+                          var idproveedor = proveedores[index].id;
+                          var imageUrl = datosProveedor['imagen'];
+
+                          return Card(
+                            child: ListTile(
+                              leading: imageUrl != null
+                                  ? Image.network(
+                                      imageUrl,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: Placeholder(),
+                                    ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
                                     'Proveedor ID: ${datosProveedor['idproveedor']}',
                                   ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Nombre Empresa: ${datosProveedor['nombreEmpresa']}',
-                                      ),
-                                      Text(
-                                        'Contacto: ${datosProveedor['contacto']}',
-                                      ),
-                                      Text(
-                                        'Email: ${datosProveedor['email']}',
-                                      ),
-                                      Text(
-                                        'Rol: ${datosProveedor['rool']}',
-                                      ),
-                                    ],
+                                  Text(
+                                    'Nombre Empresa: ${datosProveedor['nombreEmpresa']}',
                                   ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () {
-                                          _mostrarDialogoEditar(
-                                            context,
-                                            idproveedor,
-                                            datosProveedor['email'],
-                                            datosProveedor['rool'],
-                                            datosProveedor['nombreEmpresa'],
-                                            datosProveedor['contacto'],
-                                          );
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete),
-                                        onPressed: () {
-                                          FirebaseFirestore.instance
-                                              .collection('proveedor')
-                                              .doc(idproveedor)
-                                              .delete();
-                                        },
-                                      ),
-                                    ],
+                                  Text(
+                                    'Contacto: ${datosProveedor['contacto']}',
                                   ),
-                                );
-                              },
+                                  Text(
+                                    'Email: ${datosProveedor['email']}',
+                                  ),
+                                  Text(
+                                    'Rol: ${datosProveedor['rool']}',
+                                  ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () {
+                                      _mostrarDialogoEditar(
+                                        context,
+                                        idproveedor,
+                                        datosProveedor['email'],
+                                        datosProveedor['rool'],
+                                        datosProveedor['nombreEmpresa'],
+                                        datosProveedor['contacto'],
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      FirebaseFirestore.instance
+                                          .collection('proveedor')
+                                          .doc(idproveedor)
+                                          .delete();
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       );
                     }
                   }
@@ -162,7 +172,7 @@ class _ProveedorState extends State<Proveedor> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'ID Proveedor: $idproveedor', // Muestra el ID, no editable
+                'ID Proveedor: $idproveedor',
               ),
               TextField(
                 controller: emailControlador,
@@ -181,6 +191,19 @@ class _ProveedorState extends State<Proveedor> {
                 controller: contactoControlador,
                 decoration: const InputDecoration(labelText: 'Nuevo Contacto'),
               ),
+              _imageFile != null
+                  ? Image.file(
+                      _imageFile!,
+                      width: 100,
+                      height: 100,
+                    )
+                  : const SizedBox(),
+              ElevatedButton(
+                onPressed: () {
+                  _mostrarOpcionesImagen(context);
+                },
+                child: const Text('Seleccionar Imagen'),
+              ),
             ],
           ),
           actions: [
@@ -192,6 +215,11 @@ class _ProveedorState extends State<Proveedor> {
             ),
             TextButton(
               onPressed: () async {
+                String? imageUrl;
+                if (_imageFile != null) {
+                  imageUrl = await _subirImagen(_imageFile!);
+                }
+
                 await FirebaseFirestore.instance
                     .collection('proveedor')
                     .doc(idproveedor)
@@ -200,6 +228,7 @@ class _ProveedorState extends State<Proveedor> {
                   'rool': rolControlador.text,
                   'nombreEmpresa': nombreEmpresaControlador.text,
                   'contacto': contactoControlador.text,
+                  'imagen': imageUrl,
                 }).then((_) {
                   print('Documento actualizado correctamente');
                 }).catchError((error) {
@@ -228,7 +257,6 @@ class _ProveedorState extends State<Proveedor> {
       var ultimoProveedor = ultimosProveedores.docs.first;
       _ultimoIdProveedor = (ultimoProveedor.data()['idproveedor'] ?? 0) + 1;
     } else {
-      // Si no hay proveedores en la base de datos, comienza desde 1
       _ultimoIdProveedor = 1;
     }
 
@@ -264,6 +292,19 @@ class _ProveedorState extends State<Proveedor> {
                 controller: contactoControlador,
                 decoration: const InputDecoration(labelText: 'Contacto'),
               ),
+              _imageFile != null
+                  ? Image.file(
+                      _imageFile!,
+                      width: 100,
+                      height: 100,
+                    )
+                  : const SizedBox(),
+              ElevatedButton(
+                onPressed: () {
+                  _mostrarOpcionesImagen(context);
+                },
+                child: const Text('Seleccionar Imagen'),
+              ),
             ],
           ),
           actions: [
@@ -275,12 +316,18 @@ class _ProveedorState extends State<Proveedor> {
             ),
             TextButton(
               onPressed: () async {
+                String? imageUrl;
+                if (_imageFile != null) {
+                  imageUrl = await _subirImagen(_imageFile!);
+                }
+
                 await FirebaseFirestore.instance.collection('proveedor').add({
                   'idproveedor': _ultimoIdProveedor,
                   'email': emailControlador.text,
                   'rool': rolControlador.text,
                   'nombreEmpresa': nombreEmpresaControlador.text,
                   'contacto': contactoControlador.text,
+                  'imagen': imageUrl,
                 }).then((value) {
                   if (kDebugMode) {
                     print('Usuario agregado correctamente');
@@ -295,5 +342,58 @@ class _ProveedorState extends State<Proveedor> {
         );
       },
     );
+  }
+
+  void _mostrarOpcionesImagen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: const Text('Seleccionar de la galería'),
+                onTap: () {
+                  _cargarImagen(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Tomar una foto'),
+                onTap: () {
+                  _cargarImagen(ImageSource.camera);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _cargarImagen(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _subirImagen(File imageFile) async {
+    try {
+      var imagePath = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
+      return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
+    } catch (e) {
+      print('Error al subir la imagen: $e');
+      return null;
+    }
   }
 }

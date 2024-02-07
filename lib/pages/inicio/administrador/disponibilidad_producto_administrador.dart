@@ -19,19 +19,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const DisponibilidadProducto(),
+      home: const DisponibilidadProductoAdministrador(),
     );
   }
 }
 
-class DisponibilidadProducto extends StatefulWidget {
-  const DisponibilidadProducto({super.key});
+class DisponibilidadProductoAdministrador extends StatefulWidget {
+  const DisponibilidadProductoAdministrador({super.key});
 
   @override
-  _DisponibilidadProductoState createState() => _DisponibilidadProductoState();
+  _DisponibilidadProductoAdministradorState createState() =>
+      _DisponibilidadProductoAdministradorState();
 }
 
-class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
+class _DisponibilidadProductoAdministradorState
+    extends State<DisponibilidadProductoAdministrador> {
   late CollectionReference productosCollection;
   File? _imagen;
 
