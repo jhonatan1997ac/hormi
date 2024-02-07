@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, unused_local_variable
+// ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -13,7 +13,6 @@ class ProductoService {
 
   Future<void> agregarProducto(Producto nuevoProducto, String imageUrl) async {
     try {
-      // Buscar si el producto ya existe en la base de datos
       var existingProduct = await _firestore
           .collection('disponibilidadproducto')
           .where('nombre', isEqualTo: nuevoProducto.nombre)
@@ -23,12 +22,9 @@ class ProductoService {
         var existingDoc = existingProduct.docs.first;
         var existingCantidad = existingDoc['cantidad'] as int;
         var nuevaCantidad = existingCantidad + nuevoProducto.cantidad;
-        var existingPrecio = existingDoc['precio'] as double;
-
-        // Check if the quality is the same
         var existingCalidad = existingDoc['calidad'] as String;
+
         if (existingCalidad == nuevoProducto.calidad) {
-          // Update the price if the quality is the same
           await _firestore
               .collection('disponibilidadproducto')
               .doc(existingDoc.id)
@@ -38,11 +34,9 @@ class ProductoService {
             'calidad': nuevoProducto.calidad,
           });
         } else {
-          // Handle the case where the quality is different
           print('Error: Quality is different.');
         }
       } else {
-        // Add a new product if it doesn't exist
         await _firestore.collection('disponibilidadproducto').add({
           'nombre': nuevoProducto.nombre,
           'precio': nuevoProducto.precio,
@@ -56,9 +50,10 @@ class ProductoService {
       if (kDebugMode) {
         print('Producto agregado correctamente a la base de datos.');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Error al agregar el producto: $e');
+        print(stackTrace);
       }
     }
   }
@@ -73,11 +68,12 @@ class ProductoService {
         String imageUrl = await storageReference.getDownloadURL();
         return imageUrl;
       }
-      return null; // Retorna null si no hay imagen
-    } catch (e) {
+      return null;
+    } catch (e, stackTrace) {
       print('Error al subir la imagen: $e');
-      throw Exception('Error al subir la imagen');
+      print(stackTrace);
     }
+    return null;
   }
 }
 
@@ -155,7 +151,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -237,7 +233,13 @@ class _AgregarProductoState extends State<AgregarProducto> {
               ],
             ),
             const SizedBox(height: 16.0),
-            if (_selectedImage != null) Image.file(_selectedImage!),
+            if (_selectedImage != null)
+              Image.file(
+                _selectedImage!,
+                width: 150.0,
+                height: 150.0,
+                fit: BoxFit.cover,
+              ),
             ElevatedButton(
               onPressed: _seleccionarImagen,
               child: const Text('Seleccionar Imagen'),
@@ -253,7 +255,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
                       int.tryParse(_cantidadController.text) != null &&
                       int.parse(_cantidadController.text) >= 1) {
                     await _agregarProducto();
-                    Navigator.pushNamed(context, '/disponibilidadproducto');
                   } else {
                     showDialog(
                       context: context,
@@ -267,7 +268,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('OK'),
+                              child: const Text('OK'),
                             ),
                           ],
                         );
@@ -301,18 +302,58 @@ class _AgregarProductoState extends State<AgregarProducto> {
     final cantidad = int.parse(_cantidadController.text);
 
     final productoService = ProductoService();
-    final imageUrl = await productoService.subirImagen(_selectedImage);
+    final Future<String?> imageUrlFuture =
+        productoService.subirImagen(_selectedImage);
 
-    final nuevoProducto = Producto(
-      nombre: nombre,
-      precio: precio,
-      cantidad: cantidad,
-      disponible: _disponible,
-      imagen: _selectedImage,
-      calidad: _selectedCalidad,
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16.0),
+              Text("Subiendo imagen..."),
+            ],
+          ),
+        );
+      },
     );
 
-    await productoService.agregarProducto(nuevoProducto, imageUrl!);
+    imageUrlFuture.then((imageUrl) async {
+      Navigator.of(context).pop(); // Cerrar el diálogo de carga
+
+      final nuevoProducto = Producto(
+        nombre: nombre,
+        precio: precio,
+        cantidad: cantidad,
+        disponible: _disponible,
+        imagen: _selectedImage,
+        calidad: _selectedCalidad,
+      );
+
+      await productoService.agregarProducto(nuevoProducto, imageUrl!);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Éxito'),
+            content: const Text('Producto agregado correctamente.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(context, '/disponibilidadproducto');
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 }
 

@@ -83,7 +83,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Widget _buildIndicators(List<Map<String, dynamic>> historialVentas) {
     Map<String, double> totalVentasPorTipoPago = {
       'Efectivo': 0,
-      'Tarjeta': 0,
+      'Banca Móvil': 0,
     };
 
     for (var venta in historialVentas) {
@@ -98,8 +98,8 @@ class _EstadisticapagoState extends State<Estadisticapago> {
     double totalVentas = totalVentasPorTipoPago.values.reduce((a, b) => a + b);
     double porcentajeEfectivo =
         (totalVentasPorTipoPago['Efectivo'] ?? 0) / totalVentas * 100;
-    double porcentajeTarjeta =
-        (totalVentasPorTipoPago['Tarjeta'] ?? 0) / totalVentas * 100;
+    double porcentajeBancaMovil =
+        (totalVentasPorTipoPago['Banca Móvil'] ?? 0) / totalVentas * 100;
 
     return Container(
       padding: EdgeInsets.all(16),
@@ -116,7 +116,8 @@ class _EstadisticapagoState extends State<Estadisticapago> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildIndicator(const Color.fromARGB(255, 3, 10, 15), 'Tarjeta'),
+              _buildIndicator(
+                  const Color.fromARGB(255, 3, 10, 15), 'Banca Móvil'),
               const SizedBox(width: 100),
               _buildIndicator(Colors.green, 'Efectivo'),
             ],
@@ -125,7 +126,8 @@ class _EstadisticapagoState extends State<Estadisticapago> {
           Text(
               'Porcentaje Efectivo: ${porcentajeEfectivo.toStringAsFixed(2)}%'),
           const SizedBox(height: 16),
-          Text('Porcentaje Tarjeta: ${porcentajeTarjeta.toStringAsFixed(2)}%'),
+          Text(
+              'Porcentaje Banca Móvil: ${porcentajeBancaMovil.toStringAsFixed(2)}%'),
         ],
       ),
     );
@@ -193,7 +195,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Color _getColorFor(String metodoPago) {
     if (metodoPago == 'Efectivo') {
       return Colors.green;
-    } else if (metodoPago == 'Tarjeta') {
+    } else if (metodoPago == 'Banca Móvil') {
       return const Color.fromARGB(255, 3, 10, 15);
     } else {
       return Colors.grey;

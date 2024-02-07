@@ -1,7 +1,10 @@
 // ignore_for_file: unused_local_variable, unnecessary_null_comparison
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Producto {
   final String id;
@@ -56,6 +59,7 @@ class _VentasState extends State<Ventas> {
   void initState() {
     super.initState();
     cargarProductosDesdeFirestore();
+    tipoPagoSeleccionado = null; // Inicializar tipoPagoSeleccionado
   }
 
   Future<void> cargarProductosDesdeFirestore() async {
@@ -250,43 +254,37 @@ class _VentasState extends State<Ventas> {
     }
   }
 
-  Future<void> registrarVentaEnHistorial(List<Producto> productos,
-      double subtotal, double iva, double total, String metodoPago) async {
+  Future<void> registrarVentaEnHistorial(
+    List<Producto> productos,
+    double subtotal,
+    double iva,
+    double total,
+    String metodoPago,
+    String nombrePersona,
+    String imagePath,
+  ) async {
     try {
-      if (metodoPago == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Debe seleccionar un método de pago antes de enviar.'),
-          ),
-        );
-        return;
-      }
-
       CollectionReference historialVentasCollection =
           FirebaseFirestore.instance.collection('historialventas');
 
       await historialVentasCollection.add({
-        'productos': productos
-            .map((producto) => {
-                  'producto_id': producto.id,
-                  'nombre': producto.nombre,
-                  'precio': producto.precio,
-                  'imagen': producto.imagen,
-                  'cantidad': producto.cantidad,
-                })
-            .toList(),
+        'productos': productos.map((producto) {
+          return {
+            'producto_id': producto.id,
+            'nombre': producto.nombre,
+            'precio': producto.precio,
+            'imagen': producto.imagen,
+            'cantidad': producto.cantidad,
+          };
+        }).toList(),
         'subtotal': subtotal,
         'iva': iva,
         'total': total,
         'metodoPago': metodoPago,
+        'nombrePersona': nombrePersona,
+        'imagen': imagePath,
         'fecha': DateTime.now(),
       });
-      // Limpiar el carrito después de enviar la venta
-      setState(() {
-        carrito = [];
-      });
-      // No es necesario limpiar tipoPagoSeleccionado aquí, ya que se maneja en el método mostrarDialogTipoPago
     } catch (error) {
       print("Error al registrar la venta en el historial: $error");
     }
@@ -301,10 +299,10 @@ class _VentasState extends State<Ventas> {
           content: Column(
             children: [
               ListTile(
-                title: const Text('Tarjeta'),
+                title: const Text('Pagar por Banca Móvil'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  mostrarDialogDatosTarjeta();
+                  mostrarDialogDatosBancaMovil();
                 },
               ),
               ListTile(
@@ -321,32 +319,42 @@ class _VentasState extends State<Ventas> {
     );
   }
 
-  Future<void> mostrarDialogDatosTarjeta() async {
-    TextEditingController numeroTarjetaController = TextEditingController();
-    TextEditingController fechaVencimientoController = TextEditingController();
-    TextEditingController codigoSeguridadController = TextEditingController();
+  Future<void> mostrarDialogDatosBancaMovil() async {
+    TextEditingController nombreController = TextEditingController();
+
+    String? imagePath;
+
+    Future<void> capturarImagen() async {
+      final ImagePicker _picker = ImagePicker();
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        setState(() {
+          imagePath = image.path;
+        });
+      }
+    }
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Ingrese los Datos de la Tarjeta'),
+          title: const Text('Ingrese los Datos para Pagar por Banca Móvil'),
           content: Column(
             children: [
               TextField(
-                controller: numeroTarjetaController,
-                decoration: InputDecoration(labelText: 'Número de Tarjeta'),
-                keyboardType: TextInputType.number,
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nombre'),
               ),
-              TextField(
-                controller: fechaVencimientoController,
-                decoration: InputDecoration(labelText: 'Fecha de Vencimiento'),
-              ),
-              TextField(
-                controller: codigoSeguridadController,
-                decoration: InputDecoration(labelText: 'Código de Seguridad'),
-                keyboardType: TextInputType.number,
-                obscureText: true,
+              if (imagePath != null)
+                Image.file(
+                  File(imagePath!),
+                  height: 100,
+                  width: 100,
+                ),
+              ElevatedButton(
+                onPressed: capturarImagen,
+                child: const Text('Tomar Foto'),
               ),
             ],
           ),
@@ -359,23 +367,20 @@ class _VentasState extends State<Ventas> {
             ),
             TextButton(
               onPressed: () {
-                String numeroTarjeta = numeroTarjetaController.text;
-                String fechaVencimiento = fechaVencimientoController.text;
-                String codigoSeguridad = codigoSeguridadController.text;
-
-                if (numeroTarjeta.isNotEmpty &&
-                    fechaVencimiento.isNotEmpty &&
-                    codigoSeguridad.isNotEmpty) {
+                String nombre = nombreController.text;
+                if (nombre.isNotEmpty && imagePath != null) {
                   Navigator.of(context).pop();
                   registrarVentaEnHistorial(
                     carrito,
                     calcularSubtotal(carrito),
                     calcularIVA(carrito),
                     calcularTotal(carrito),
-                    'Tarjeta',
+                    'Banca Móvil',
+                    nombre,
+                    imagePath!,
                   );
                 } else {
-                  // Puedes mostrar un mensaje de error aquí
+                  // Mostrar mensaje de error
                 }
               },
               child: const Text('Aceptar'),
@@ -427,6 +432,8 @@ class _VentasState extends State<Ventas> {
                     calcularIVA(carrito),
                     calcularTotal(carrito),
                     'Efectivo',
+                    '',
+                    '', // No hay image path en este caso
                   );
 
                   Navigator.of(context).pop();
@@ -538,8 +545,8 @@ class _VentasState extends State<Ventas> {
                 if (tipoPagoSeleccionado == null) {
                   mostrarDialogTipoPago();
                 } else {
-                  if (tipoPagoSeleccionado == 'Tarjeta') {
-                    mostrarDialogDatosTarjeta();
+                  if (tipoPagoSeleccionado == 'Banca Móvil') {
+                    mostrarDialogDatosBancaMovil();
                   } else if (tipoPagoSeleccionado == 'Efectivo') {
                     mostrarDialogDatosEfectivo();
                   } else {

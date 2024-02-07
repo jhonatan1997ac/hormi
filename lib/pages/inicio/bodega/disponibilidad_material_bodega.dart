@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -42,6 +41,7 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
         nombre: material.nombre,
         cantidad: material.cantidad,
         descripcion: material.descripcion,
+        imagenURL: material.imagenURL,
       );
       bool confirmacion =
           (await _mostrarConfirmacion(context, materialEditado)) as bool;
@@ -51,16 +51,12 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
           'descripcion': materialEditado.descripcion,
         });
 
-        if (kDebugMode) {
-          print('Material actualizado: $materialEditado');
-        }
+        print('Material actualizado: $materialEditado');
       }
     } catch (e) {
       print('Error al editar el material: $e');
     }
   }
-
-  // Resto del código sin cambios...
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +87,28 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                       final material = MaterialAgregado.fromSnapshot(
                           snapshot.data!.docs[index]);
                       return ListTile(
-                        title: Text(material.nombre),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        title: Row(
                           children: [
-                            Text('Cantidad: ${material.cantidad}'),
-                            Text('Descripción: ${material.descripcion}'),
+                            if (material.imagenURL != null)
+                              SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: Image.network(
+                                  material.imagenURL!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(material.nombre),
+                                  Text('Cantidad: ${material.cantidad}'),
+                                  Text('Descripción: ${material.descripcion}'),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         trailing: Row(
@@ -142,32 +154,61 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
   }
 
   void eliminarMaterial(MaterialAgregado material) {}
-}
 
-class _mostrarConfirmacion {
-  _mostrarConfirmacion(BuildContext context, MaterialAgregado materialEditado);
+  Future<bool> _mostrarConfirmacion(
+      BuildContext context, MaterialAgregado materialEditado) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar Edición'),
+              content:
+                  const Text('¿Está seguro de que desea editar este material?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
 }
 
 class MaterialAgregado {
   final String nombre;
   final int cantidad;
   final String descripcion;
+  final String? imagenURL;
 
   MaterialAgregado({
     required this.nombre,
     required this.cantidad,
     required this.descripcion,
+    this.imagenURL,
   });
 
   MaterialAgregado.fromSnapshot(DocumentSnapshot snapshot)
       : nombre = snapshot.id,
         cantidad = snapshot['cantidad'] ?? 0,
-        descripcion = snapshot['descripcion'] ?? '';
+        descripcion = snapshot['descripcion'] ?? '',
+        imagenURL = snapshot['imagenURL'] ?? '';
 
   Map<String, dynamic> toMap() {
     return {
       'cantidad': cantidad,
       'descripcion': descripcion,
+      'imagenURL': imagenURL,
     };
   }
 }
@@ -182,16 +223,12 @@ class EditarMaterialScreen extends StatefulWidget {
 }
 
 class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
-  late String selectedDescripcion;
   late TextEditingController nombreController;
   late TextEditingController cantidadController;
-  late List<String> opcionesDescripcion;
 
   @override
   void initState() {
     super.initState();
-    selectedDescripcion = widget.material.descripcion;
-    opcionesDescripcion = ['Volqueta', 'Mamut'];
     nombreController = TextEditingController(text: widget.material.nombre);
     cantidadController =
         TextEditingController(text: widget.material.cantidad.toString());
@@ -225,29 +262,13 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16.0),
-            const Text('Descripción:'),
-            const SizedBox(height: 16.0),
-            DropdownButton<String>(
-              value: selectedDescripcion,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedDescripcion = newValue!;
-                });
-              },
-              items: opcionesDescripcion.map((String opcion) {
-                return DropdownMenuItem<String>(
-                  value: opcion,
-                  child: Text(opcion),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 final materialActualizado = MaterialAgregado(
                   nombre: nombreController.text,
                   cantidad: int.parse(cantidadController.text),
-                  descripcion: selectedDescripcion,
+                  descripcion: widget.material.descripcion,
+                  imagenURL: widget.material.imagenURL,
                 );
 
                 Navigator.pop(context, materialActualizado);

@@ -1,13 +1,15 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class MaterialService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> agregarMaterial(
-      String nombre, String descripcion, String cantidad) async {
+  Future<void> agregarMaterial(String nombre, String descripcion,
+      String cantidad, String imagenURL) async {
     try {
       var existingMaterial = await _firestore
           .collection('disponibilidadmaterial')
@@ -22,6 +24,7 @@ class MaterialService {
             'nombre': nombre,
             'descripcion': descripcion,
             'cantidad': int.parse(cantidad), // Convierte a entero
+            'imagenURL': imagenURL, // Agrega la URL de la imagen
           });
 
           print('Material agregado correctamente a la base de datos.');
@@ -50,6 +53,8 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
   String _selectedMaterial = 'Arena';
   String _selectedDescripcion = 'Volqueta';
   String _selectedCantidad = '1';
+  final ImagePicker _picker = ImagePicker();
+  File? _imagenTomada;
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +135,21 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                 },
               ),
               const SizedBox(height: 16.0),
+              const Text(
+                'Tomar foto:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: InkWell(
+                  onTap: _tomarFoto,
+                  child: _imagenTomada != null
+                      ? Image.file(_imagenTomada!)
+                      : Icon(Icons.camera_alt),
+                ),
+              ),
+              const SizedBox(height: 16.0),
               const Spacer(),
               Center(
                 child: ElevatedButton(
@@ -146,15 +166,52 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
     );
   }
 
+  Future<void> _tomarFoto() async {
+    final XFile? foto = await _picker.pickImage(source: ImageSource.camera);
+    if (foto != null) {
+      setState(() {
+        _imagenTomada = File(foto.path);
+      });
+    }
+  }
+
   Future<void> _agregarMaterial() async {
     final nombre = _selectedMaterial;
     final descripcion = _selectedDescripcion;
     final cantidad = _selectedCantidad;
 
-    final materialService = MaterialService();
-    await materialService.agregarMaterial(nombre, descripcion, cantidad);
+    if (_imagenTomada != null) {
+      final String imagenURL =
+          await _subirImagenAFirebaseStorage(_imagenTomada!);
 
-    Navigator.pushNamed(context, '/disponibilidadmaterial');
+      final materialService = MaterialService();
+      await materialService.agregarMaterial(
+          nombre, descripcion, cantidad, imagenURL);
+
+      Navigator.pushNamed(context, '/disponibilidadmaterial');
+    } else {
+      print('Por favor, primero tome una foto.');
+    }
+  }
+
+  Future<String> _subirImagenAFirebaseStorage(File imagen) async {
+    try {
+      final firebase_storage.Reference ref = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('imagenes')
+          .child('material_${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+      final firebase_storage.UploadTask uploadTask = ref.putFile(imagen);
+      final firebase_storage.TaskSnapshot taskSnapshot =
+          await uploadTask.whenComplete(() => null);
+
+      final String url = await taskSnapshot.ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      print('Error al subir la imagen a Firebase Storage: $e');
+      return '';
+    }
   }
 }
 
