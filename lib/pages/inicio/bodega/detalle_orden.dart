@@ -31,7 +31,26 @@ class DetalleOrdenesModel {
   }
 }
 
+class OrdenModel {
+  String id;
+  String nombre;
+
+  OrdenModel({
+    required this.id,
+    required this.nombre,
+  });
+
+  factory OrdenModel.fromMap(Map<String, dynamic> map) {
+    return OrdenModel(
+      id: map['id'].toString(),
+      nombre: map['nombre'].toString(),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,9 +72,33 @@ class DetalleOrdenes extends StatefulWidget {
 
 class _DetalleOrdenesState extends State<DetalleOrdenes> {
   final TextEditingController idDetalleController = TextEditingController();
-  final TextEditingController idOrdenController = TextEditingController();
   final TextEditingController idProductoController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
+
+  late Stream<String?> idOrdenSeleccionado;
+  late List<OrdenModel> ordenes;
+
+  @override
+  void initState() {
+    super.initState();
+    idOrdenSeleccionado = Stream.value(null);
+    _cargarOrdenes();
+  }
+
+  Future<void> _cargarOrdenes() async {
+    FirebaseFirestore.instance
+        .collection('ordenes')
+        .snapshots()
+        .listen((QuerySnapshot querySnapshot) {
+      setState(() {
+        ordenes = querySnapshot.docs
+            .map(
+              (doc) => OrdenModel.fromMap(doc.data() as Map<String, dynamic>),
+            )
+            .toList();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,45 +107,56 @@ class _DetalleOrdenesState extends State<DetalleOrdenes> {
         title: const Text('Detalle de Órdenes'),
       ),
       body: StreamBuilder(
-        stream:
-            FirebaseFirestore.instance.collection('detalleorden').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+        stream: idOrdenSeleccionado,
+        builder: (context, AsyncSnapshot<String?> idOrdenSnapshot) {
+          if (idOrdenSnapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
           }
 
-          var detalleOrdenes = snapshot.data!.docs
-              .map(
-                (doc) => DetalleOrdenesModel(
-                  idDetalle: doc['idDetalle'].toString(),
-                  idOrden: doc['idOrden'].toString(),
-                  idProducto: doc['idProducto'].toString(),
-                  cantidad: doc['cantidad'],
-                ),
-              )
-              .toList();
+          return StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('detalleorden')
+                .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
 
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: detalleOrdenes.length,
-                  itemBuilder: (context, index) {
-                    var detalleOrden = detalleOrdenes[index];
-                    return ListTile(
-                      title: Text('ID Detalle: ${detalleOrden.idDetalle}'),
-                      subtitle: Text(
-                        'ID Orden: ${detalleOrden.idOrden}\nCantidad: ${_getCantidadText(detalleOrden.cantidad)}',
-                      ),
-                    );
-                  },
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => _agregarDetalle(context),
-                child: Text('Agregar Detalle'),
-              ),
-            ],
+              var detalleOrdenes = snapshot.data!.docs
+                  .map(
+                    (doc) => DetalleOrdenesModel(
+                      idDetalle: doc['idDetalle'].toString(),
+                      idOrden: doc['idOrden'].toString(),
+                      idProducto: doc['idProducto'].toString(),
+                      cantidad: doc['cantidad'],
+                    ),
+                  )
+                  .toList();
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: detalleOrdenes.length,
+                      itemBuilder: (context, index) {
+                        var detalleOrden = detalleOrdenes[index];
+                        return ListTile(
+                          title: Text('ID Detalle: ${detalleOrden.idDetalle}'),
+                          subtitle: Text(
+                            'ID Orden: ${detalleOrden.idOrden}\nCantidad: ${_getCantidadText(detalleOrden.cantidad)}',
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _agregarDetalle(context, idOrdenSnapshot.data),
+                    child: const Text('Agregar Detalle'),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
@@ -116,30 +170,43 @@ class _DetalleOrdenesState extends State<DetalleOrdenes> {
     return cantidad.toString();
   }
 
-  Future<void> _agregarDetalle(BuildContext context) async {
+  Future<void> _agregarDetalle(BuildContext context, String? idOrden) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Agregar Detalle'),
+          title: const Text('Agregar Detalle'),
           content: SingleChildScrollView(
             child: Column(
               children: [
-                TextFormField(
-                  controller: idDetalleController,
-                  decoration: InputDecoration(labelText: 'ID Detalle'),
-                ),
-                TextFormField(
-                  controller: idOrdenController,
-                  decoration: InputDecoration(labelText: 'ID Orden'),
+                DropdownButtonFormField<String>(
+                  value: idOrden,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      idOrdenSeleccionado = Stream.value(newValue);
+                    });
+                  },
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('Seleccionar Orden'),
+                    ),
+                    ...ordenes.map((OrdenModel orden) {
+                      return DropdownMenuItem<String>(
+                        value: orden.id,
+                        child: Text('${orden.nombre}'),
+                      );
+                    }).toList(),
+                  ],
+                  decoration: const InputDecoration(labelText: 'ID Orden'),
                 ),
                 TextFormField(
                   controller: idProductoController,
-                  decoration: InputDecoration(labelText: 'ID Producto'),
+                  decoration: const InputDecoration(labelText: 'ID Producto'),
                 ),
                 TextFormField(
                   controller: cantidadController,
-                  decoration: InputDecoration(labelText: 'Cantidad'),
+                  decoration: const InputDecoration(labelText: 'Cantidad'),
                 ),
               ],
             ),
@@ -147,16 +214,16 @@ class _DetalleOrdenesState extends State<DetalleOrdenes> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop();
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                _enviarDatosAFirebase();
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                _enviarDatosAFirebase(idOrdenSeleccionado); // Pasar el Stream
+                Navigator.of(context).pop();
               },
-              child: Text('Agregar'),
+              child: const Text('Agregar'),
             ),
           ],
         );
@@ -164,35 +231,35 @@ class _DetalleOrdenesState extends State<DetalleOrdenes> {
     );
   }
 
-  void _enviarDatosAFirebase() {
-    if (idDetalleController.text.isNotEmpty &&
-        idOrdenController.text.isNotEmpty &&
-        idProductoController.text.isNotEmpty &&
-        cantidadController.text.isNotEmpty) {
-      DetalleOrdenesModel nuevoDetalle = DetalleOrdenesModel(
-        idDetalle: idDetalleController.text,
-        idOrden: idOrdenController.text,
-        idProducto: idProductoController.text,
-        cantidad: int.parse(cantidadController.text),
-      );
+  void _enviarDatosAFirebase(Stream<String?> idOrdenStream) {
+    idOrdenStream.listen((String? idOrden) {
+      if (idOrden != null &&
+          idProductoController.text.isNotEmpty &&
+          cantidadController.text.isNotEmpty) {
+        DetalleOrdenesModel nuevoDetalle = DetalleOrdenesModel(
+          idDetalle: idDetalleController.text,
+          idOrden: idOrden,
+          idProducto: idProductoController.text,
+          cantidad: int.parse(cantidadController.text),
+        );
 
-      FirebaseFirestore.instance.collection('detalleorden').add({
-        'idDetalle': nuevoDetalle.idDetalle,
-        'idOrden': nuevoDetalle.idOrden,
-        'idProducto': nuevoDetalle.idProducto,
-        'cantidad': nuevoDetalle.cantidad,
-      });
+        FirebaseFirestore.instance.collection('detalleorden').add({
+          'idDetalle': nuevoDetalle.idDetalle,
+          'idOrden': idOrden,
+          'idProducto': nuevoDetalle.idProducto,
+          'cantidad': nuevoDetalle.cantidad,
+        });
 
-      idDetalleController.clear();
-      idOrdenController.clear();
-      idProductoController.clear();
-      cantidadController.clear();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, completa todos los campos.'),
-        ),
-      );
-    }
+        idDetalleController.clear();
+        idProductoController.clear();
+        cantidadController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor, completa todos los campos.'),
+          ),
+        );
+      }
+    });
   }
 }

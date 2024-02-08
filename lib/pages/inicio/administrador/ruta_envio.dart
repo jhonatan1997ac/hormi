@@ -136,7 +136,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 DataCell(Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       onPressed: () {
                         _mostrarDialogoEditarRutaenvio(context, rutaenvio);
                       },
@@ -219,9 +219,20 @@ class _RutaEnvioState extends State<RutaEnvio> {
     );
   }
 
-  Future<void> _mostrarDialogoEditarRutaenvio(
-      BuildContext context, DocumentSnapshot rutaenvio) async {
-    // Inicializar los controladores con los datos existentes
+  void _mostrarDialogoEditarRutaenvio(
+      BuildContext context, DocumentSnapshot rutaenvio) {
+    idController.clear();
+    origenController.clear();
+    destinoController.clear();
+    detallesEnvioController.clear();
+    infoTransportistaController.clear();
+    estadoEnvioController.clear();
+    instruccionesController.clear();
+    costosTarifasController.clear();
+    documentacionController.clear();
+    notasComentariosController.clear();
+
+    // Asignar los valores del documento a los controladores de texto
     idController.text = rutaenvio['idrutaenvio'];
     origenController.text = rutaenvio['origen'];
     destinoController.text = rutaenvio['destino'];
@@ -248,13 +259,14 @@ class _RutaEnvioState extends State<RutaEnvio> {
                     const Icon(Icons.route),
                     const SizedBox(width: 8),
                     const Text(
-                      'Información sobre Rutaenvios',
+                      'Información sobre Ruta envios',
                       style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    _buildTextField('ID de la Rutaenvio', idController),
+                    _buildTextField('ID de la Rutaenvio', idController,
+                        enabled: false),
                     _buildTextField('Origen', origenController),
                     _buildTextField('Destino', destinoController),
                     _buildTextField(
@@ -282,8 +294,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 TextButton(
                   onPressed: () {
                     _validarCampos();
-                    _editarRutaenvio(rutaenvio.id);
-                    Navigator.of(context).pop();
+                    setState(() {}); // Actualizar el estado del diálogo
                   },
                   child: const Text('Guardar'),
                 ),
@@ -295,12 +306,14 @@ class _RutaEnvioState extends State<RutaEnvio> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool enabled = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextField(
           controller: controller,
+          enabled: enabled,
           decoration: InputDecoration(
             labelText: label,
             errorText: errores[label],
@@ -314,9 +327,6 @@ class _RutaEnvioState extends State<RutaEnvio> {
   void _validarCampos() {
     errores.clear();
 
-    if (idController.text.isEmpty) {
-      errores['ID de la Rutaenvio'] = 'Campo obligatorio';
-    }
     if (origenController.text.isEmpty) {
       errores['Origen'] = 'Campo obligatorio';
     }
@@ -345,10 +355,12 @@ class _RutaEnvioState extends State<RutaEnvio> {
       errores['Notas y Comentarios'] = 'Campo obligatorio';
     }
 
-    setState(() {});
-
     if (errores.isEmpty) {
-      _agregarRutaenvio();
+      if (idController.text.isEmpty) {
+        _agregarRutaenvio();
+      } else {
+        _editarRutaenvio(idController.text);
+      }
       Navigator.of(context).pop();
     }
   }
@@ -357,17 +369,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
     CollectionReference rutaenvioCollection =
         _firestore.collection('rutaenvio');
 
-    String id = idController.text;
-
-    // Verificar si el ID ya existe
-    QuerySnapshot entradasExistente =
-        await rutaenvioCollection.where('idrutaenvio', isEqualTo: id).get();
-
-    if (entradasExistente.docs.isNotEmpty) {
-      // El ID ya existe, mostrar un mensaje de error
-      _mostrarMensajeError('Ya existe una rutaenvio con este ID.');
-      return;
-    }
+    String id = _firestore.collection('rutaenvio').doc().id;
 
     Map<String, dynamic> nuevaRutaenvio = {
       'idrutaenvio': id,
@@ -402,7 +404,6 @@ class _RutaEnvioState extends State<RutaEnvio> {
     DocumentReference rutaenvioRef = rutaenvioCollection.doc(id);
 
     Map<String, dynamic> datosActualizados = {
-      'idrutaenvio': idController.text,
       'origen': origenController.text,
       'destino': destinoController.text,
       'detalles_envio': detallesEnvioController.text,

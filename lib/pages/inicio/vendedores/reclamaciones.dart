@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,17 +28,19 @@ class Reclamaciones extends StatefulWidget {
 }
 
 class _ReclamacionesState extends State<Reclamaciones> {
-  final TextEditingController _idOrdenController = TextEditingController();
   final TextEditingController _estadoController = TextEditingController();
-
-  late String _motivoSeleccionado =
-      'Producto defectuoso'; // Inicializado con un valor por defecto
-
+  String _motivoSeleccionado = 'Producto defectuoso';
+  List<String> _ordenes = [];
   final List<String> _motivos = [
     'Producto defectuoso',
     'Envío incorrecto',
-    // Agrega más opciones según tus necesidades
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarOrdenes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +53,6 @@ class _ReclamacionesState extends State<Reclamaciones> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _idOrdenController,
-              decoration: const InputDecoration(labelText: 'ID de Orden'),
-            ),
-            const SizedBox(height: 16.0),
             DropdownButtonFormField(
               value: _motivoSeleccionado,
               items: _motivos.map((motivo) {
@@ -74,6 +69,21 @@ class _ReclamacionesState extends State<Reclamaciones> {
               decoration: const InputDecoration(
                 labelText: 'Motivo',
                 hintText: 'Seleccione el motivo',
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            DropdownButtonFormField(
+              value: null,
+              items: _ordenes.map((orden) {
+                return DropdownMenuItem(
+                  value: orden,
+                  child: Text(orden),
+                );
+              }).toList(),
+              onChanged: (value) {},
+              decoration: const InputDecoration(
+                labelText: 'ID de Orden',
+                hintText: 'Seleccione la orden',
               ),
             ),
             const SizedBox(height: 16.0),
@@ -94,12 +104,26 @@ class _ReclamacionesState extends State<Reclamaciones> {
     );
   }
 
+  void _cargarOrdenes() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('ordenes').get();
+    List<String> ordenes = [];
+    querySnapshot.docs.forEach((doc) {
+      ordenes.add(doc['idOrden']);
+    });
+    setState(() {
+      _ordenes = ordenes;
+    });
+  }
+
   void _guardarReclamacion() async {
-    String idOrden = _idOrdenController.text;
+    String idOrden = _ordenes.isNotEmpty
+        ? _ordenes.first
+        : ''; // Obtener la primera orden si está disponible
     String estado = _estadoController.text;
 
     // Validar que los campos no estén vacíos y que el motivo sea seleccionado
-    if (idOrden.isEmpty || _motivoSeleccionado == null || estado.isEmpty) {
+    if (idOrden.isEmpty || _motivoSeleccionado.isEmpty || estado.isEmpty) {
       // Mostrar un mensaje de error o realizar otra acción de manejo de errores
       showDialog(
         context: context,
@@ -107,7 +131,7 @@ class _ReclamacionesState extends State<Reclamaciones> {
           return AlertDialog(
             title: const Text('Error'),
             content: const Text(
-                'Por favor, complete todos los campos y seleccione un motivo.'),
+                'Por favor, complete todos los campos y seleccione un motivo y una orden.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -124,16 +148,13 @@ class _ReclamacionesState extends State<Reclamaciones> {
 
     // Guardar en Firebase
     await FirebaseFirestore.instance.collection('reclamaciones').add({
-      'idorden': idOrden,
+      'idOrden': idOrden,
       'motivo': _motivoSeleccionado,
       'estado': estado,
       'fecha': FieldValue.serverTimestamp(),
     });
 
     // Limpiar los controladores después de enviar la reclamación
-    _idOrdenController.clear();
-    _motivoSeleccionado =
-        ''; // Puedes establecer un valor predeterminado en lugar de null
     _estadoController.clear();
   }
 }
