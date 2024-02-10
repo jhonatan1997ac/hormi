@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,6 +39,16 @@ class MyApp extends StatelessWidget {
       title: 'Pedidos',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            primary: Colors.blue,
+            textStyle: TextStyle(fontSize: 18),
+            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
       home: const Detallepedidoadmin(),
     );
@@ -61,39 +72,94 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalle de Órdenes'),
+        title: const Text(
+          "Detalle de Órdenes",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const VendedorHome()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder(
-        stream:
-            FirebaseFirestore.instance.collection('detalleorden').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
-
-          var detalleOrdenes = snapshot.data!.docs
-              .map(
-                (doc) => DetalleOrdenesModel(
-                  idDetalle: doc['idDetalle'].toString(),
-                  idOrden: doc['idOrden'].toString(),
-                  idProducto: doc['idProducto'].toString(),
-                  cantidad: doc['cantidad'],
-                ),
-              )
-              .toList();
-
-          return Column(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemCount: detalleOrdenes.length,
-                  itemBuilder: (context, index) {
-                    var detalleOrden = detalleOrdenes[index];
-                    return ListTile(
-                      title: Text('ID Detalle: ${detalleOrden.idDetalle}'),
-                      subtitle: Text(
-                        'ID Orden: ${detalleOrden.idOrden}\nCantidad: ${_getCantidadText(detalleOrden.cantidad)}',
-                      ),
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('detalleorden')
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    var detalleOrdenes = snapshot.data!.docs
+                        .map(
+                          (doc) => DetalleOrdenesModel(
+                            idDetalle: doc['idDetalle'].toString(),
+                            idOrden: doc['idOrden'].toString(),
+                            idProducto: doc['idProducto'].toString(),
+                            cantidad: doc['cantidad'],
+                          ),
+                        )
+                        .toList();
+
+                    return ListView.builder(
+                      itemCount: detalleOrdenes.length,
+                      itemBuilder: (context, index) {
+                        var detalleOrden = detalleOrdenes[index];
+                        return Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text(
+                              'ID Detalle: ${detalleOrden.idDetalle}',
+                              style: TextStyle(color: Colors.black87),
+                            ),
+                            subtitle: Text(
+                              'ID Orden: ${detalleOrden.idOrden}\nCantidad: ${_getCantidadText(detalleOrden.cantidad)}',
+                              style: TextStyle(color: Colors.black87),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                _eliminarDetalle(detalleOrden.idDetalle);
+                              },
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -103,8 +169,8 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
                 child: Text('Agregar Detalle'),
               ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -124,6 +190,8 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
           title: Text('Agregar Detalle'),
           content: SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextFormField(
                   controller: idDetalleController,
@@ -151,7 +219,7 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
               },
               child: Text('Cancelar'),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 _enviarDatosAFirebase();
                 Navigator.of(context).pop(); // Cerrar el diálogo
@@ -194,5 +262,12 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
         ),
       );
     }
+  }
+
+  void _eliminarDetalle(String idDetalle) {
+    FirebaseFirestore.instance
+        .collection('detalleorden')
+        .doc(idDetalle)
+        .delete();
   }
 }

@@ -29,15 +29,12 @@ class Venta {
     required this.fecha,
   });
 
-  // Calcula el subtotal de la venta
   double get subtotal {
     return productos.fold(
         0, (subtotal, producto) => subtotal + producto.precio);
   }
 
-  // Calcula el total de la venta, puedes ajustar esto según tus necesidades
   double get total {
-    // Agrega aquí cualquier otro cálculo necesario para el total
     return subtotal;
   }
 
@@ -62,138 +59,148 @@ class _HistorialVentasState extends State<HistorialVentas> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner:
-          false, // Oculta la etiqueta de depuración en la parte superior derecha
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.white,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios_rounded),
+            color: Colors.black,
             onPressed: () {
-              // Navegar a la página anterior (puedes ajustar esto según tu estructura de navegación)
               Navigator.pop(context);
             },
           ),
-          title: Text('Historial de Ventas'),
+          title: const Text(
+            'Historial de Ventas',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontSize: 24.0,
+            ),
+          ),
         ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: historialCollection.snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-
-            List<Venta> historial = snapshot.data!.docs.map((document) {
-              Map<String, dynamic>? data =
-                  document.data() as Map<String, dynamic>?;
-
-              if (data != null) {
-                List<dynamic>? productosData = data['productos'];
-
-                List<Producto> productos = productosData != null
-                    ? productosData
-                        .map((productoData) => Producto(
-                              nombre: productoData['nombre'],
-                              precio: productoData['precio'],
-                            ))
-                        .toList()
-                    : [];
-
-                return Venta(
-                  productos: productos,
-                  metodoPago: data['metodoPago'],
-                  fecha: (data['fecha'] as Timestamp).toDate(),
-                );
-              } else {
-                return Venta(
-                  productos: [],
-                  metodoPago: '',
-                  fecha: DateTime.now(),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.blueAccent, Colors.indigoAccent],
+            ),
+          ),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: historialCollection.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 );
               }
-            }).toList();
 
-            // Ordenar el historial por fecha de forma descendente
-            historial.sort((a, b) => b.fecha.compareTo(a.fecha));
-
-            return ListView.builder(
-              itemCount: historial.length,
-              itemBuilder: (context, index) {
-                Venta venta = historial[index];
-                // Agregamos 1 al índice para mostrar el número de venta desde 1 en lugar de 0
-                int numeroVenta = index + 1;
-
-                return Container(
-                  margin: EdgeInsets.all(8.0),
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(8.0),
-                    color: Colors.blue,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Venta #${numeroVenta}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Método de pago: ${venta.metodoPago}',
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Fecha: ${venta.fecha}',
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Subtotal: \$${venta.subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Total: \$${venta.total.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
                 );
-              },
-            );
-          },
+              }
+
+              List<Venta> historial = snapshot.data!.docs.map((document) {
+                Map<String, dynamic>? data =
+                    document.data() as Map<String, dynamic>?;
+
+                if (data != null) {
+                  List<dynamic>? productosData = data['productos'];
+
+                  List<Producto> productos = productosData != null
+                      ? productosData
+                          .map((productoData) => Producto(
+                                nombre: productoData['nombre'],
+                                precio: productoData['precio'],
+                              ))
+                          .toList()
+                      : [];
+
+                  return Venta(
+                    productos: productos,
+                    metodoPago: data['metodoPago'],
+                    fecha: (data['fecha'] as Timestamp).toDate(),
+                  );
+                } else {
+                  return Venta(
+                    productos: [],
+                    metodoPago: '',
+                    fecha: DateTime.now(),
+                  );
+                }
+              }).toList();
+
+              historial.sort((a, b) =>
+                  a.fecha.compareTo(b.fecha)); // Ordena por fecha ascendente
+
+              return ListView.builder(
+                itemCount: historial.length,
+                itemBuilder: (context, index) {
+                  Venta venta = historial[index];
+                  int numeroVenta = index + 1;
+
+                  return Card(
+                    elevation: 4.0,
+                    margin:
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Venta #${numeroVenta}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            'Método de pago: ${venta.metodoPago}',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            'Fecha: ${venta.fecha}',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            'Subtotal: \$${venta.subtotal.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            'Total: \$${venta.total.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
