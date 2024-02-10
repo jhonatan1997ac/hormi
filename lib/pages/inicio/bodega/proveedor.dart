@@ -217,7 +217,8 @@ class _ProveedorState extends State<Proveedor> {
               onPressed: () async {
                 String? imageUrl;
                 if (_imageFile != null) {
-                  imageUrl = await _subirImagen(_imageFile!);
+                  imageUrl =
+                      await _subirImagen(_imageFile!, nombreEmpresaActual);
                 }
 
                 await FirebaseFirestore.instance
@@ -318,7 +319,8 @@ class _ProveedorState extends State<Proveedor> {
               onPressed: () async {
                 String? imageUrl;
                 if (_imageFile != null) {
-                  imageUrl = await _subirImagen(_imageFile!);
+                  imageUrl = await _subirImagen(
+                      _imageFile!, nombreEmpresaControlador.text);
                 }
 
                 await FirebaseFirestore.instance.collection('proveedor').add({
@@ -386,9 +388,10 @@ class _ProveedorState extends State<Proveedor> {
     }
   }
 
-  Future<String?> _subirImagen(File imageFile) async {
+  Future<String?> _subirImagen(File imageFile, String nombreProveedor) async {
     try {
-      var imagePath = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      var imagePath =
+          'proveedor/$nombreProveedor.jpg'; // Cambio en la ruta de almacenamiento
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {

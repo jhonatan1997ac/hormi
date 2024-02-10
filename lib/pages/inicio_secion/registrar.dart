@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -40,225 +42,230 @@ class _RegisterState extends State<Register> {
         return false;
       },
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: const Color.fromARGB(179, 8, 14, 44),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.all(12),
-                    child: Form(
-                      key: _formkey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            height: 80,
-                          ),
-                          const Text(
-                            "REGISTRARSE",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 40,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image:
+                  AssetImage("assets/carga.png"), // Ruta de la imagen de fondo
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  color: Color.fromARGB(179, 8, 14, 44),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: SingleChildScrollView(
+                    child: Container(
+                      margin: EdgeInsets.all(12),
+                      child: Form(
+                        key: _formkey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 80,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          TextFormField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'Correo',
-                              enabled: true,
-                              contentPadding: const EdgeInsets.only(
-                                  left: 14.0, bottom: 8.0, top: 8.0),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "El correo electrónico no puede estar vacío.";
-                              }
-                              if (!RegExp(
-                                      "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
-                                  .hasMatch(value)) {
-                                return ("Por favor introduzca una dirección de correo electrónico válida");
-                              } else {
-                                return null;
-                              }
-                            },
-                            onChanged: (value) {},
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                            obscureText: _isObscure,
-                            controller: passwordController,
-                            decoration: InputDecoration(
-                              suffixIcon: IconButton(
-                                  icon: Icon(_isObscure
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isObscure = !_isObscure;
-                                    });
-                                  }),
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'Contraseña',
-                              enabled: true,
-                              contentPadding: const EdgeInsets.only(
-                                  left: 14.0, bottom: 8.0, top: 15.0),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            validator: (value) {
-                              RegExp regex = RegExp(
-                                  r'^.{6,15}$'); // Modificado a 15 caracteres
-                              if (value!.isEmpty) {
-                                return "La contraseña no puede estar vacía";
-                              }
-                              if (!regex.hasMatch(value)) {
-                                return "Por favor, ingrese una contraseña válida de 6 a 15 caracteres";
-                              } else {
-                                return null;
-                              }
-                            },
-                            onChanged: (value) {},
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                            obscureText: _isObscure2,
-                            controller: confirmpassController,
-                            decoration: InputDecoration(
-                              suffixIcon: IconButton(
-                                  icon: Icon(_isObscure2
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isObscure2 = !_isObscure2;
-                                    });
-                                  }),
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'confirmar Contraseña',
-                              enabled: true,
-                              contentPadding: const EdgeInsets.only(
-                                  left: 14.0, bottom: 8.0, top: 15.0),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (confirmpassController.text !=
-                                  passwordController.text) {
-                                return "La contraseña no coincidió";
-                              } else {
-                                return null;
-                              }
-                            },
-                            onChanged: (value) {},
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              MaterialButton(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(20.0))),
-                                elevation: 5.0,
-                                height: 40,
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/logpag');
-                                },
+                            Text(
+                              "REGISTRARSE",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                child: const Text(
-                                  "Acceso",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
+                                fontSize: 40,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            SizedBox(
+                              height: 50,
+                            ),
+                            TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'Correo',
+                                enabled: true,
+                                contentPadding: EdgeInsets.only(
+                                    left: 14.0, bottom: 8.0, top: 8.0),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              MaterialButton(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(20.0))),
-                                elevation: 5.0,
-                                height: 40,
-                                onPressed: () {
-                                  setState(() {
-                                    showProgress = true;
-                                  });
-                                  signUp(emailController.text,
-                                      passwordController.text, rool);
-                                },
-                                color: Colors.white,
-                                child: const Text(
-                                  "Registro",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                  ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "El correo electrónico no puede estar vacío.";
+                                }
+                                if (!RegExp(
+                                        "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                                    .hasMatch(value)) {
+                                  return ("Por favor introduzca una dirección de correo electrónico válida");
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (value) {},
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                              obscureText: _isObscure,
+                              controller: passwordController,
+                              decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                    icon: Icon(_isObscure
+                                        ? Icons.visibility_off
+                                        : Icons.visibility),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscure = !_isObscure;
+                                      });
+                                    }),
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'Contraseña',
+                                enabled: true,
+                                contentPadding: EdgeInsets.only(
+                                    left: 14.0, bottom: 8.0, top: 15.0),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                        ],
+                              validator: (value) {
+                                RegExp regex = RegExp(
+                                    r'^.{6,15}$'); // Modificado a 15 caracteres
+                                if (value!.isEmpty) {
+                                  return "La contraseña no puede estar vacía";
+                                }
+                                if (!regex.hasMatch(value)) {
+                                  return "Por favor, ingrese una contraseña válida de 6 a 15 caracteres";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (value) {},
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                              obscureText: _isObscure2,
+                              controller: confirmpassController,
+                              decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                    icon: Icon(_isObscure2
+                                        ? Icons.visibility_off
+                                        : Icons.visibility),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscure2 = !_isObscure2;
+                                      });
+                                    }),
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'confirmar Contraseña',
+                                enabled: true,
+                                contentPadding: EdgeInsets.only(
+                                    left: 14.0, bottom: 8.0, top: 15.0),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (confirmpassController.text !=
+                                    passwordController.text) {
+                                  return "La contraseña no coincidió";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (value) {},
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                MaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0))),
+                                  elevation: 5.0,
+                                  height: 40,
+                                  onPressed: () {
+                                    Navigator.pushReplacementNamed(
+                                        context, '/logpag');
+                                  },
+                                  color: Colors.white,
+                                  child: Text(
+                                    "Acceso",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                                MaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0))),
+                                  elevation: 5.0,
+                                  height: 40,
+                                  onPressed: () {
+                                    setState(() {
+                                      showProgress = true;
+                                    });
+                                    signUp(emailController.text,
+                                        passwordController.text, rool);
+                                  },
+                                  color: Colors.white,
+                                  child: Text(
+                                    "Registro",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -266,7 +273,7 @@ class _RegisterState extends State<Register> {
   }
 
   void signUp(String email, String password, String rool) async {
-    const CircularProgressIndicator();
+    CircularProgressIndicator();
     if (_formkey.currentState!.validate()) {
       try {
         await _auth.createUserWithEmailAndPassword(
@@ -281,15 +288,15 @@ class _RegisterState extends State<Register> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Error de registro'),
-                content: const Text(
+                title: Text('Error de registro'),
+                content: Text(
                     'El correo electrónico ya está en uso. Por favor, utiliza otro correo electrónico.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Aceptar'),
+                    child: Text('Aceptar'),
                   ),
                 ],
               );
@@ -304,7 +311,6 @@ class _RegisterState extends State<Register> {
   }
 
   postDetailsToFirestore(String email, String rool) async {
-    // ignore: unused_local_variable
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');
@@ -319,7 +325,7 @@ void main() {
       initialRoute: '/',
       routes: {
         '/': (context) => Register(),
-        '/logpag': (context) => const Inicio(),
+        '/logpag': (context) => Inicio(),
       },
     ),
   );

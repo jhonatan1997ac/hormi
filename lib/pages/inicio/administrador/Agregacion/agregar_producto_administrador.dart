@@ -1,6 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -72,8 +72,8 @@ class ProductoService {
     } catch (e, stackTrace) {
       print('Error al subir la imagen: $e');
       print(stackTrace);
+      return null;
     }
-    return null;
   }
 }
 
@@ -146,114 +146,142 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Administrador Agregar Producto'),
+        title: const Text(
+          'Agregar Producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            logout(context);
+          },
+          icon: const Icon(
+            Icons.keyboard_backspace,
+            color: Colors.black,
+            size: 50.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Text('Nombre:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedProducto,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedProducto = newValue!;
-                    });
-                  },
-                  items:
-                      _productos.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(labelText: 'Precio'),
-              controller: _precioController,
-              keyboardType: TextInputType.number,
-            ),
-            if (double.tryParse(_precioController.text) != null &&
-                double.parse(_precioController.text) <= 0)
-              const Text(
-                'El precio debe ser mayor a 0',
-                style: TextStyle(color: Colors.red),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 165, 165, 165),
+              Color.fromARGB(255, 49, 62, 68),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  const Text('Nombre:'),
+                  const SizedBox(width: 16.0),
+                  DropdownButton<String>(
+                    value: _selectedProducto,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedProducto = newValue!;
+                      });
+                    },
+                    items: _productos
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Cantidad'),
-              controller: _cantidadController,
-              keyboardType: TextInputType.number,
-            ),
-            if (int.tryParse(_cantidadController.text) != null &&
-                int.parse(_cantidadController.text) < 1)
-              const Text(
-                'La cantidad debe ser mayor o igual a 1',
-                style: TextStyle(color: Colors.red),
+              SizedBox(height: 16.0),
+              TextField(
+                decoration: InputDecoration(labelText: 'Precio'),
+                controller: _precioController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Calidad:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedCalidad,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCalidad = newValue!;
-                    });
-                  },
-                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+              if (_precioController.text.isNotEmpty &&
+                  double.parse(_precioController.text) <= 0)
+                const Text(
+                  'El precio debe ser mayor a 0',
+                  style: TextStyle(color: Colors.red),
                 ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Disponible:'),
-                Switch(
-                  value: _disponible,
-                  onChanged: (value) {
-                    setState(() {
-                      _disponible = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            if (_selectedImage != null)
-              Image.file(
-                _selectedImage!,
-                width: 150.0,
-                height: 150.0,
-                fit: BoxFit.cover,
+              TextField(
+                decoration: InputDecoration(labelText: 'Cantidad'),
+                controller: _cantidadController,
+                keyboardType: TextInputType.number,
               ),
-            ElevatedButton(
-              onPressed: _seleccionarImagen,
-              child: const Text('Seleccionar Imagen'),
-            ),
-            const SizedBox(height: 16.0),
-            const Spacer(),
-            Center(
-              child: ElevatedButton(
+              if (_cantidadController.text.isNotEmpty &&
+                  int.parse(_cantidadController.text) < 1)
+                const Text(
+                  'La cantidad debe ser mayor o igual a 1',
+                  style: TextStyle(color: Colors.red),
+                ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  const Text('Calidad:'),
+                  const SizedBox(width: 16.0),
+                  DropdownButton<String>(
+                    value: _selectedCalidad,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCalidad = newValue!;
+                      });
+                    },
+                    items:
+                        _calidad.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  const Text('Disponible:'),
+                  Switch(
+                    value: _disponible,
+                    onChanged: (value) {
+                      setState(() {
+                        _disponible = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              if (_selectedImage != null)
+                Image.file(
+                  _selectedImage!,
+                  width: 150.0,
+                  height: 150.0,
+                  fit: BoxFit.cover,
+                ),
+              ElevatedButton(
+                onPressed: _seleccionarImagen,
+                child: const Text('Seleccionar Imagen'),
+              ),
+              const SizedBox(height: 16.0),
+              const Spacer(),
+              ElevatedButton(
                 onPressed: () async {
                   if (_selectedImage != null &&
-                      double.tryParse(_precioController.text) != null &&
-                      double.parse(_precioController.text) > 0 &&
-                      int.tryParse(_cantidadController.text) != null &&
-                      int.parse(_cantidadController.text) >= 1) {
+                      _precioController.text.isNotEmpty &&
+                      _cantidadController.text.isNotEmpty) {
                     await _agregarProducto();
                   } else {
                     showDialog(
@@ -278,8 +306,8 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                 },
                 child: const Text('Agregar Producto'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -296,34 +324,25 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
     });
   }
 
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Administrador(),
+      ),
+    );
+  }
+
   Future<void> _agregarProducto() async {
     final nombre = _selectedProducto;
     final precio = double.parse(_precioController.text);
     final cantidad = int.parse(_cantidadController.text);
 
     final productoService = ProductoService();
-    final Future<String?> imageUrlFuture =
-        productoService.subirImagen(_selectedImage);
+    final imageUrl = await productoService.subirImagen(_selectedImage);
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16.0),
-              Text("Subiendo imagen..."),
-            ],
-          ),
-        );
-      },
-    );
-
-    imageUrlFuture.then((imageUrl) async {
-      Navigator.of(context).pop(); // Cerrar el diálogo de carga
-
+    if (imageUrl != null) {
       final nuevoProducto = Producto(
         nombre: nombre,
         precio: precio,
@@ -333,7 +352,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
         calidad: _selectedCalidad,
       );
 
-      await productoService.agregarProducto(nuevoProducto, imageUrl!);
+      await productoService.agregarProducto(nuevoProducto, imageUrl);
 
       showDialog(
         context: context,
@@ -353,7 +372,25 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
           );
         },
       );
-    });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Error al subir la imagen.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
 
@@ -362,6 +399,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Mi Aplicación',
+      debugShowCheckedModeBanner: false,
       home: ProductosAdministrador(),
     );
   }

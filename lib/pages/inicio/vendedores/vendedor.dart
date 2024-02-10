@@ -24,72 +24,86 @@ class VendedorHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tablero de Control de ventas'),
+        title: const Text(
+          'Tablero de Control de Ventas',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         leading: IconButton(
           onPressed: () {
             logout(context);
           },
           icon: const Icon(
             Icons.logout,
+            color: Colors.black,
           ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16.0,
-          mainAxisSpacing: 16.0,
-          children: [
-            HomeCard(
-              title: 'Realizar Ventas',
-              icon: Icons.shopping_cart,
-              color: Colors.orange,
-              onTap: () {
-                Navigator.pushNamed(context, '/ventas');
-              },
-            ),
-            HomeCard(
-              title: 'Historial de Ventas',
-              icon: Icons.receipt,
-              color: Colors.purple,
-              onTap: () {
-                Navigator.pushNamed(context, '/historial_ventas');
-              },
-            ),
-            HomeCard(
-              title: 'Estadistica',
-              icon: Icons.dashboard,
-              color: Color.fromARGB(255, 14, 61, 22),
-              onTap: () {
-                Navigator.pushNamed(context, '/menuestadisticas');
-              },
-            ),
-            HomeCard(
-              title: 'Reclamaciones',
-              icon: Icons.apps_outage,
-              color: Colors.indigo,
-              onTap: () {
-                Navigator.pushNamed(context, '/reclamaciones');
-              },
-            ),
-            HomeCard(
-              title: 'Clientes',
-              icon: Icons.account_circle_outlined,
-              color: Colors.red,
-              onTap: () {
-                Navigator.pushNamed(context, '/clientes');
-              },
-            ),
-            HomeCard(
-              title: 'Cerrar Sesión',
-              icon: Icons.exit_to_app,
-              color: Colors.deepPurple,
-              onTap: () {
-                logout(context);
-              },
-            ),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/carga.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            children: [
+              HomeCard(
+                title: 'Realizar Ventas',
+                icon: Icons.shopping_cart,
+                color: Colors.blueGrey[900]!,
+                onTap: () {
+                  Navigator.pushNamed(context, '/ventas');
+                },
+              ),
+              HomeCard(
+                title: 'Historial de Ventas',
+                icon: Icons.receipt,
+                color: Colors.deepPurple[600]!,
+                onTap: () {
+                  Navigator.pushNamed(context, '/historial_ventas');
+                },
+              ),
+              HomeCard(
+                title: 'Estadísticas',
+                icon: Icons.dashboard,
+                color: Colors.teal[600]!,
+                onTap: () {
+                  Navigator.pushNamed(context, '/menuestadisticas');
+                },
+              ),
+              HomeCard(
+                title: 'Reclamaciones',
+                icon: Icons.error_outline,
+                color: Colors.red[600]!,
+                onTap: () {
+                  Navigator.pushNamed(context, '/reclamaciones');
+                },
+              ),
+              HomeCard(
+                title: 'Clientes',
+                icon: Icons.group,
+                color: Colors.orange[600]!,
+                onTap: () {
+                  Navigator.pushNamed(context, '/clientes');
+                },
+              ),
+              HomeCard(
+                title: 'Cerrar Sesión',
+                icon: Icons.exit_to_app,
+                color: Colors.grey[600]!,
+                onTap: () {
+                  logout(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -97,7 +111,6 @@ class VendedorHome extends StatelessWidget {
 
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -128,6 +141,9 @@ class HomeCard extends StatelessWidget {
       child: Card(
         color: color,
         elevation: 4.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -137,11 +153,11 @@ class HomeCard extends StatelessWidget {
                 size: 48.0,
                 color: Colors.white,
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 12.0),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

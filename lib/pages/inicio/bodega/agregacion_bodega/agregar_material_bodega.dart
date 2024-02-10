@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -199,7 +200,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
       final firebase_storage.Reference ref = firebase_storage
           .FirebaseStorage.instance
           .ref()
-          .child('imagenes')
+          .child('material')
           .child('material_${DateTime.now().millisecondsSinceEpoch}.jpg');
 
       final firebase_storage.UploadTask uploadTask = ref.putFile(imagen);
@@ -209,7 +210,9 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
       final String url = await taskSnapshot.ref.getDownloadURL();
       return url;
     } catch (e) {
-      print('Error al subir la imagen a Firebase Storage: $e');
+      if (kDebugMode) {
+        print('Error al subir la imagen a Firebase Storage: $e');
+      }
       return '';
     }
   }

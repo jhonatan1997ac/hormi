@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,18 +117,18 @@ class _TransporteState extends State<Transporte> {
                 DataCell(Text(nombre)),
                 DataCell(Text(contacto)),
                 DataCell(
-                  Image.file(File(imagen), width: 100, height: 100),
+                  Image.network(imagen, width: 50, height: 50),
                 ),
                 DataCell(Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       onPressed: () {
                         _mostrarDialogoEditarTransporte(context, transporte);
                       },
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         _eliminarTransporte(transporte.id);
                       },
@@ -167,8 +168,8 @@ class _TransporteState extends State<Transporte> {
                 ),
                 TextField(
                   controller: nombreController,
-                  decoration: const InputDecoration(
-                      labelText: 'Nombre del Transporte'),
+                  decoration:
+                      const InputDecoration(labelText: 'Nombre del Transporte'),
                 ),
                 TextField(
                   controller: contactoController,
@@ -191,7 +192,7 @@ class _TransporteState extends State<Transporte> {
             ),
             TextButton(
               onPressed: () {
-                agregarTransporte();
+                _subirImagenYAgregarTransporte();
                 Navigator.of(context).pop();
               },
               child: const Text('Agregar'),
@@ -211,19 +212,21 @@ class _TransporteState extends State<Transporte> {
     }
   }
 
-  Future<void> agregarTransporte() async {
-    CollectionReference transporteCollection =
-        _firestore.collection('transporte');
-
-    Map<String, dynamic> nuevoTransporte = {
-      'idtransporte': idController.text,
-      'nombre': nombreController.text,
-      'contacto': contactoController.text,
-      'imagen': imagenController.text,
-    };
+  Future<void> _subirImagenYAgregarTransporte() async {
+    File imageFile = File(imagenController.text);
 
     try {
-      await transporteCollection.add(nuevoTransporte);
+      String imageName = DateTime.now().millisecondsSinceEpoch.toString();
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child('transporte')
+          .child('$imageName.jpg');
+      await ref.putFile(imageFile);
+
+      String imageUrl = await ref.getDownloadURL();
+
+      await agregarTransporte(imageUrl);
+
       if (kDebugMode) {
         print('Transporte agregado correctamente');
       }
@@ -231,6 +234,26 @@ class _TransporteState extends State<Transporte> {
       nombreController.clear();
       contactoController.clear();
       imagenController.clear();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al agregar transporte: $e');
+      }
+    }
+  }
+
+  Future<void> agregarTransporte(String imageUrl) async {
+    CollectionReference transporteCollection =
+        _firestore.collection('transporte');
+
+    Map<String, dynamic> nuevoTransporte = {
+      'idtransporte': idController.text,
+      'nombre': nombreController.text,
+      'contacto': contactoController.text,
+      'imagen': imageUrl,
+    };
+
+    try {
+      await transporteCollection.add(nuevoTransporte);
     } catch (e) {
       if (kDebugMode) {
         print('Error al agregar transporte: $e');
@@ -269,8 +292,8 @@ class _TransporteState extends State<Transporte> {
                 ),
                 TextField(
                   controller: nombreController,
-                  decoration: const InputDecoration(
-                      labelText: 'Nombre del Transporte'),
+                  decoration:
+                      const InputDecoration(labelText: 'Nombre del Transporte'),
                 ),
                 TextField(
                   controller: contactoController,

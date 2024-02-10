@@ -159,7 +159,7 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
 
   Future<String?> _subirImagen(File imageFile) async {
     try {
-      var imagePath = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      var imagePath = 'ordenes/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
