@@ -47,10 +47,10 @@ class _InicioState extends State<Inicio> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  fontSize: 40,
+                  fontSize: 50,
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 80),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Form(
@@ -82,7 +82,7 @@ class _InicioState extends State<Inicio> {
                         },
                         keyboardType: TextInputType.emailAddress,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 60),
                       TextFormField(
                         controller: passwordController,
                         obscureText: _isObscure3,
@@ -120,7 +120,7 @@ class _InicioState extends State<Inicio> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 60),
                       _isLoading
                           ? const CircularProgressIndicator(
                               color: Colors.white,
@@ -145,7 +145,7 @@ class _InicioState extends State<Inicio> {
                                 ),
                               ),
                             ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 40),
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(

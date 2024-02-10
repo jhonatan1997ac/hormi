@@ -173,8 +173,9 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 165, 165, 165),
-              Color.fromARGB(255, 49, 62, 68),
+              Color.fromARGB(
+                  255, 55, 111, 139), // Color del inicio del degradado
+              Color.fromARGB(255, 165, 160, 160),
             ],
           ),
         ),
@@ -183,85 +184,129 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  const Text('Nombre:'),
-                  const SizedBox(width: 16.0),
-                  DropdownButton<String>(
-                    value: _selectedProducto,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedProducto = newValue!;
-                      });
-                    },
-                    items: _productos
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
-              TextField(
-                decoration: InputDecoration(labelText: 'Precio'),
-                controller: _precioController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-              ),
-              if (_precioController.text.isNotEmpty &&
-                  double.parse(_precioController.text) <= 0)
-                const Text(
-                  'El precio debe ser mayor a 0',
-                  style: TextStyle(color: Colors.red),
+              Container(
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    const Text(
+                      'Nombre:',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    DropdownButton<String>(
+                      value: _selectedProducto,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedProducto = newValue!;
+                        });
+                      },
+                      items: _productos
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Cantidad'),
-                controller: _cantidadController,
-                keyboardType: TextInputType.number,
               ),
-              if (_cantidadController.text.isNotEmpty &&
-                  int.parse(_cantidadController.text) < 1)
-                const Text(
-                  'La cantidad debe ser mayor o igual a 1',
-                  style: TextStyle(color: Colors.red),
+              const SizedBox(height: 16.0),
+              Container(
+                color: Colors.white, // Fondo blanco para los datos
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Precio',
+                        labelStyle: TextStyle(
+                            color: Colors
+                                .black), // Color de texto para la etiqueta
+                      ),
+                      controller: _precioController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                    if (_precioController.text.isNotEmpty &&
+                        double.parse(_precioController.text) <= 0)
+                      const Text(
+                        'El precio debe ser mayor a 0',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Cantidad',
+                        labelStyle: TextStyle(
+                            color: Colors
+                                .black), // Color de texto para la etiqueta
+                      ),
+                      controller: _cantidadController,
+                      keyboardType: TextInputType.number,
+                    ),
+                    if (_cantidadController.text.isNotEmpty &&
+                        int.parse(_cantidadController.text) < 1)
+                      Text(
+                        'La cantidad debe ser mayor o igual a 1',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Text(
+                          'Calidad:',
+                          style: TextStyle(
+                              color: Colors
+                                  .black), // Color de texto para el título
+                        ),
+                        SizedBox(width: 16.0),
+                        DropdownButton<String>(
+                          value: _selectedCalidad,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedCalidad = newValue!;
+                            });
+                          },
+                          items: _calidad
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        const Text(
+                          'Disponible:',
+                          style: TextStyle(
+                              color: Colors
+                                  .black), // Color de texto para el título
+                        ),
+                        Switch(
+                          value: _disponible,
+                          onChanged: (value) {
+                            setState(() {
+                              _disponible = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                  ],
                 ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  const Text('Calidad:'),
-                  const SizedBox(width: 16.0),
-                  DropdownButton<String>(
-                    value: _selectedCalidad,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedCalidad = newValue!;
-                      });
-                    },
-                    items:
-                        _calidad.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  const Text('Disponible:'),
-                  Switch(
-                    value: _disponible,
-                    onChanged: (value) {
-                      setState(() {
-                        _disponible = value;
-                      });
-                    },
-                  ),
-                ],
               ),
               const SizedBox(height: 16.0),
               if (_selectedImage != null)

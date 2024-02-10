@@ -17,7 +17,7 @@ import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/estadisticas_pago.dart';
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/fecha_ventas.dart';
-import 'package:apphormi/pages/inicio/vendedores/estadisticas/menu_estadisticas.dart';
+import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
 import 'package:apphormi/pages/inicio/vendedores/historial_venta_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/reclamaciones.dart';

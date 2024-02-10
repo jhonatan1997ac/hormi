@@ -1,7 +1,6 @@
-// ignore_for_file: unused_local_variable, unnecessary_null_comparison
-
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -468,105 +467,214 @@ class _VentasState extends State<Ventas> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Ventas'),
+        title: const Text(
+          "Ventas",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const VendedorHome()),
+            );
+          },
+          icon: const Icon(
+            Icons.logout,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Productos Disponibles'),
-            Expanded(
-              child: ListView.builder(
-                itemCount: productosDisponibles.length,
-                itemBuilder: (context, index) {
-                  final producto = productosDisponibles[index];
-                  return ListTile(
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${producto.nombre} '),
-                        Text('Cantidad: ${producto.cantidad}'),
-                        Text('\$${producto.precio.toStringAsFixed(2)}'),
-                        ElevatedButton(
-                          onPressed: () {
-                            mostrarDialogCantidad(producto);
-                          },
-                          child: const Text('Agregar al Carrito'),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 85, 142, 165),
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 4,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Productos Disponibles',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 250, 250, 250),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: productosDisponibles.length,
+                  itemBuilder: (context, index) {
+                    final producto = productosDisponibles[index];
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              producto.nombre,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            Text(
+                              'Cantidad: ${producto.cantidad}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              '\$${producto.precio.toStringAsFixed(2)}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                mostrarDialogCantidad(producto);
+                              },
+                              child: const Text('Agregar al Carrito'),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    leading: SizedBox(
-                      width: 50.0,
-                      child: producto.imagen != null
-                          ? Image.network(producto.imagen!)
-                          : const Placeholder(),
-                    ),
-                  );
-                },
+                        leading: SizedBox(
+                          width: 50.0,
+                          child: producto.imagen != null
+                              ? Image.network(producto.imagen!)
+                              : const Placeholder(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text('Carrito de Compras'),
-            Expanded(
-              child: ListView.builder(
-                itemCount: carrito.length,
-                itemBuilder: (context, index) {
-                  final producto = carrito[index];
-                  return ListTile(
-                    title: Text('${producto.nombre} '),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('\$${producto.precio.toStringAsFixed(2)}'),
-                        Text('Cantidad: ${producto.cantidad}'),
-                      ],
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 85, 142, 165),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 161, 157, 157)
+                          .withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 4,
+                      offset: Offset(0, 3),
                     ),
-                    leading: SizedBox(
-                      width: 50.0,
-                      child: producto.imagen != null
-                          ? Image.network(producto.imagen!)
-                          : const Placeholder(),
+                  ],
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Carrito de Compras',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 250, 250, 250), // Color blanco
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                mostrarDialogTipoPago();
-              },
-              child: const Text('Escoger Tipo de Pago'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                if (tipoPagoSeleccionado == null) {
+              Expanded(
+                child: ListView.builder(
+                  itemCount: carrito.length,
+                  itemBuilder: (context, index) {
+                    final producto = carrito[index];
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Text(
+                          '${producto.nombre}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '\$${producto.precio.toStringAsFixed(2)}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              'Cantidad: ${producto.cantidad}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        leading: SizedBox(
+                          width: 50.0,
+                          child: producto.imagen != null
+                              ? Image.network(producto.imagen!)
+                              : const Placeholder(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
                   mostrarDialogTipoPago();
-                } else {
-                  if (tipoPagoSeleccionado == 'Banca Móvil') {
-                    mostrarDialogDatosBancaMovil();
-                  } else if (tipoPagoSeleccionado == 'Efectivo') {
-                    mostrarDialogDatosEfectivo();
-                  } else {
-                    mostrarMensajeEmergente(
-                        'Tipo de pago no reconocido: $tipoPagoSeleccionado');
-                  }
-                }
-              },
-              child: const Text('Enviar Venta'),
-              style: ElevatedButton.styleFrom(
-                onPrimary: const Color.fromARGB(255, 241, 241, 241),
-                primary: tipoPagoSeleccionado == null
-                    ? const Color.fromARGB(255, 39, 34, 34)
-                    : Color.fromARGB(255, 1, 243, 142),
+                },
+                child: const Text('Escoger Tipo de Pago'),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-                'Tipo de Pago Seleccionado: ${tipoPagoSeleccionado ?? "Ninguno"}'),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (tipoPagoSeleccionado == null) {
+                    mostrarDialogTipoPago();
+                  } else {
+                    if (tipoPagoSeleccionado == 'Banca Móvil') {
+                      mostrarDialogDatosBancaMovil();
+                    } else if (tipoPagoSeleccionado == 'Efectivo') {
+                      mostrarDialogDatosEfectivo();
+                    } else {
+                      mostrarMensajeEmergente(
+                          'Tipo de pago no reconocido: $tipoPagoSeleccionado');
+                    }
+                  }
+                },
+                child: const Text('Enviar Venta'),
+                style: ElevatedButton.styleFrom(
+                  onPrimary: const Color.fromARGB(255, 241, 241, 241),
+                  primary: tipoPagoSeleccionado == null
+                      ? const Color.fromARGB(255, 39, 34, 34)
+                      : const Color.fromARGB(255, 1, 243, 142),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                  'Tipo de Pago Seleccionado: ${tipoPagoSeleccionado ?? "Ninguno"}'),
+            ],
+          ),
         ),
       ),
     );
