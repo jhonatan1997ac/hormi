@@ -114,8 +114,15 @@ class _DisponibilidadProductoAdministradorState
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Confirmar Edición'),
-              content:
-                  const Text('¿Está seguro de que desea editar este producto?'),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('¿Está seguro de que desea editar este producto?'),
+                  const SizedBox(height: 8.0),
+                  Text('Calidad: ${producto.calidad}'),
+                ],
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {

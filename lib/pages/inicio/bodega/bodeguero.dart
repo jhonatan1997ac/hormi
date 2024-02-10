@@ -1,6 +1,7 @@
-import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../inicio_secion/inicio.dart';
 
 class Bodeguero extends StatefulWidget {
   const Bodeguero({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class Bodeguero extends StatefulWidget {
 class _BodegueroState extends State<Bodeguero> {
   @override
   Widget build(BuildContext context) {
-    return const Bodeguero();
+    return const BodegueroHome();
   }
 }
 
@@ -23,120 +24,134 @@ class BodegueroHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('bodeguero'),
+        title: const Text(
+          'Tablero de Control de Bodeguero',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         leading: IconButton(
           onPressed: () {
             logout(context);
           },
           icon: const Icon(
             Icons.logout,
+            color: Colors.black,
           ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16.0,
-          mainAxisSpacing: 16.0,
-          children: [
-            HomeCard(
-              title: 'Gestión de Productos',
-              icon: Icons.inventory,
-              color: const Color.fromARGB(255, 28, 168, 168),
-              onTap: () {
-                Navigator.pushNamed(context, '/gestprod');
-              },
-            ),
-            HomeCard(
-              title: 'Agregar Productos',
-              icon: Icons.inventory_sharp,
-              color: Colors.blue,
-              onTap: () {
-                Navigator.pushNamed(context, '/agregarproducto');
-              },
-            ),
-            HomeCard(
-              title: 'Disponibilidad de producto',
-              icon: Icons.check_circle,
-              color: const Color.fromARGB(255, 243, 159, 33),
-              onTap: () {
-                Navigator.pushNamed(context, '/disponibilidadproducto');
-              },
-            ),
-            HomeCard(
-              title: 'Agregar material ',
-              icon: Icons.inventory_outlined,
-              color: const Color.fromARGB(255, 102, 9, 82),
-              onTap: () {
-                Navigator.pushNamed(context, '/agregarmaterial');
-              },
-            ),
-            HomeCard(
-              title: 'Disponibilidad material',
-              icon: Icons.data_thresholding,
-              color: const Color.fromARGB(255, 114, 173, 18),
-              onTap: () {
-                Navigator.pushNamed(context, '/disponibilidadmaterial');
-              },
-            ),
-            HomeCard(
-              title: 'Ordenes',
-              icon: Icons.add_shopping_cart,
-              color: const Color.fromARGB(255, 32, 32, 85),
-              onTap: () {
-                Navigator.pushNamed(context, '/ordenes');
-              },
-            ),
-            HomeCard(
-              title: 'Detalle de Ordenes',
-              icon: Icons.shopping_bag_outlined,
-              color: const Color.fromARGB(255, 36, 85, 32),
-              onTap: () {
-                Navigator.pushNamed(context, '/detalleorden');
-              },
-            ),
-            HomeCard(
-              title: 'Provedores',
-              icon: Icons.supervised_user_circle,
-              color: const Color.fromARGB(255, 53, 179, 179),
-              onTap: () {
-                Navigator.pushNamed(context, '/proveedor');
-              },
-            ),
-            HomeCard(
-              title: 'Historial de Inventarios',
-              icon: Icons.history_toggle_off_rounded,
-              color: const Color.fromARGB(255, 183, 231, 11),
-              onTap: () {
-                Navigator.pushNamed(context, '/historialinventario');
-              },
-            ),
-            HomeCard(
-              title: 'Categorias producto',
-              icon: Icons.label_important_rounded,
-              color: const Color.fromARGB(255, 177, 103, 53),
-              onTap: () {
-                Navigator.pushNamed(context, '/categoriaproducto');
-              },
-            ),
-            HomeCard(
-              title: 'Promoción',
-              icon: Icons.local_offer_sharp,
-              color: const Color.fromARGB(255, 177, 53, 90),
-              onTap: () {
-                Navigator.pushNamed(context, '/promocion');
-              },
-            ),
-            HomeCard(
-              title: 'Cerrar Sesión',
-              icon: Icons.exit_to_app,
-              color: Colors.deepPurple,
-              onTap: () {
-                logout(context);
-              },
-            ),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/carga.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            children: [
+              HomeCard(
+                title: 'Gestión de Productos',
+                icon: Icons.inventory,
+                color: const Color(0xFF1CA8A8),
+                onTap: () {
+                  Navigator.pushNamed(context, '/gestprod');
+                },
+              ),
+              HomeCard(
+                title: 'Agregar Productos',
+                icon: Icons.add_box,
+                color: const Color(0xFF1976D2),
+                onTap: () {
+                  Navigator.pushNamed(context, '/agregarproducto');
+                },
+              ),
+              HomeCard(
+                title: 'Disponibilidad de producto',
+                icon: Icons.check_circle,
+                color: const Color(0xFFF39F21),
+                onTap: () {
+                  Navigator.pushNamed(context, '/disponibilidadproducto');
+                },
+              ),
+              HomeCard(
+                title: 'Agregar material ',
+                icon: Icons.inventory_outlined,
+                color: const Color(0xFF660952),
+                onTap: () {
+                  Navigator.pushNamed(context, '/agregarmaterial');
+                },
+              ),
+              HomeCard(
+                title: 'Disponibilidad material',
+                icon: Icons.data_usage,
+                color: const Color(0xFF72AD12),
+                onTap: () {
+                  Navigator.pushNamed(context, '/disponibilidadmaterial');
+                },
+              ),
+              HomeCard(
+                title: 'Ordenes',
+                icon: Icons.shopping_cart,
+                color: const Color(0xFF202055),
+                onTap: () {
+                  Navigator.pushNamed(context, '/ordenes');
+                },
+              ),
+              HomeCard(
+                title: 'Detalle de Ordenes',
+                icon: Icons.receipt_long,
+                color: const Color(0xFF245520),
+                onTap: () {
+                  Navigator.pushNamed(context, '/detalleorden');
+                },
+              ),
+              HomeCard(
+                title: 'Proveedores',
+                icon: Icons.supervisor_account,
+                color: const Color(0xFF35B3B3),
+                onTap: () {
+                  Navigator.pushNamed(context, '/proveedor');
+                },
+              ),
+              HomeCard(
+                title: 'Historial de Inventarios',
+                icon: Icons.history,
+                color: const Color(0xFFB7E70B),
+                onTap: () {
+                  Navigator.pushNamed(context, '/historialinventario');
+                },
+              ),
+              HomeCard(
+                title: 'Categorias producto',
+                icon: Icons.category,
+                color: const Color(0xFFB16735),
+                onTap: () {
+                  Navigator.pushNamed(context, '/categoriaproducto');
+                },
+              ),
+              HomeCard(
+                title: 'Promoción',
+                icon: Icons.local_offer,
+                color: const Color(0xFFB1355A),
+                onTap: () {
+                  Navigator.pushNamed(context, '/promocion');
+                },
+              ),
+              HomeCard(
+                title: 'Cerrar Sesión',
+                icon: Icons.exit_to_app,
+                color: Colors.deepPurple,
+                onTap: () {
+                  logout(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -144,7 +159,6 @@ class BodegueroHome extends StatelessWidget {
 
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -175,7 +189,11 @@ class HomeCard extends StatelessWidget {
       child: Card(
         color: color,
         elevation: 4.0,
-        child: Center(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -187,6 +205,7 @@ class HomeCard extends StatelessWidget {
               const SizedBox(height: 8.0),
               Text(
                 title,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,

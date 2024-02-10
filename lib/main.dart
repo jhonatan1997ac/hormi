@@ -1,7 +1,5 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
-import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_departamento.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/departamento.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
@@ -26,11 +24,11 @@ import 'package:apphormi/pages/inicio/vendedores/reclamaciones.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
-import 'package:apphormi/pages/inicio/home.dart';
 import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/producto_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
+import 'package:apphormi/pages/inicio_secion/principal.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -67,9 +65,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Extraccion de datos y edicion',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/logpag',
+      initialRoute: '/principal',
       routes: {
-        '/home': (context) => const Home(),
+        '/principal': (context) => const Principal(),
         '/logpag': (context) => const Inicio(),
         '/gestprod': (context) => GestionProductos(),
         '/ventas': (context) => const Ventas(),
@@ -97,8 +95,6 @@ class _MyAppState extends State<MyApp> {
         '/categoriaproducto': (context) => const CategoriaProducto(),
         '/promocion': (context) => const Promocion(),
         '/reclamaciones': (context) => const Reclamaciones(),
-        '/departamento': (context) => const Departamento(),
-        '/agregardepartamento': (context) => const AgregarDepartamento(),
         '/transporte': (context) => const Transporte(),
         '/rutaenvio': (context) => const RutaEnvio(),
         '/disponibilidadproductoadministrador': (context) =>
