@@ -70,7 +70,7 @@ class _AgregarBodegueroState extends State<AgregarBodeguero> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
               Navigator.pushReplacementNamed(context, '/bodeguero');
             },

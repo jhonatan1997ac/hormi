@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,46 +34,89 @@ class _RutaEnvioState extends State<RutaEnvio> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Ruta Envio ',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Datos de Ruta Envio'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Datos de Ruta Envio',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
           ),
         ),
-        body: Column(
-          children: [
-            const Icon(Icons.route),
-            const SizedBox(width: 20),
-            const Text(
-              'Información sobre Ruta Envios',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Administrador()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(
+                    10.0), // Añadir relleno alrededor del Row
+                color: Colors.white, // Fondo blanco
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, // Centrar el contenido horizontalmente
+                  children: [
+                    Icon(Icons.route, color: Colors.black), // Icono negro
+                    SizedBox(width: 20),
+                    Text(
+                      'Información sobre Ruta Envios',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black, // Texto negro
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: _buildRutaenviosTable(),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _mostrarDialogoAgregarRutaenvio(context);
-                },
-                child: const Text('Agregar Rutaenvio'),
+              const SizedBox(height: 10),
+              Expanded(
+                child: _buildRutaenviosTable(),
               ),
-            ),
-          ],
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    _mostrarDialogoAgregarRutaenvio(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue,
+                  ),
+                  child: const Text(
+                    'Agregar Rutaenvio',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -93,64 +137,68 @@ class _RutaEnvioState extends State<RutaEnvio> {
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('ID')),
-              DataColumn(label: Text('Origen')),
-              DataColumn(label: Text('Destino')),
-              DataColumn(label: Text('Detalles del Envío')),
-              DataColumn(label: Text('Información del Transportista')),
-              DataColumn(label: Text('Estado del Envío')),
-              DataColumn(label: Text('Instrucciones Especiales')),
-              DataColumn(label: Text('Costos y Tarifas')),
-              DataColumn(label: Text('Documentación')),
-              DataColumn(label: Text('Notas y Comentarios')),
-              DataColumn(
-                label: Text('Acciones'), // Columna para botones de acciones
-              ),
-            ],
-            rows: rutaenvios.map((rutaenvio) {
-              var id = rutaenvio['idrutaenvio'];
-              var origen = rutaenvio['origen'];
-              var destino = rutaenvio['destino'];
-              var detallesEnvio = rutaenvio['detalles_envio'];
-              var infoTransportista = rutaenvio['info_transportista'];
-              var estadoEnvio = rutaenvio['estado_envio'];
-              var instrucciones = rutaenvio['instrucciones'];
-              var costosTarifas = rutaenvio['costos_tarifas'];
-              var documentacion = rutaenvio['documentacion'];
-              var notasComentarios = rutaenvio['notas_comentarios'];
+          child: Container(
+            color:
+                Colors.white.withOpacity(0.8), // Fondo blanco semitransparente
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('ID')),
+                DataColumn(label: Text('Origen')),
+                DataColumn(label: Text('Destino')),
+                DataColumn(label: Text('Detalles del Envío')),
+                DataColumn(label: Text('Información del Transportista')),
+                DataColumn(label: Text('Estado del Envío')),
+                DataColumn(label: Text('Instrucciones Especiales')),
+                DataColumn(label: Text('Costos y Tarifas')),
+                DataColumn(label: Text('Documentación')),
+                DataColumn(label: Text('Notas y Comentarios')),
+                DataColumn(
+                  label: Text('Acciones'), // Columna para botones de acciones
+                ),
+              ],
+              rows: rutaenvios.map((rutaenvio) {
+                var id = rutaenvio['idrutaenvio'];
+                var origen = rutaenvio['origen'];
+                var destino = rutaenvio['destino'];
+                var detallesEnvio = rutaenvio['detalles_envio'];
+                var infoTransportista = rutaenvio['info_transportista'];
+                var estadoEnvio = rutaenvio['estado_envio'];
+                var instrucciones = rutaenvio['instrucciones'];
+                var costosTarifas = rutaenvio['costos_tarifas'];
+                var documentacion = rutaenvio['documentacion'];
+                var notasComentarios = rutaenvio['notas_comentarios'];
 
-              return DataRow(cells: [
-                DataCell(Text(id)),
-                DataCell(Text(origen)),
-                DataCell(Text(destino)),
-                DataCell(Text(detallesEnvio)),
-                DataCell(Text(infoTransportista)),
-                DataCell(Text(estadoEnvio)),
-                DataCell(Text(instrucciones)),
-                DataCell(Text(costosTarifas)),
-                DataCell(Text(documentacion)),
-                DataCell(Text(notasComentarios)),
-                // Botones de acciones
-                DataCell(Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        _mostrarDialogoEditarRutaenvio(context, rutaenvio);
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        _eliminarRutaenvio(id);
-                      },
-                    ),
-                  ],
-                )),
-              ]);
-            }).toList(),
+                return DataRow(cells: [
+                  DataCell(Text(id)),
+                  DataCell(Text(origen)),
+                  DataCell(Text(destino)),
+                  DataCell(Text(detallesEnvio)),
+                  DataCell(Text(infoTransportista)),
+                  DataCell(Text(estadoEnvio)),
+                  DataCell(Text(instrucciones)),
+                  DataCell(Text(costosTarifas)),
+                  DataCell(Text(documentacion)),
+                  DataCell(Text(notasComentarios)),
+                  // Botones de acciones
+                  DataCell(Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          _mostrarDialogoEditarRutaenvio(context, rutaenvio);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          _eliminarRutaenvio(id);
+                        },
+                      ),
+                    ],
+                  )),
+                ]);
+              }).toList(),
+            ),
           ),
         );
       },
@@ -166,7 +214,9 @@ class _RutaEnvioState extends State<RutaEnvio> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Agregar Rutaenvio'),
+              title: const Text(
+                'Agregar Rutaenvio',
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   children: [

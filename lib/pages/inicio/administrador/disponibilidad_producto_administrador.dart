@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
 }
 
 class DisponibilidadProductoAdministrador extends StatefulWidget {
-  const DisponibilidadProductoAdministrador({super.key});
+  const DisponibilidadProductoAdministrador({Key? key}) : super(key: key);
 
   @override
   _DisponibilidadProductoAdministradorState createState() =>
@@ -175,96 +176,194 @@ class _DisponibilidadProductoAdministradorState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Disponibilidad de producto'),
+        title: const Text(
+          "Disponibilidad de producto",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Administrador()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _imagen != null
-                ? Image.file(
-                    _imagen!,
-                    width: 150.0,
-                    height: 150.0,
-                    fit: BoxFit.cover,
-                  )
-                : const SizedBox.shrink(),
-            const SizedBox(height: 16.0),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: productosCollection.snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            color: Colors.white, // Fondo blanco
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _imagen != null
+                    ? Image.file(
+                        _imagen!,
+                        width: 150.0,
+                        height: 150.0,
+                        fit: BoxFit.cover,
+                      )
+                    : const SizedBox.shrink(),
+                const SizedBox(height: 16.0),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: productosCollection.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text(
+                          'Error: ${snapshot.error}',
+                          style:
+                              TextStyle(color: Colors.black), // Texto en negro
+                        );
+                      }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
 
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final producto =
-                          Producto.fromSnapshot(snapshot.data!.docs[index]);
-                      return ListTile(
-                        title: Text(producto.nombre),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                'Precio: \$${producto.precio.toStringAsFixed(2)}'),
-                            Text('Cantidad: ${producto.cantidad}'),
-                            Text(
-                                'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
-                            Text('Calidad: ${producto.calidad}'),
-                          ],
-                        ),
-                        leading: producto.imagen != null
-                            ? Image.network(
-                                producto.imagen!,
-                                width: 50.0,
-                                height: 50.0,
-                              )
-                            : const SizedBox.shrink(),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () async {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditarProductoScreen(
-                                        producto: producto,
+                      return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          final producto =
+                              Producto.fromSnapshot(snapshot.data!.docs[index]);
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Imagen del producto
+                                  Container(
+                                    width: 80.0,
+                                    height: 80.0,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          producto.imagen ??
+                                              '', // Añadir URL de la imagen
+                                        ),
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                  ).then((productoActualizado) async {
-                                    if (productoActualizado != null) {
-                                      await editarProducto(productoActualizado);
-                                      print(
-                                          'Producto actualizado: $productoActualizado');
-                                    }
-                                  });
-                                }),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                eliminarProducto(producto);
-                              },
+                                  ),
+                                  const SizedBox(width: 16.0),
+                                  // Detalles del producto
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Nombre del producto
+                                        Text(
+                                          producto.nombre,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8.0),
+                                        // Precio y cantidad
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Precio: \$${producto.precio.toStringAsFixed(2)}',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            Text(
+                                              'Cantidad: ${producto.cantidad}',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4.0),
+                                        // Disponibilidad
+                                        Text(
+                                          'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        const SizedBox(height: 4.0),
+                                        // Calidad
+                                        Text(
+                                          'Calidad: ${producto.calidad}',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Acciones
+                                  Column(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () async {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditarProductoScreen(
+                                                producto: producto,
+                                              ),
+                                            ),
+                                          ).then((productoActualizado) async {
+                                            if (productoActualizado != null) {
+                                              await editarProducto(
+                                                  productoActualizado);
+                                              print(
+                                                  'Producto actualizado: $productoActualizado');
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {
+                                          eliminarProducto(producto);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -376,95 +475,180 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Producto'),
+        title: const Text(
+          'Editar Producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/disponibilidadproducto');
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Nombre:'),
-            const SizedBox(width: 16.0),
-            DropdownButton<String>(
-              value: _selectedProducto,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedProducto = newValue!;
-                });
-              },
-              items: _productos.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: precioController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  const InputDecoration(labelText: 'Precio del Producto'),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: cantidadController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Cantidad'),
-            ),
-            const SizedBox(height: 16.0),
-            const Text('Calidad:'),
-            const SizedBox(width: 16.0),
-            DropdownButton<String>(
-              value: _selectedCalidad,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedCalidad = newValue!;
-                });
-              },
-              items: _calidad.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Disponible:'),
-                Switch(
-                  value: _disponible,
-                  onChanged: (value) {
-                    setState(() {
-                      _disponible = value;
-                    });
-                  },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3), // changes position of shadow
                 ),
               ],
             ),
-            const SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () async {
-                if (precioController.text.isNotEmpty &&
-                    cantidadController.text.isNotEmpty) {
-                  final productoActualizado = Producto(
-                    id: widget.producto.id,
-                    nombre: _selectedProducto,
-                    precio: double.tryParse(precioController.text) ?? 0.0,
-                    cantidad: int.tryParse(cantidadController.text) ?? 0,
-                    disponible: _disponible,
-                    imagen: widget.producto.imagen,
-                    calidad: _selectedCalidad,
-                  );
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nombre:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16.0),
+                      DropdownButton<String>(
+                        value: _selectedProducto,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedProducto = newValue!;
+                          });
+                        },
+                        items: _productos
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: Colors.white,
+                  child: TextField(
+                    controller: precioController,
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                      labelText: 'Precio del Producto',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: Colors.white,
+                  child: TextField(
+                    controller: cantidadController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Cantidad',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Calidad:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16.0),
+                      DropdownButton<String>(
+                        value: _selectedCalidad,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedCalidad = newValue!;
+                          });
+                        },
+                        items: _calidad
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: Text(
+                        'Disponible:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Switch(
+                      value: _disponible,
+                      onChanged: (value) {
+                        setState(() {
+                          _disponible = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (precioController.text.isNotEmpty &&
+                        cantidadController.text.isNotEmpty) {
+                      final productoActualizado = Producto(
+                        id: widget.producto.id,
+                        nombre: _selectedProducto,
+                        precio: double.tryParse(precioController.text) ?? 0.0,
+                        cantidad: int.tryParse(cantidadController.text) ?? 0,
+                        disponible: _disponible,
+                        imagen: widget.producto.imagen,
+                        calidad: _selectedCalidad,
+                      );
 
-                  Navigator.pop(context, productoActualizado);
-                }
-              },
-              child: const Text('Guardar Cambios'),
+                      Navigator.pop(context, productoActualizado);
+                    }
+                  },
+                  child: const Text('Guardar Cambios'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -482,14 +666,21 @@ Future<bool> _mostrarConfirmacion(
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Confirmar Edición'),
-            content:
-                const Text('¿Está seguro de que desea editar este producto?'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('¿Está seguro de que desea editar este producto?'),
+                const SizedBox(height: 8.0),
+                Text('Calidad: ${producto.calidad}'),
+              ],
+            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
               TextButton(
                 onPressed: () {

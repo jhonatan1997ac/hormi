@@ -156,10 +156,13 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
         ),
         leading: IconButton(
           onPressed: () {
-            logout(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Administrador()),
+            );
           },
           icon: const Icon(
-            Icons.keyboard_backspace,
+            Icons.arrow_back_ios_rounded,
             color: Colors.black,
             size: 50.0,
           ),

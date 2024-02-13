@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,110 +22,168 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Vendedor'),
+        title: const Text(
+          'Gestionar Vendedor',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Administrador()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            User? user = snapshot.data;
-
-            if (user == null) {
-              return const Text('No hay usuarios autenticados.');
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             } else {
-              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .where('rool', isEqualTo: 'vendedor')
-                    .snapshots(),
-                builder: (context, usersSnapshot) {
-                  if (usersSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (usersSnapshot.hasError) {
-                    return Text('Error: ${usersSnapshot.error}');
-                  } else {
-                    var users = usersSnapshot.data?.docs;
+              User? user = snapshot.data;
 
-                    if (users == null || users.isEmpty) {
-                      return const Text(
-                          'No se encontraron usuarios vendedores.');
+              if (user == null) {
+                return const Text('No hay usuarios autenticados.');
+              } else {
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where('rool', isEqualTo: 'vendedor')
+                      .snapshots(),
+                  builder: (context, usersSnapshot) {
+                    if (usersSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (usersSnapshot.hasError) {
+                      return Text('Error: ${usersSnapshot.error}');
                     } else {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: users.length,
-                              itemBuilder: (context, index) {
-                                var userData = users[index].data();
-                                return ListTile(
-                                  title: Text('Usuario ID: ${users[index].id}'),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Email: ${userData['email']}'),
-                                      Text('Rol: ${userData['rool']}'),
-                                    ],
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () {
-                                          _showEditDialog(
-                                            context,
-                                            users[index].id,
-                                            userData['email'],
-                                            userData['rool'],
-                                          );
-                                        },
+                      var users = usersSnapshot.data?.docs;
+
+                      if (users == null || users.isEmpty) {
+                        return const Text(
+                            'No se encontraron usuarios vendedores.');
+                      } else {
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                color: Colors.transparent, // Fondo transparente
+                                child: ListView.builder(
+                                  itemCount: users.length,
+                                  itemBuilder: (context, index) {
+                                    var userData = users[index].data();
+                                    return Container(
+                                      margin: const EdgeInsets.all(8.0),
+                                      padding: const EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
                                       ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete),
-                                        onPressed: () {
-                                          FirebaseFirestore.instance
-                                              .collection('users')
-                                              .doc(users[index].id)
-                                              .delete();
-                                        },
+                                      child: ListTile(
+                                        title: Text(
+                                          'Usuario ID: ${users[index].id}',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Email: ${userData['email']}',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            Text(
+                                              'Rol: ${userData['rool']}',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.edit,
+                                                  color: Colors.black),
+                                              onPressed: () {
+                                                _showEditDialog(
+                                                  context,
+                                                  users[index].id,
+                                                  userData['email'],
+                                                  userData['rool'],
+                                                );
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.black),
+                                              onPressed: () {
+                                                FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(users[index].id)
+                                                    .delete();
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 16.0,
-                          ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: FloatingActionButton.extended(
-                              onPressed: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/agregarvendedor');
-                              },
-                              icon: Icon(Icons.add),
-                              label: Text('Agregar Vendedor'),
+                            const SizedBox(
+                              height: 16.0,
                             ),
-                          ),
-                        ],
-                      );
+                            Align(
+                              alignment: Alignment.center,
+                              child: FloatingActionButton.extended(
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/agregarvendedor');
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Agregar Vendedor'),
+                                backgroundColor: Colors.black,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                     }
-                  }
-                },
-              );
+                  },
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }
