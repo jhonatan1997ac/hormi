@@ -1,4 +1,4 @@
-import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -84,7 +84,7 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const VendedorHome()),
+              MaterialPageRoute(builder: (context) => const Administrador()),
             );
           },
           icon: const Icon(

@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,8 @@ class MenuEstadisticasHome extends StatelessWidget {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const Vendedor()));
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,

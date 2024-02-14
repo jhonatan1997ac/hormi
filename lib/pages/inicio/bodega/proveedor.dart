@@ -1,5 +1,8 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,126 +25,160 @@ class _ProveedorState extends State<Proveedor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Usuarios Proveedor'),
+        title: const Text(
+          'Usuarios Proveedor',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.black),
             onPressed: () {
               _mostrarDialogoAgregar(context);
             },
           ),
         ],
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            User? usuarioActual = snapshot.data;
-
-            if (usuarioActual == null) {
-              return const Text('No hay usuarios autenticados.');
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             } else {
-              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('proveedor')
-                    .orderBy('idproveedor')
-                    .snapshots(),
-                builder: (context, snapshotProveedores) {
-                  if (snapshotProveedores.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshotProveedores.hasError) {
-                    return Text('Error: ${snapshotProveedores.error}');
-                  } else {
-                    var proveedores = snapshotProveedores.data?.docs;
+              User? usuarioActual = snapshot.data;
 
-                    if (proveedores == null || proveedores.isEmpty) {
-                      return const Text(
-                          'No se encontraron usuarios proveedores.');
+              if (usuarioActual == null) {
+                return const Text('No hay usuarios autenticados.');
+              } else {
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('proveedor')
+                      .orderBy('idproveedor')
+                      .snapshots(),
+                  builder: (context, snapshotProveedores) {
+                    if (snapshotProveedores.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshotProveedores.hasError) {
+                      return Text('Error: ${snapshotProveedores.error}');
                     } else {
-                      return ListView.builder(
-                        itemCount: proveedores.length,
-                        itemBuilder: (context, index) {
-                          var datosProveedor = proveedores[index].data();
-                          var idproveedor = proveedores[index].id;
-                          var imageUrl = datosProveedor['imagen'];
+                      var proveedores = snapshotProveedores.data?.docs;
 
-                          return Card(
-                            child: ListTile(
-                              leading: imageUrl != null
-                                  ? Image.network(
-                                      imageUrl,
-                                      width: 50,
-                                      height: 50,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Placeholder(),
+                      if (proveedores == null || proveedores.isEmpty) {
+                        return const Text(
+                            'No se encontraron usuarios proveedores.');
+                      } else {
+                        return ListView.builder(
+                          itemCount: proveedores.length,
+                          itemBuilder: (context, index) {
+                            var datosProveedor = proveedores[index].data();
+                            var idproveedor = proveedores[index].id;
+                            var imageUrl = datosProveedor['imagen'];
+
+                            return Card(
+                              child: ListTile(
+                                leading: imageUrl != null
+                                    ? Image.network(
+                                        imageUrl,
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const SizedBox(
+                                        width: 50,
+                                        height: 50,
+                                        child: Placeholder(),
+                                      ),
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Proveedor ID: ${datosProveedor['idproveedor']}',
                                     ),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Proveedor ID: ${datosProveedor['idproveedor']}',
-                                  ),
-                                  Text(
-                                    'Nombre Empresa: ${datosProveedor['nombreEmpresa']}',
-                                  ),
-                                  Text(
-                                    'Contacto: ${datosProveedor['contacto']}',
-                                  ),
-                                  Text(
-                                    'Email: ${datosProveedor['email']}',
-                                  ),
-                                  Text(
-                                    'Rol: ${datosProveedor['rool']}',
-                                  ),
-                                ],
+                                    Text(
+                                      'Nombre Empresa: ${datosProveedor['nombreEmpresa']}',
+                                    ),
+                                    Text(
+                                      'Contacto: ${datosProveedor['contacto']}',
+                                    ),
+                                    Text(
+                                      'Email: ${datosProveedor['email']}',
+                                    ),
+                                    Text(
+                                      'Rol: ${datosProveedor['rool']}',
+                                    ),
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        _mostrarDialogoEditar(
+                                          context,
+                                          idproveedor,
+                                          datosProveedor['email'],
+                                          datosProveedor['rool'],
+                                          datosProveedor['nombreEmpresa'],
+                                          datosProveedor['contacto'],
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () {
+                                        FirebaseFirestore.instance
+                                            .collection('proveedor')
+                                            .doc(idproveedor)
+                                            .delete();
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      _mostrarDialogoEditar(
-                                        context,
-                                        idproveedor,
-                                        datosProveedor['email'],
-                                        datosProveedor['rool'],
-                                        datosProveedor['nombreEmpresa'],
-                                        datosProveedor['contacto'],
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () {
-                                      FirebaseFirestore.instance
-                                          .collection('proveedor')
-                                          .doc(idproveedor)
-                                          .delete();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
+                            );
+                          },
+                        );
+                      }
                     }
-                  }
-                },
-              );
+                  },
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
 }
 
 class DisponibilidadProducto extends StatefulWidget {
-  const DisponibilidadProducto({super.key});
+  const DisponibilidadProducto({Key? key}) : super(key: key);
 
   @override
   _DisponibilidadProductoState createState() => _DisponibilidadProductoState();
@@ -53,7 +52,9 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
         imagen: producto.imagen,
         calidad: producto.calidad,
       );
+
       bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
+
       if (confirmacion) {
         await productosCollection.doc(producto.id).update({
           'nombre': productoEditado.nombre,
@@ -166,96 +167,149 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Disponibilidad de producto'),
+        title: const Text(
+          'Disponibilidad de producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _imagen != null
-                ? Image.file(
-                    _imagen!,
-                    width: 150.0,
-                    height: 150.0,
-                    fit: BoxFit.cover,
-                  )
-                : const SizedBox.shrink(),
-            const SizedBox(height: 16.0),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: productosCollection.snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _imagen != null
+                  ? Image.file(
+                      _imagen!,
+                      width: 150.0,
+                      height: 150.0,
+                      fit: BoxFit.cover,
+                    )
+                  : const SizedBox.shrink(),
+              const SizedBox(height: 16.0),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: productosCollection.snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
 
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final producto =
-                          Producto.fromSnapshot(snapshot.data!.docs[index]);
-                      return ListTile(
-                        title: Text(producto.nombre),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                'Precio: \$${producto.precio.toStringAsFixed(2)}'),
-                            Text('Cantidad: ${producto.cantidad}'),
-                            Text(
-                                'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
-                            Text('Calidad: ${producto.calidad}'),
-                          ],
-                        ),
-                        leading: producto.imagen != null
-                            ? Image.network(
-                                producto.imagen!,
-                                width: 50.0,
-                                height: 50.0,
-                              )
-                            : const SizedBox.shrink(),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () async {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditarProductoScreen(
-                                        producto: producto,
-                                      ),
-                                    ),
-                                  ).then((productoActualizado) async {
-                                    if (productoActualizado != null) {
-                                      await editarProducto(productoActualizado);
-                                      print(
-                                          'Producto actualizado: $productoActualizado');
-                                    }
-                                  });
-                                }),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                eliminarProducto(producto);
-                              },
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        final producto =
+                            Producto.fromSnapshot(snapshot.data!.docs[index]);
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .white, // Establecer el color de fondo en blanco
+                            borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0,
+                                    3), // Cambiar la posición de la sombra si lo deseas
+                              ),
+                            ],
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text(producto.nombre),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Precio: \$${producto.precio.toStringAsFixed(2)}'),
+                                Text('Cantidad: ${producto.cantidad}'),
+                                Text(
+                                    'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
+                                Text('Calidad: ${producto.calidad}'),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
+                            leading: producto.imagen != null
+                                ? Image.network(
+                                    producto.imagen!,
+                                    width: 50.0,
+                                    height: 50.0,
+                                  )
+                                : const SizedBox.shrink(),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () async {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditarProductoScreen(
+                                          producto: producto,
+                                        ),
+                                      ),
+                                    ).then((productoActualizado) async {
+                                      if (productoActualizado != null) {
+                                        await editarProducto(
+                                            productoActualizado);
+                                        print(
+                                            'Producto actualizado: $productoActualizado');
+                                      }
+                                    });
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    eliminarProducto(producto);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -365,6 +419,17 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Verificar si el valor seleccionado no es único y ajustarlo si es necesario
+    if (!_productos.contains(_selectedProducto)) {
+      _selectedProducto =
+          _productos[0]; // Asignar el primer producto como valor seleccionado
+    }
+
+    if (!_calidad.contains(_selectedCalidad)) {
+      _selectedCalidad =
+          _calidad[0]; // Asignar la primera calidad como valor seleccionado
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Producto'),
@@ -464,33 +529,4 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   String _capitalizeFirstLetter(String text) {
     return text[0].toUpperCase() + text.substring(1);
   }
-}
-
-Future<bool> _mostrarConfirmacion(
-    BuildContext context, Producto producto) async {
-  return await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirmar Edición'),
-            content:
-                const Text('¿Está seguro de que desea editar este producto?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          );
-        },
-      ) ??
-      false;
 }

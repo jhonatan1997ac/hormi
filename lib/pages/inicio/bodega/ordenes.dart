@@ -1,11 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,106 +26,31 @@ class Orden extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Órdenes'),
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('ordenes').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
+        title: const Text(
+          'Órdenes',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
             );
-          }
-
-          var orders = snapshot.data?.docs;
-
-          if (orders == null || orders.isEmpty) {
-            return Center(
-              child: Text('No hay órdenes disponibles.'),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              var order = orders[index].data() as Map<String, dynamic>;
-              return InkWell(
-                onTap: () {
-                  // Handle onTap
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      if (order['imagen'] != null)
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(order['imagen']),
-                            ),
-                          ),
-                        ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(order['cliente'] ?? 'Cliente no especificado'),
-                            Text('ID Orden: ${order['idOrden'] ?? 'N/A'}'),
-                            Text('ID Usuario: ${order['idUsuario'] ?? 'N/A'}'),
-                            Text(
-                                'Fecha Creación: ${order['fechaCreacion'] ?? 'N/A'}'),
-                            Text('Estado: ${order['estado'] ?? 'N/A'}'),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () async {
-                          var result = await showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                EditarOrdenDialog(
-                              idOrden: order['idOrden'],
-                              idUsuario: order['idUsuario'],
-                              fechaCreacion: order['fechaCreacion'],
-                              estado: order['estado'],
-                              imagen: order['imagen'],
-                            ),
-                          );
-
-                          if (result != null &&
-                              result is Map<String, dynamic>) {
-                            // Actualizar la orden en Firebase
-                            await FirebaseFirestore.instance
-                                .collection('ordenes')
-                                .doc(orders[index].id)
-                                .update(result);
-                          }
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () async {
-                          // Implementar la lógica de eliminación
-                          await FirebaseFirestore.instance
-                              .collection('ordenes')
-                              .doc(orders[index].id)
-                              .delete();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
+      body: OrdenList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           var result = await showDialog(
@@ -134,11 +59,136 @@ class Orden extends StatelessWidget {
           );
 
           if (result != null && result is Map<String, dynamic>) {
-            // Agregar la nueva orden a Firebase
             await FirebaseFirestore.instance.collection('ordenes').add(result);
           }
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class OrdenList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('ordenes').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          var orders = snapshot.data?.docs;
+
+          if (orders == null || orders.isEmpty) {
+            return const Center(
+              child: Text('No hay órdenes disponibles.',
+                  style: TextStyle(color: Colors.white)),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              var order = orders[index].data() as Map<String, dynamic>;
+
+              return InkWell(
+                onTap: () {
+                  // Handle onTap
+                },
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Row(
+                      children: [
+                        if (order['imagen'] != null)
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(order['imagen']),
+                              ),
+                            ),
+                          ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  order['cliente'] ?? 'Cliente no especificado',
+                                  style: TextStyle(color: Colors.black)),
+                              Text('ID Orden: ${order['idOrden'] ?? 'N/A'}',
+                                  style: TextStyle(color: Colors.black)),
+                              Text('ID Usuario: ${order['idUsuario'] ?? 'N/A'}',
+                                  style: TextStyle(color: Colors.black)),
+                              Text(
+                                  'Fecha Creación: ${order['fechaCreacion'] ?? 'N/A'}',
+                                  style: TextStyle(color: Colors.black)),
+                              Text('Estado: ${order['estado'] ?? 'N/A'}',
+                                  style: TextStyle(color: Colors.black)),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () async {
+                            var result = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  EditarOrdenDialog(
+                                id: orders[index].id,
+                                idUsuario: order['idUsuario'],
+                                idOrden: order['idOrden'],
+                                fechaCreacion: order['fechaCreacion'],
+                                estado: order['estado'],
+                                imagen: order['imagen'],
+                              ),
+                            );
+
+                            if (result != null &&
+                                result is Map<String, dynamic>) {
+                              await FirebaseFirestore.instance
+                                  .collection('ordenes')
+                                  .doc(orders[index].id)
+                                  .update(result);
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('ordenes')
+                                .doc(orders[index].id)
+                                .delete();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -150,22 +200,31 @@ class AgregarOrdenDialog extends StatefulWidget {
 }
 
 class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
-  final TextEditingController idOrdenController = TextEditingController();
   final TextEditingController idUsuarioController = TextEditingController();
+  final TextEditingController idOrdenController = TextEditingController();
   final TextEditingController fechaCreacionController = TextEditingController();
-  String estadoValue = 'Pendiente'; // Valor inicial
+  String estadoValue = 'Pendiente'; // Initial value
   String errorText = '';
   File? _imageFile;
 
-  Future<String?> _subirImagen(File imageFile) async {
+  Future<String?> _uploadImage(File imageFile) async {
     try {
       var imagePath = 'ordenes/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
-      print('Error al subir la imagen: $e');
+      print('Error uploading image: $e');
       return null;
     }
+  }
+
+  Future<bool> _checkIfIdOrdenExists(String idOrden) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('ordenes')
+        .where('idOrden', isEqualTo: idOrden)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
   }
 
   @override
@@ -177,15 +236,29 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
         children: [
           TextField(
             controller: idOrdenController,
-            decoration: InputDecoration(labelText: 'ID Orden'),
+            decoration: InputDecoration(labelText: 'ID Orden *'),
           ),
           TextField(
             controller: idUsuarioController,
-            decoration: InputDecoration(labelText: 'ID Usuario'),
+            decoration: InputDecoration(labelText: 'ID Usuario *'),
           ),
           TextField(
             controller: fechaCreacionController,
-            decoration: InputDecoration(labelText: 'Fecha Creación'),
+            decoration: InputDecoration(labelText: 'Fecha Creación *'),
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (pickedDate != null) {
+                setState(() {
+                  fechaCreacionController.text =
+                      DateFormat('yyyy-MM-dd').format(pickedDate);
+                });
+              }
+            },
           ),
           SizedBox(height: 8),
           _imageFile != null
@@ -245,7 +318,7 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
                 estadoValue = newValue ?? 'Pendiente';
               });
             },
-            decoration: InputDecoration(labelText: 'Estado'),
+            decoration: InputDecoration(labelText: 'Estado *'),
           ),
           if (errorText.isNotEmpty)
             Text(
@@ -257,19 +330,30 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
       actions: [
         ElevatedButton(
           onPressed: () async {
-            if (_validarDatos()) {
-              String? imageUrl;
-              if (_imageFile != null) {
-                imageUrl = await _subirImagen(_imageFile!);
-              }
+            if (_validateData()) {
+              final idOrden = idOrdenController.text;
+              final idOrdenExists = await _checkIfIdOrdenExists(idOrden);
 
-              Navigator.pop(context, {
-                'idOrden': idOrdenController.text,
-                'idUsuario': idUsuarioController.text,
-                'fechaCreacion': fechaCreacionController.text,
-                'estado': estadoValue,
-                'imagen': imageUrl,
-              });
+              if (idOrdenExists) {
+                setState(() {
+                  errorText = 'El ID de la orden ya existe';
+                });
+              } else {
+                String? imageUrl;
+                if (_imageFile != null) {
+                  imageUrl = await _uploadImage(_imageFile!);
+                }
+
+                await FirebaseFirestore.instance.collection('ordenes').add({
+                  'idUsuario': idUsuarioController.text,
+                  'idOrden': idOrden,
+                  'fechaCreacion': fechaCreacionController.text,
+                  'estado': estadoValue,
+                  'imagen': imageUrl,
+                });
+
+                Navigator.pop(context);
+              }
             }
           },
           child: Text('Guardar'),
@@ -284,10 +368,11 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
     );
   }
 
-  bool _validarDatos() {
-    if (idOrdenController.text.isEmpty ||
-        idUsuarioController.text.isEmpty ||
-        fechaCreacionController.text.isEmpty) {
+  bool _validateData() {
+    if (idUsuarioController.text.isEmpty ||
+        idOrdenController.text.isEmpty ||
+        fechaCreacionController.text.isEmpty ||
+        _imageFile == null) {
       setState(() {
         errorText = 'Todos los campos son obligatorios';
       });
@@ -302,15 +387,17 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
 }
 
 class EditarOrdenDialog extends StatefulWidget {
-  final String? idOrden;
+  final String id;
   final String? idUsuario;
+  final String? idOrden;
   final String? fechaCreacion;
   final String? estado;
   final String? imagen;
 
   EditarOrdenDialog({
-    required this.idOrden,
+    required this.id,
     required this.idUsuario,
+    required this.idOrden,
     required this.fechaCreacion,
     required this.estado,
     required this.imagen,
@@ -321,12 +408,13 @@ class EditarOrdenDialog extends StatefulWidget {
 }
 
 class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
-  TextEditingController idOrdenController = TextEditingController();
   TextEditingController idUsuarioController = TextEditingController();
+  TextEditingController idOrdenController = TextEditingController();
   TextEditingController fechaCreacionController = TextEditingController();
   String estadoValue = 'Pendiente';
   File? _imageFile;
   String? _newImageUrl;
+  String errorText = '';
 
   @override
   void initState() {
@@ -337,13 +425,13 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
     estadoValue = widget.estado ?? 'Pendiente';
   }
 
-  Future<String?> _subirImagen(File imageFile) async {
+  Future<String?> _uploadImage(File imageFile) async {
     try {
-      var imagePath = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      var imagePath = 'ordenes/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
-      print('Error al subir la imagen: $e');
+      print('Error uploading image: $e');
       return null;
     }
   }
@@ -351,21 +439,22 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Editar Orden'),
+      title: const Text('Editar Orden'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 8),
-            widget.imagen != null
-                ? Image.network(
-                    widget.imagen!,
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  )
-                : SizedBox(),
-            SizedBox(height: 8),
+            TextField(
+              controller: idOrdenController,
+              decoration: InputDecoration(labelText: 'ID Orden *'),
+            ),
+            if (widget.imagen != null)
+              Image.network(
+                widget.imagen!,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -381,9 +470,9 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
                       });
                     }
                   },
-                  child: Text('Tomar Foto'),
+                  child: const Text('Tomar Foto '),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () async {
                     final picker = ImagePicker();
@@ -396,21 +485,31 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
                       });
                     }
                   },
-                  child: Text('Seleccionar Imagen'),
+                  child: const Text('Seleccionar Imagen '),
                 ),
               ],
             ),
             TextField(
-              controller: idOrdenController,
-              decoration: InputDecoration(labelText: 'ID Orden'),
-            ),
-            TextField(
               controller: idUsuarioController,
-              decoration: InputDecoration(labelText: 'ID Usuario'),
+              decoration: InputDecoration(labelText: 'ID Usuario *'),
             ),
             TextField(
               controller: fechaCreacionController,
-              decoration: InputDecoration(labelText: 'Fecha Creación'),
+              decoration: InputDecoration(labelText: 'Fecha Creación *'),
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    fechaCreacionController.text =
+                        DateFormat('yyyy-MM-dd').format(pickedDate);
+                  });
+                }
+              },
             ),
             DropdownButtonFormField(
               value: estadoValue,
@@ -426,8 +525,13 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
                   estadoValue = newValue ?? 'Pendiente';
                 });
               },
-              decoration: InputDecoration(labelText: 'Estado'),
+              decoration: InputDecoration(labelText: 'Estado *'),
             ),
+            if (errorText.isNotEmpty)
+              Text(
+                errorText,
+                style: TextStyle(color: Colors.red),
+              ),
           ],
         ),
       ),
@@ -435,29 +539,48 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
         ElevatedButton(
           onPressed: () async {
             if (_imageFile != null) {
-              final newImageUrl = await _subirImagen(_imageFile!);
+              final newImageUrl = await _uploadImage(_imageFile!);
               setState(() {
                 _newImageUrl = newImageUrl;
               });
             }
 
-            Navigator.pop(context, {
-              'idOrden': idOrdenController.text,
-              'idUsuario': idUsuarioController.text,
-              'fechaCreacion': fechaCreacionController.text,
-              'estado': estadoValue,
-              'imagen': _newImageUrl ?? widget.imagen,
-            });
+            if (_validateData()) {
+              Navigator.pop(context, {
+                'idUsuario': idUsuarioController.text,
+                'idOrden': idOrdenController.text,
+                'fechaCreacion': fechaCreacionController.text,
+                'estado': estadoValue,
+                'imagen': _newImageUrl ?? widget.imagen,
+              });
+            }
           },
-          child: Text('Guardar'),
+          child: const Text('Guardar'),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
       ],
     );
+  }
+
+  bool _validateData() {
+    if (idUsuarioController.text.isEmpty ||
+        idOrdenController.text.isEmpty ||
+        fechaCreacionController.text.isEmpty ||
+        _imageFile == null) {
+      setState(() {
+        errorText = 'Todos los campos son obligatorios';
+      });
+      return false;
+    } else {
+      setState(() {
+        errorText = '';
+      });
+      return true;
+    }
   }
 }
