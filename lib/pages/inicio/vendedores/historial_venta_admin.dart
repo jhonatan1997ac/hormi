@@ -1,3 +1,4 @@
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -67,7 +68,10 @@ class _HistorialVentasState extends State<HistorialVentas> {
             icon: const Icon(Icons.arrow_back_ios_rounded),
             color: Colors.black,
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const VendedorHome()),
+              );
             },
           ),
           title: const Text(

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -140,146 +141,258 @@ class _AgregarProductoState extends State<AgregarProducto> {
     'Calidad adoquin resistencia 300',
     'Calidad adoquin resistencia 350',
     'Calidad adoquin resistencia 400',
+    'Calidad bloques 2MPA',
+    'Calidad bloques 4MPA',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Producto'),
+        title: const Text(
+          'Agregar Producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Text('Nombre:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedProducto,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedProducto = newValue!;
-                    });
-                  },
-                  items:
-                      _productos.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10.0),
+                color: Colors.white,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_box, color: Colors.black),
+                    SizedBox(width: 20),
+                    Text(
+                      'Agregar producto',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(labelText: 'Precio'),
-              controller: _precioController,
-              keyboardType: TextInputType.number,
-            ),
-            if (double.tryParse(_precioController.text) != null &&
-                double.parse(_precioController.text) <= 0)
-              const Text(
-                'El precio debe ser mayor a 0',
-                style: TextStyle(color: Colors.red),
               ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Cantidad'),
-              controller: _cantidadController,
-              keyboardType: TextInputType.number,
-            ),
-            if (int.tryParse(_cantidadController.text) != null &&
-                int.parse(_cantidadController.text) < 1)
-              const Text(
-                'La cantidad debe ser mayor o igual a 1',
-                style: TextStyle(color: Colors.red),
-              ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Calidad:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedCalidad,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCalidad = newValue!;
-                    });
-                  },
-                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+              const SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Disponible:'),
-                Switch(
-                  value: _disponible,
-                  onChanged: (value) {
-                    setState(() {
-                      _disponible = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            if (_selectedImage != null)
-              Image.file(
-                _selectedImage!,
-                width: 150.0,
-                height: 150.0,
-                fit: BoxFit.cover,
-              ),
-            ElevatedButton(
-              onPressed: _seleccionarImagen,
-              child: const Text('Seleccionar Imagen'),
-            ),
-            const SizedBox(height: 16.0),
-            const Spacer(),
-            Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_selectedImage != null &&
-                      double.tryParse(_precioController.text) != null &&
-                      double.parse(_precioController.text) > 0 &&
-                      int.tryParse(_cantidadController.text) != null &&
-                      int.parse(_cantidadController.text) >= 1) {
-                    await _agregarProducto();
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text(
-                              'Debe seleccionar una imagen y completar los campos correctamente.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
+                child: Row(
+                  children: [
+                    const Text(
+                      'Nombre:',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(width: 16.0),
+                    DropdownButton<String>(
+                      value: _selectedProducto,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedProducto = newValue!;
+                        });
                       },
-                    );
-                  }
-                },
-                child: const Text('Agregar Producto'),
+                      items: _productos
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value,
+                              style: TextStyle(color: Colors.black)),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16.0),
+              Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: 'Precio'),
+                      controller: _precioController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  if (double.tryParse(_precioController.text) != null &&
+                      double.parse(_precioController.text) <= 0)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: const Text(
+                        'El precio debe ser mayor a 0',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: TextField(
+                      decoration: const InputDecoration(labelText: 'Cantidad'),
+                      controller: _cantidadController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  if (int.tryParse(_cantidadController.text) != null &&
+                      int.parse(_cantidadController.text) < 1)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: const Text(
+                        'La cantidad debe ser mayor o igual a 1',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Row(
+                  children: [
+                    const Text('Calidad:'),
+                    const SizedBox(width: 16.0),
+                    DropdownButton<String>(
+                      value: _selectedCalidad,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCalidad = newValue!;
+                        });
+                      },
+                      items: _calidad
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Row(
+                  children: [
+                    const Text('Disponible:'),
+                    Switch(
+                      value: _disponible,
+                      onChanged: (value) {
+                        setState(() {
+                          _disponible = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              if (_selectedImage != null)
+                Image.file(
+                  _selectedImage!,
+                  width: 150.0,
+                  height: 150.0,
+                  fit: BoxFit.cover,
+                ),
+              ElevatedButton(
+                onPressed: _seleccionarImagen,
+                child: const Text('Seleccionar Imagen'),
+              ),
+              const SizedBox(height: 16.0),
+              const Spacer(),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_selectedImage != null &&
+                        double.tryParse(_precioController.text) != null &&
+                        double.parse(_precioController.text) > 0 &&
+                        int.tryParse(_cantidadController.text) != null &&
+                        int.parse(_cantidadController.text) >= 1) {
+                      await _agregarProducto();
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Error'),
+                            content: const Text(
+                                'Debe seleccionar una imagen y completar los campos correctamente.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: const Text('Agregar Producto'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

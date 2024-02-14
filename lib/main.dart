@@ -86,7 +86,7 @@ class _MyAppState extends State<MyApp> {
         '/agregarvendedor': (context) => const AgregarVendedor(),
         '/estadisticapago': (context) => const Estadisticapago(),
         '/menuestadisticas': (context) => const MenuEstadisticas(),
-        '/fechaventas': (context) => const FechaVentas(),
+        '/fechaventas': (context) => FechaVentas(),
         '/agregarmaterial': (context) => const AgregarMaterial(),
         '/ordenes': (context) => Orden(),
         '/detalleorden': (context) => const DetalleOrdenes(),

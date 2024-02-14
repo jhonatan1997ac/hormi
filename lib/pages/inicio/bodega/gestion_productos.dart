@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -38,33 +41,6 @@ class _GestionProductosState extends State<GestionProductos> {
         FirebaseFirestore.instance.collection('disponibilidadproducto');
   }
 
-  Future<void> agregarProducto(Producto nuevoProducto) async {
-    try {
-      if (_imagen != null) {
-        String imagen = await subirImagen(_imagen!);
-        await productosCollection.add({
-          'nombre': nuevoProducto.nombre,
-          'precio': nuevoProducto.precio,
-          'cantidad': nuevoProducto.cantidad,
-          'disponible': nuevoProducto.disponible,
-          'imagen': imagen,
-        });
-        setState(() {
-          _imagen = null;
-        });
-      } else {
-        await productosCollection.add({
-          'nombre': nuevoProducto.nombre,
-          'precio': nuevoProducto.precio,
-          'cantidad': nuevoProducto.cantidad,
-          'disponible': nuevoProducto.disponible,
-        });
-      }
-    } catch (e) {
-      print('Error al agregar el producto: $e');
-    }
-  }
-
   Future<void> editarProducto(Producto producto) async {
     try {
       Producto productoEditado = Producto(
@@ -89,6 +65,19 @@ class _GestionProductosState extends State<GestionProductos> {
       }
     } catch (e) {
       print('Error al editar el producto: $e');
+    }
+  }
+
+  Future<void> eliminarProducto(Producto producto) async {
+    try {
+      bool confirmacion =
+          (await _mostrarConfirmacionEliminar(context, producto)) as bool;
+      if (confirmacion) {
+        await productosCollection.doc(producto.id).delete();
+        print('Producto eliminado: ${producto.nombre}');
+      }
+    } catch (e) {
+      print('Error al eliminar el producto: $e');
     }
   }
 
@@ -128,8 +117,6 @@ class _GestionProductosState extends State<GestionProductos> {
 
   Future<bool> _mostrarConfirmacion(
       BuildContext context, Producto producto) async {
-    // Aquí puedes implementar la lógica para mostrar la confirmación.
-    // Por ejemplo, puedes usar showDialog().
     return true;
   }
 
@@ -137,101 +124,177 @@ class _GestionProductosState extends State<GestionProductos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión de Productos'),
+        title: const Text(
+          'Gestión de Productos',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                final nuevoProducto = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AgregarProductoScreen(),
-                  ),
-                );
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 16.0),
+              _imagen != null
+                  ? Image.file(
+                      _imagen!,
+                      width: 150.0,
+                      height: 150.0,
+                      fit: BoxFit.cover,
+                    )
+                  : SizedBox.shrink(),
+              SizedBox(height: 16.0),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: productosCollection.snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
 
-                if (nuevoProducto != null) {
-                  final imagenFile = await _cargarImagen();
-                  if (imagenFile != null) {
-                    await agregarProducto(nuevoProducto);
-                  }
-                }
-              },
-              child: Text('Agregar Producto'),
-            ),
-            SizedBox(height: 16.0),
-            _imagen != null
-                ? Image.file(
-                    _imagen!,
-                    width: 150.0,
-                    height: 150.0,
-                    fit: BoxFit.cover,
-                  )
-                : SizedBox.shrink(),
-            SizedBox(height: 16.0),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: productosCollection.snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final producto =
-                          Producto.fromSnapshot(snapshot.data!.docs[index]);
-                      return ListTile(
-                        title: Text(producto.nombre),
-                        subtitle: Text(
-                            'Precio: \$${producto.precio.toStringAsFixed(2)}'),
-                        leading: producto.imagen != null
-                            ? Image.network(
-                                producto.imagen!,
-                                width: 50.0,
-                                height: 50.0,
-                              )
-                            : SizedBox.shrink(),
-                        trailing: IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () async {
-                            bool confirmacion =
-                                await _mostrarConfirmacion(context, producto);
-                            if (confirmacion) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditarProductoScreen(producto: producto),
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        final producto =
+                            Producto.fromSnapshot(snapshot.data!.docs[index]);
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          margin: EdgeInsets.symmetric(vertical: 8.0),
+                          padding: EdgeInsets.all(16.0),
+                          child: ListTile(
+                            title: Text(
+                              producto.nombre,
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            subtitle: Text(
+                              'Precio: \$${producto.precio.toStringAsFixed(2)}',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            leading: producto.imagen != null
+                                ? Image.network(
+                                    producto.imagen!,
+                                    width: 50.0,
+                                    height: 50.0,
+                                  )
+                                : SizedBox.shrink(),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () async {
+                                    bool confirmacion =
+                                        await _mostrarConfirmacion(
+                                            context, producto);
+                                    if (confirmacion) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditarProductoScreen(
+                                                  producto: producto),
+                                        ),
+                                      ).then((productoActualizado) async {
+                                        if (productoActualizado != null) {
+                                          await editarProducto(
+                                              productoActualizado);
+                                          print(
+                                              'Producto actualizado: $productoActualizado');
+                                        }
+                                      });
+                                    }
+                                  },
                                 ),
-                              ).then((productoActualizado) async {
-                                if (productoActualizado != null) {
-                                  await editarProducto(productoActualizado);
-                                  print(
-                                      'Producto actualizado: $productoActualizado');
-                                }
-                              });
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
+                                IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () async {
+                                    bool confirmacion =
+                                        (await _mostrarConfirmacionEliminar(
+                                            context, producto)) as bool;
+                                    if (confirmacion) {
+                                      eliminarProducto(producto);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _mostrarConfirmacionEliminar(
+      BuildContext context, Producto producto) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmar eliminación'),
+          content:
+              Text('¿Estás seguro de que deseas eliminar ${producto.nombre}?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // No eliminar
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Confirmar eliminar
+              },
+              child: Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    ); // Si se cierra el diálogo sin elegir una opción, se considera como cancelación
   }
 }
 
@@ -268,86 +331,6 @@ class Producto {
       'disponible': disponible,
       'imagen': imagen,
     };
-  }
-}
-
-class AgregarProductoScreen extends StatefulWidget {
-  @override
-  _AgregarProductoScreenState createState() => _AgregarProductoScreenState();
-}
-
-class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
-  final TextEditingController nombreController = TextEditingController();
-  final TextEditingController precioController = TextEditingController();
-  final TextEditingController cantidadController = TextEditingController();
-  final TextEditingController disponibleController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Agregar Producto'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: nombreController,
-              decoration: InputDecoration(labelText: 'Nombre del Producto'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: 'Precio del Producto'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: cantidadController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Cantidad'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: disponibleController,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(labelText: 'Disponible (true/false)'),
-            ),
-            SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () async {
-                if (nombreController.text.isNotEmpty &&
-                    precioController.text.isNotEmpty &&
-                    cantidadController.text.isNotEmpty &&
-                    disponibleController.text.isNotEmpty) {
-                  final nombreCapitalizado =
-                      _capitalizeFirstLetter(nombreController.text);
-
-                  final nuevoProducto = Producto(
-                    id: '',
-                    nombre: nombreCapitalizado,
-                    precio: double.tryParse(precioController.text) ?? 0.0,
-                    cantidad: int.tryParse(cantidadController.text) ?? 0,
-                    disponible:
-                        disponibleController.text.toLowerCase() == 'true',
-                    imagen: null,
-                  );
-
-                  Navigator.pop(context, nuevoProducto);
-                }
-              },
-              child: const Text('Agregar Producto'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _capitalizeFirstLetter(String text) {
-    return text[0].toUpperCase() + text.substring(1);
   }
 }
 
@@ -391,28 +374,42 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
           children: [
             TextField(
               controller: nombreController,
-              decoration:
-                  const InputDecoration(labelText: 'Nombre del Producto'),
+              decoration: const InputDecoration(
+                labelText: 'Nombre del Producto',
+                fillColor: Colors.white,
+                filled: true,
+              ),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: precioController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  const InputDecoration(labelText: 'Precio del Producto'),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Precio del Producto',
+                fillColor: Colors.white,
+                filled: true,
+              ),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: cantidadController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Cantidad'),
+              decoration: const InputDecoration(
+                labelText: 'Cantidad',
+                fillColor: Colors.white,
+                filled: true,
+              ),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: disponibleController,
               keyboardType: TextInputType.text,
-              decoration:
-                  const InputDecoration(labelText: 'Disponible (true/false)'),
+              decoration: const InputDecoration(
+                labelText: 'Disponible (true/false)',
+                fillColor: Colors.white,
+                filled: true,
+              ),
             ),
             const SizedBox(height: 32.0),
             ElevatedButton(

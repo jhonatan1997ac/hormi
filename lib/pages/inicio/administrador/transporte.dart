@@ -70,7 +70,7 @@ class _TransporteState extends State<Transporte> {
         child: Column(
           children: [
             Container(
-              color: Color.fromARGB(255, 171, 214, 224),
+              color: const Color.fromARGB(255, 171, 214, 224),
               padding: const EdgeInsets.all(8.0),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,

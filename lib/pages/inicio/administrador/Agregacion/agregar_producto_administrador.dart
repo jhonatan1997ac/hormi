@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -95,6 +97,8 @@ class Producto {
   });
 
   bool get estaDisponible => disponible;
+
+  static fromSnapshot(QueryDocumentSnapshot<Object?> doc) {}
 }
 
 class ProductosAdministrador extends StatefulWidget {
@@ -140,6 +144,8 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
     'Calidad adoquin resistencia 300',
     'Calidad adoquin resistencia 350',
     'Calidad adoquin resistencia 400',
+    'Calidad bloques 2MPA',
+    'Calidad bloques 4MPA',
   ];
 
   @override
@@ -257,20 +263,20 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                     ),
                     if (_cantidadController.text.isNotEmpty &&
                         int.parse(_cantidadController.text) < 1)
-                      Text(
+                      const Text(
                         'La cantidad debe ser mayor o igual a 1',
                         style: TextStyle(color: Colors.red),
                       ),
-                    SizedBox(height: 16.0),
+                    const SizedBox(height: 16.0),
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Calidad:',
                           style: TextStyle(
                               color: Colors
                                   .black), // Color de texto para el título
                         ),
-                        SizedBox(width: 16.0),
+                        const SizedBox(width: 16.0),
                         DropdownButton<String>(
                           value: _selectedCalidad,
                           onChanged: (String? newValue) {
@@ -288,7 +294,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16.0),
+                    const SizedBox(height: 16.0),
                     Row(
                       children: [
                         const Text(
@@ -307,7 +313,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16.0),
+                    const SizedBox(height: 16.0),
                   ],
                 ),
               ),
@@ -412,7 +418,8 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.pushNamed(context, '/disponibilidadproducto');
+                  Navigator.pushReplacementNamed(
+                      context, '/disponibilidadproductoadministrador');
                 },
                 child: const Text('OK'),
               ),

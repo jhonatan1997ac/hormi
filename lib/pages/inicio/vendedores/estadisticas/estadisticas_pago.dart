@@ -5,10 +5,12 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,13 +38,44 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ventas por tipo de pago'),
+        title: const Text(
+          'Ventas por tipo de pago',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/menuestadisticas');
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Stack(
-        children: [
-          _buildBody(),
-          _buildText(),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            _buildBody(),
+            _buildText(),
+          ],
+        ),
       ),
     );
   }

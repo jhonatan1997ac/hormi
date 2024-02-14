@@ -1,12 +1,10 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
-import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registrar.dart';
 import '../inicio/vendedores/vendedor.dart';
+import '../inicio/bodega/bodeguero.dart';
+import '../inicio/administrador/administrador.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({Key? key}) : super(key: key);
@@ -184,7 +182,7 @@ class _InicioState extends State<Inicio> {
         );
         await _route(userCredential.user!);
       } on FirebaseAuthException catch (e) {
-        String errorMessage = "Error al iniciar sesión";
+        String errorMessage = "Usuario no encontrado";
         if (e.code == 'user-not-found') {
           errorMessage = "Usuario no encontrado";
         } else if (e.code == 'wrong-password') {
@@ -214,21 +212,27 @@ class _InicioState extends State<Inicio> {
         if (userRole != null) {
           switch (userRole) {
             case "vendedor":
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const VendedorHome()),
+                (route) =>
+                    false, // This will remove all routes below VendedorHome
               );
               break;
             case "bodeguero":
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const BodegueroHome()),
+                (route) =>
+                    false, // This will remove all routes below BodegueroHome
               );
               break;
             default:
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const Administrador()),
+                (route) =>
+                    false, // This will remove all routes below Administrador
               );
           }
         } else {
@@ -238,7 +242,8 @@ class _InicioState extends State<Inicio> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("El usuario no existe en la base de datos")),
+          const SnackBar(
+              content: Text("El usuario no existe en la base de datos")),
         );
       }
     } catch (e) {

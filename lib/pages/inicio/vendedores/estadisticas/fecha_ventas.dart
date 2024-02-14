@@ -1,10 +1,6 @@
-// ignore_for_file: unused_field, library_private_types_in_public_api
-
-import 'package:flutter/foundation.dart';
+import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,14 +14,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const FechaVentas(),
+      home: FechaVentas(),
     );
   }
 }
 
 class FechaVentas extends StatefulWidget {
-  const FechaVentas({Key? key}) : super(key: key);
-
   @override
   _FechaVentasState createState() => _FechaVentasState();
 }
@@ -34,100 +28,222 @@ class _FechaVentasState extends State<FechaVentas> {
   final CollectionReference historialVentasCollection =
       FirebaseFirestore.instance.collection('historialventas');
 
-  final List<Color> fixedColors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-  ];
-
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  final DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
   Map<DateTime, List<dynamic>> _events = {};
+  late DateTime _selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendario de Ventas'),
+        title: const Text(
+          'Calendario de Ventas',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const MenuEstadisticas()));
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Stack(
         children: [
-          _buildBody(),
+          // Capa inferior para el fondo degradado
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.fromARGB(255, 55, 111, 139),
+                  Color.fromARGB(255, 165, 160, 160),
+                ],
+              ),
+            ),
+          ),
+          // Capa superior para el contenido del calendario
+          Container(
+            margin: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7), // Fondo blanco translúcido
+              borderRadius: BorderRadius.circular(20.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildMonthYearPicker(),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: historialVentasCollection.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else {
+                        List<Map<String, dynamic>> historialVentas = snapshot
+                            .data!.docs
+                            .map((doc) => doc.data() as Map<String, dynamic>)
+                            .toList();
+
+                        _updateEvents(historialVentas);
+
+                        return _buildCalendar();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBody() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: historialVentasCollection.snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else {
-          List<Map<String, dynamic>> historialVentas = snapshot.data!.docs
-              .map((doc) => doc.data() as Map<String, dynamic>)
-              .toList();
+  Widget _buildMonthYearPicker() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            setState(() {
+              _selectedDate =
+                  DateTime(_selectedDate.year, _selectedDate.month - 1);
+            });
+          },
+        ),
+        Column(
+          children: [
+            Text(
+              _getMonthName(_selectedDate.month), // Obtener el nombre del mes
+              style: TextStyle(fontSize: 20, color: Colors.black),
+            ),
+            Text(
+              '${_selectedDate.year}', // Mostrar el año en números
+              style: TextStyle(fontSize: 16, color: Colors.black),
+            ),
+          ],
+        ),
+        IconButton(
+          icon: Icon(Icons.arrow_forward),
+          onPressed: () {
+            setState(() {
+              _selectedDate =
+                  DateTime(_selectedDate.year, _selectedDate.month + 1);
+            });
+          },
+        ),
+      ],
+    );
+  }
 
-          // Actualizar eventos para el calendario
-          _updateEvents(historialVentas);
+  String _getMonthName(int month) {
+    switch (month) {
+      case 1:
+        return 'Enero';
+      case 2:
+        return 'Febrero';
+      case 3:
+        return 'Marzo';
+      case 4:
+        return 'Abril';
+      case 5:
+        return 'Mayo';
+      case 6:
+        return 'Junio';
+      case 7:
+        return 'Julio';
+      case 8:
+        return 'Agosto';
+      case 9:
+        return 'Septiembre';
+      case 10:
+        return 'Octubre';
+      case 11:
+        return 'Noviembre';
+      case 12:
+        return 'Diciembre';
+      default:
+        return '';
+    }
+  }
 
-          return Column(
-            children: [
-              TableCalendar(
-                calendarFormat: _calendarFormat,
-                focusedDay: _focusedDay,
-                firstDay: DateTime(2000),
-                lastDay: DateTime(2101),
-                headerStyle: const HeaderStyle(
-                  titleCentered: true,
-                  formatButtonVisible: false,
-                ),
-                calendarStyle: const CalendarStyle(
-                  todayDecoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                onFormatChanged: (format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                  });
-
-                  // Actualizar gráfico de pastel al seleccionar un día
-                  _updatePieChart(selectedDay, historialVentas);
-                },
-                eventLoader: (day) => _events[day] ?? [],
+  Widget _buildCalendar() {
+    int daysInMonth =
+        DateTime(_selectedDate.year, _selectedDate.month + 1, 0).day;
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+      ),
+      itemCount: daysInMonth,
+      itemBuilder: (context, index) {
+        DateTime date =
+            DateTime(_selectedDate.year, _selectedDate.month, index + 1);
+        bool hasSales = _events.containsKey(date) && _events[date] != null;
+        return GestureDetector(
+          onTap: () {
+            if (hasSales) {
+              _showSalesInfoDialog(date, _events[date]!);
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: hasSales ? Colors.blueAccent : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Colors.grey.shade300,
+                width: 1.5,
               ),
-              Expanded(
-                child: charts.PieChart(
-                  _createChartData(historialVentas),
-                  animate: true,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  color: hasSales ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
-            ],
-          );
-        }
+            ),
+          ),
+        );
       },
     );
   }
@@ -137,70 +253,81 @@ class _FechaVentasState extends State<FechaVentas> {
     for (var venta in historialVentas) {
       Timestamp fecha = venta['fecha'];
       DateTime fechaVenta = fecha.toDate();
-      String fechaStr = fechaVenta.toString().substring(0, 10);
-
-      if (_events.containsKey(fechaVenta)) {
-        _events[fechaVenta]!.add(fechaStr);
+      if (_events.containsKey(
+          DateTime(fechaVenta.year, fechaVenta.month, fechaVenta.day))) {
+        _events[DateTime(fechaVenta.year, fechaVenta.month, fechaVenta.day)]!
+            .add(venta);
       } else {
-        _events[fechaVenta] = [fechaStr];
+        _events[DateTime(fechaVenta.year, fechaVenta.month, fechaVenta.day)] = [
+          venta
+        ];
       }
     }
   }
 
-  void _updatePieChart(
-      DateTime? selectedDay, List<Map<String, dynamic>> historialVentas) {
-    if (selectedDay != null && _events.containsKey(selectedDay)) {
-      // Formatear la fecha seleccionada
-      String formattedSelectedDay = selectedDay.toString().substring(0, 10);
-
-      // Filtrar el historial de ventas para el día seleccionado
-      List<Map<String, dynamic>> ventasDelDia = historialVentas
-          .where((venta) =>
-              venta['fecha'].toDate().toString().substring(0, 10) ==
-              formattedSelectedDay)
-          .toList();
-
-      // Verificar si hay un cambio en los datos antes de actualizar el gráfico
-      if (!listEquals(_events[selectedDay], ventasDelDia)) {
-        setState(() {
-          _updateEvents(ventasDelDia);
-        });
-      }
-    }
-  }
-
-  List<charts.Series<Map<String, dynamic>, String>> _createChartData(
-      List<Map<String, dynamic>> historialVentas) {
-    Map<String, double> totalVentasPorFecha = {};
-
-    for (var venta in historialVentas) {
-      Timestamp fecha = venta['fecha'];
-      double total = venta['total'] ?? 0;
-      String fechaStr = fecha.toDate().toString().substring(0, 10);
-
-      totalVentasPorFecha.update(
-          fechaStr, (existingTotal) => (existingTotal) + total,
-          ifAbsent: () => total);
-    }
-
-    List<charts.Series<Map<String, dynamic>, String>> seriesList = [
-      charts.Series<Map<String, dynamic>, String>(
-        id: 'Ventas',
-        domainFn: (venta, _) => venta['fecha'],
-        measureFn: (venta, _) => totalVentasPorFecha[venta['fecha']] ?? 0,
-        colorFn: (venta, _) => charts.ColorUtil.fromDartColor(
-          fixedColors[
-              totalVentasPorFecha.keys.toList().indexOf(venta['fecha']) %
-                  fixedColors.length],
-        ),
-        labelAccessorFn: (venta, _) =>
-            '${venta['fecha']}: ${totalVentasPorFecha[venta['fecha']]}',
-        data: totalVentasPorFecha.entries
-            .map((entry) => {'fecha': entry.key, 'total': entry.value})
-            .toList(),
-      ),
-    ];
-
-    return seriesList;
+  void _showSalesInfoDialog(DateTime date, List<dynamic> salesInfo) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Ventas para el ${date.day}/${date.month}/${date.year}'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Información de ventas:',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                for (var venta in salesInfo)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Total de ventas: ${venta['total']}'),
+                      Text('Productos vendidos:',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                      for (var producto in venta['productos'])
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Cantidad: ${producto['cantidad']}',
+                                style: TextStyle(color: Colors.black)),
+                            Image.network(
+                              producto['imagen'],
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ), // Mostrar la imagen desde la URL
+                            Text('Nombre: ${producto['nombre']}',
+                                style: TextStyle(color: Colors.black)),
+                            Text('Precio: ${producto['precio']}',
+                                style: TextStyle(color: Colors.black)),
+                            Text('ID del producto: ${producto['producto_id']}',
+                                style: TextStyle(color: Colors.black)),
+                            Divider(),
+                          ],
+                        ),
+                      Divider(),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
