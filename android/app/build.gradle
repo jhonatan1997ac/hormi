@@ -30,7 +30,7 @@ def keystoreProperties = new Properties()
 
 android {
     namespace "com.example.hormi"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -49,9 +49,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.hormiand.hormi"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 20
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -79,4 +77,5 @@ flutter {
 
 dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
 }

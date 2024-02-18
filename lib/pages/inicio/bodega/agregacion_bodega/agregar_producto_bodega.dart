@@ -191,7 +191,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10.0),
-                color: Colors.white,
+                color: Color.fromARGB(255, 137, 197, 145),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -233,7 +233,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value,
-                              style: TextStyle(color: Colors.black)),
+                              style: const TextStyle(color: Colors.black)),
                         );
                       }).toList(),
                     ),
@@ -249,7 +249,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: TextField(
-                      decoration: InputDecoration(labelText: 'Precio'),
+                      decoration: const InputDecoration(labelText: 'Precio'),
                       controller: _precioController,
                       keyboardType: TextInputType.number,
                     ),

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -54,6 +56,14 @@ class BodegueroHome extends StatelessWidget {
             crossAxisSpacing: 16.0,
             mainAxisSpacing: 16.0,
             children: [
+              HomeCard(
+                title: 'Ubicacion',
+                icon: Icons.local_offer,
+                color: const Color(0xFFB1355A),
+                onTap: () {
+                  Navigator.pushNamed(context, '/geolocatorwidget');
+                },
+              ),
               HomeCard(
                 title: 'Gestión de Productos',
                 icon: Icons.inventory,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,106 +62,205 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Material'),
+        title: const Text(
+          'Agregar Material',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Escoja el material:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              DropdownButton<String>(
-                value: _selectedMaterial,
-                items: [
-                  'Arena',
-                  'Piedra',
-                  'Ripio',
-                  'Piedra triturada',
-                ].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedMaterial = newValue ?? '';
-                  });
-                },
-              ),
-              SizedBox(height: 16.0),
-              const Text(
-                'Escoja el modo:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              DropdownButton<String>(
-                value: _selectedDescripcion,
-                items: [
-                  'Volqueta',
-                  'Mamut',
-                ].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedDescripcion = newValue ?? '';
-                  });
-                },
-              ),
-              const SizedBox(height: 16.0),
-              const Text(
-                'Escoja la cantidad:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              DropdownButton<String>(
-                value: _selectedCantidad,
-                items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-                    .map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedCantidad = newValue ?? '';
-                  });
-                },
-              ),
-              const SizedBox(height: 16.0),
-              const Text(
-                'Tomar foto:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 200,
-                width: 200,
-                child: InkWell(
-                  onTap: _tomarFoto,
-                  child: _imagenTomada != null
-                      ? Image.file(_imagenTomada!)
-                      : Icon(Icons.camera_alt),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              const Spacer(),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await _agregarMaterial();
-                  },
-                  child: const Text('Agregar Material'),
-                ),
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
             ],
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Escoja el material:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: const Color.fromARGB(255, 148, 164, 179),
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButton<String>(
+                    value: _selectedMaterial,
+                    dropdownColor:
+                        Colors.white, // Fondo blanco del menú desplegable
+                    style: TextStyle(color: Colors.black), // Texto negro
+                    items: [
+                      'Arena',
+                      'Piedra',
+                      'Ripio',
+                      'Piedra triturada',
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedMaterial = newValue ?? '';
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Escoja el modo:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: const Color.fromARGB(255, 148, 164, 179),
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButton<String>(
+                    value: _selectedDescripcion,
+                    items: [
+                      'Volqueta',
+                      'Mamut',
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedDescripcion = newValue ?? '';
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Escoja la cantidad:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  color: const Color.fromARGB(255, 148, 164, 179),
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButton<String>(
+                    value: _selectedCantidad,
+                    items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCantidad = newValue ?? '';
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Tomar foto:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  height: 200,
+                  width: 200,
+                  color: const Color.fromARGB(255, 142, 166, 189),
+                  child: InkWell(
+                    onTap: _tomarFoto,
+                    child: _imagenTomada != null
+                        ? Image.file(_imagenTomada!)
+                        : const Icon(Icons.camera_alt,
+                            color: Colors.black), // Icono en negro
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                const Spacer(),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await _agregarMaterial();
+                    },
+                    child: const Text('Agregar Material'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -189,6 +289,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
       await materialService.agregarMaterial(
           nombre, descripcion, cantidad, imagenURL);
 
+      // ignore: use_build_context_synchronously
       Navigator.pushNamed(context, '/disponibilidadmaterial');
     } else {
       print('Por favor, primero tome una foto.');

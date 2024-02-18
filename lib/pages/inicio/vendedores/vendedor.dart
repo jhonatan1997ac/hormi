@@ -95,6 +95,14 @@ class VendedorHome extends StatelessWidget {
                 },
               ),
               HomeCard(
+                title: 'Gps',
+                icon: Icons.group,
+                color: const Color.fromARGB(255, 74, 105, 16),
+                onTap: () {
+                  Navigator.pushNamed(context, '/mapagps');
+                },
+              ),
+              HomeCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,
                 color: Colors.grey[600]!,

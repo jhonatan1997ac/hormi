@@ -8,12 +8,18 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
 
 
     <application
         android:label="hormi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyAqN5mP9409eXo15qHJ3uU3amkH9VNVncE" />
+        
         <!-- Agrega el receptor con android:exported="false" -->
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
@@ -41,6 +47,7 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+              
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
