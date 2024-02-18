@@ -12,6 +12,7 @@ import 'package:apphormi/pages/inicio/bodega/historial_inventarios.dart';
 import 'package:apphormi/pages/inicio/bodega/ordenes.dart';
 import 'package:apphormi/pages/inicio/bodega/promocion.dart';
 import 'package:apphormi/pages/inicio/bodega/proveedor.dart';
+import 'package:apphormi/pages/inicio/bodega/Gps.dart';
 import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
@@ -99,6 +100,7 @@ class _MyAppState extends State<MyApp> {
         '/rutaenvio': (context) => const RutaEnvio(),
         '/disponibilidadproductoadministrador': (context) =>
             const DisponibilidadProductoAdministrador(),
+        '/geolocatorwidget': (context) => const GeolocatorWidget(),
       },
     );
   }
