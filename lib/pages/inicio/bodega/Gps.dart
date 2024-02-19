@@ -218,7 +218,6 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
         infoWindow: const InfoWindow(title: 'Hormibloque Ecuador S.A.'),
       ),
     );
-
     return _markers;
   }
 
@@ -351,6 +350,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
 
     setState(() {
       _idpedidos.clear();
+      _ubicacion.clear();
     });
 
     for (var doc in querySnapshot.docs) {
@@ -361,16 +361,13 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
         'longitude': data['longitude'],
         'fecha_entrega': data['fecha_entrega'],
         'fecha_orden': data['fecha_orden'],
+        'place_name':
+            data['place_name'], // Agregar el nombre del lugar desde Firestore
       };
 
       setState(() {
         _idpedidos.add(idPedido);
-        if (_ubicacion.containsKey(idPedido)) {
-          _ubicacion[idPedido]![0]['fecha_entrega'] =
-              ubicacionData['fecha_entrega'];
-        } else {
-          _ubicacion[idPedido] = [ubicacionData];
-        }
+        _ubicacion[idPedido] = [ubicacionData];
       });
     }
   }
