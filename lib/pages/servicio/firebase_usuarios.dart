@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 Future<List> getUsuario() async {
-  List usuarios = []; // Cambiado el nombre a 'usuarios'
+  List usuarios = [];
   CollectionReference collectionReferenceUsuario = db.collection('usuario');
 
   QuerySnapshot queryUsuario = await collectionReferenceUsuario.get();
@@ -13,19 +14,21 @@ Future<List> getUsuario() async {
       "nombre": data['nombre'],
       "uid": documento.id,
     };
-    usuarios.add(
-        usuario); // Cambiado de 'usuario.add(data)' a 'usuarios.add(usuario)'
+    usuarios.add(usuario);
   }
-  return usuarios; // Cambiado de 'usuario' a 'usuarios'
+  return usuarios;
 }
 
 Future<void> addUsuario(String nombre) async {
   try {
-    // Lógica para agregar el usuario a Firestore
     await db.collection("usuario").add({"nombre": nombre});
-    print('Usuario agregado exitosamente: $nombre');
+    if (kDebugMode) {
+      print('Usuario agregado exitosamente: $nombre');
+    }
   } catch (e) {
-    print('Error al agregar usuario: $e');
+    if (kDebugMode) {
+      print('Error al agregar usuario: $e');
+    }
   }
 }
 
@@ -35,11 +38,9 @@ Future<Map<String, dynamic>> editUsuario(String uid, String nuevoNombre) async {
       .doc(uid)
       .update({'nombre': nuevoNombre});
 
-  // Obtener los datos actualizados después de la edición
   DocumentSnapshot snapshot =
       await FirebaseFirestore.instance.collection('usuario').doc(uid).get();
 
-  // Devolver los datos actualizados
   return snapshot.data() as Map<String, dynamic>;
 }
 

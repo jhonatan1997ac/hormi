@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, unnecessary_brace_in_string_interps
+
 import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -98,13 +100,13 @@ class _HistorialVentasState extends State<HistorialVentas> {
                 return Center(
                   child: Text(
                     'Error: ${snapshot.error}',
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 );
               }
 
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
@@ -139,8 +141,7 @@ class _HistorialVentasState extends State<HistorialVentas> {
                 }
               }).toList();
 
-              historial.sort((a, b) =>
-                  a.fecha.compareTo(b.fecha)); // Ordena por fecha ascendente
+              historial.sort((a, b) => a.fecha.compareTo(b.fecha));
 
               return ListView.builder(
                 itemCount: historial.length,
@@ -150,10 +151,10 @@ class _HistorialVentasState extends State<HistorialVentas> {
 
                   return Card(
                     elevation: 4.0,
-                    margin:
-                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

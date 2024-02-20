@@ -1,10 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api, unused_element
 
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -61,10 +62,14 @@ class _GestionProductosState extends State<GestionProductos> {
           'imagen': productoEditado.imagen,
         });
 
-        print('Producto actualizado: $productoEditado');
+        if (kDebugMode) {
+          print('Producto actualizado: $productoEditado');
+        }
       }
     } catch (e) {
-      print('Error al editar el producto: $e');
+      if (kDebugMode) {
+        print('Error al editar el producto: $e');
+      }
     }
   }
 
@@ -74,10 +79,14 @@ class _GestionProductosState extends State<GestionProductos> {
           (await _mostrarConfirmacionEliminar(context, producto)) as bool;
       if (confirmacion) {
         await productosCollection.doc(producto.id).delete();
-        print('Producto eliminado: ${producto.nombre}');
+        if (kDebugMode) {
+          print('Producto eliminado: ${producto.nombre}');
+        }
       }
     } catch (e) {
-      print('Error al eliminar el producto: $e');
+      if (kDebugMode) {
+        print('Error al eliminar el producto: $e');
+      }
     }
   }
 
@@ -93,7 +102,9 @@ class _GestionProductosState extends State<GestionProductos> {
       String imageUrl = await storageReference.getDownloadURL();
       return imageUrl;
     } catch (e) {
-      print('Error al subir la imagen: $e');
+      if (kDebugMode) {
+        print('Error al subir la imagen: $e');
+      }
       throw Exception('Error al subir la imagen');
     }
   }
@@ -110,7 +121,9 @@ class _GestionProductosState extends State<GestionProductos> {
         return _imagen;
       }
     } catch (e) {
-      print('Error al cargar la imagen: $e');
+      if (kDebugMode) {
+        print('Error al cargar la imagen: $e');
+      }
     }
     return null;
   }
@@ -164,7 +177,7 @@ class _GestionProductosState extends State<GestionProductos> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               _imagen != null
                   ? Image.file(
                       _imagen!,
@@ -172,8 +185,8 @@ class _GestionProductosState extends State<GestionProductos> {
                       height: 150.0,
                       fit: BoxFit.cover,
                     )
-                  : SizedBox.shrink(),
-              SizedBox(height: 16.0),
+                  : const SizedBox.shrink(),
+              const SizedBox(height: 16.0),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: productosCollection.snapshots(),
@@ -183,7 +196,7 @@ class _GestionProductosState extends State<GestionProductos> {
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
 
                     return ListView.builder(
@@ -196,16 +209,16 @@ class _GestionProductosState extends State<GestionProductos> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10.0),
                           ),
-                          margin: EdgeInsets.symmetric(vertical: 8.0),
-                          padding: EdgeInsets.all(16.0),
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: ListTile(
                             title: Text(
                               producto.nombre,
-                              style: TextStyle(color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                             ),
                             subtitle: Text(
                               'Precio: \$${producto.precio.toStringAsFixed(2)}',
-                              style: TextStyle(color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                             ),
                             leading: producto.imagen != null
                                 ? Image.network(
@@ -213,12 +226,12 @@ class _GestionProductosState extends State<GestionProductos> {
                                     width: 50.0,
                                     height: 50.0,
                                   )
-                                : SizedBox.shrink(),
+                                : const SizedBox.shrink(),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: const Icon(Icons.edit),
                                   onPressed: () async {
                                     bool confirmacion =
                                         await _mostrarConfirmacion(
@@ -235,15 +248,17 @@ class _GestionProductosState extends State<GestionProductos> {
                                         if (productoActualizado != null) {
                                           await editarProducto(
                                               productoActualizado);
-                                          print(
-                                              'Producto actualizado: $productoActualizado');
+                                          if (kDebugMode) {
+                                            print(
+                                                'Producto actualizado: $productoActualizado');
+                                          }
                                         }
                                       });
                                     }
                                   },
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.delete),
+                                  icon: const Icon(Icons.delete),
                                   onPressed: () async {
                                     bool confirmacion =
                                         (await _mostrarConfirmacionEliminar(
@@ -275,26 +290,26 @@ class _GestionProductosState extends State<GestionProductos> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmar eliminación'),
+          title: const Text('Confirmar eliminación'),
           content:
               Text('¿Estás seguro de que deseas eliminar ${producto.nombre}?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // No eliminar
+                Navigator.of(context).pop(false);
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // Confirmar eliminar
+                Navigator.of(context).pop(true);
               },
-              child: Text('Eliminar'),
+              child: const Text('Eliminar'),
             ),
           ],
         );
       },
-    ); // Si se cierra el diálogo sin elegir una opción, se considera como cancelación
+    );
   }
 }
 
@@ -337,7 +352,7 @@ class Producto {
 class EditarProductoScreen extends StatefulWidget {
   final Producto producto;
 
-  EditarProductoScreen({required this.producto});
+  const EditarProductoScreen({required this.producto});
 
   @override
   _EditarProductoScreenState createState() => _EditarProductoScreenState();
@@ -454,7 +469,5 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
 Future<bool> _mostrarConfirmacion(
     BuildContext context, Producto producto) async {
-  // Aquí puedes implementar la lógica para mostrar la confirmación.
-  // Por ejemplo, puedes usar showDialog().
   return true;
 }

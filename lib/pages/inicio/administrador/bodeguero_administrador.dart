@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -110,7 +112,8 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
                                       child: ListTile(
                                         title: Text(
                                           'Usuario ID: ${users[index].id}',
-                                          style: TextStyle(color: Colors.black),
+                                          style: const TextStyle(
+                                              color: Colors.black),
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
@@ -118,12 +121,12 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
                                           children: [
                                             Text(
                                               'Email: ${userData['email']}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Colors.black),
                                             ),
                                             Text(
                                               'Rol: ${userData['rool']}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Colors.black),
                                             ),
                                           ],
@@ -132,7 +135,7 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             IconButton(
-                                              icon: Icon(Icons.edit,
+                                              icon: const Icon(Icons.edit,
                                                   color: Colors.black),
                                               onPressed: () {
                                                 if (!isEditing) {
@@ -147,7 +150,7 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
                                               },
                                             ),
                                             IconButton(
-                                              icon: Icon(Icons.delete,
+                                              icon: const Icon(Icons.delete,
                                                   color: Colors.black),
                                               onPressed: () {
                                                 FirebaseFirestore.instance

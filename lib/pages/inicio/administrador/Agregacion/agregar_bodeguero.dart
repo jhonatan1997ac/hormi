@@ -1,33 +1,32 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, unused_local_variable
+
 import 'dart:io';
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(
     MaterialApp(
       theme: ThemeData(
-        // Define el esquema de colores principal para la aplicación
-        primaryColor: Color(0xFF050A30), // Azul oscuro
-        hintColor: Colors.amber, // Puedes cambiar esto a un color llamativo
-        scaffoldBackgroundColor:
-            const Color.fromARGB(255, 173, 164, 80), // Fondo azul oscuro
+        primaryColor: const Color(0xFF050A30),
+        hintColor: Colors.amber,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 173, 164, 80),
         appBarTheme: const AppBarTheme(
-          backgroundColor:
-              Color.fromARGB(144, 5, 10, 48), // Barra de aplicación azul oscuro
+          backgroundColor: Color.fromARGB(144, 5, 10, 48),
         ),
-        iconTheme: const IconThemeData(color: Colors.white), // Color del icono
+        iconTheme: const IconThemeData(color: Colors.white),
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white), // Color del texto
-          bodyMedium: TextStyle(color: Colors.white), // Color del texto
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
         ),
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => AgregarBodeguero(),
-        '/bodeguero': (context) =>
-            const Bodeguero(), // Agregada la ruta para Bodeguero
+        '/': (context) => const AgregarBodeguero(),
+        '/bodeguero': (context) => const Bodeguero(),
       },
     ),
   );
@@ -37,7 +36,6 @@ class AgregarBodeguero extends StatefulWidget {
   const AgregarBodeguero({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AgregarBodegueroState createState() => _AgregarBodegueroState();
 }
 
@@ -295,11 +293,9 @@ class _AgregarBodegueroState extends State<AgregarBodeguero> {
         await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
         postDetailsToFirestore(email, rool);
-        // ignore: use_build_context_synchronously
         Navigator.pushReplacementNamed(context, '/bodeguero');
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
-          // ignore: use_build_context_synchronously
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -320,13 +316,14 @@ class _AgregarBodegueroState extends State<AgregarBodeguero> {
           );
         }
       } catch (e) {
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     }
   }
 
   postDetailsToFirestore(String email, String rool) async {
-    // ignore: unused_local_variable
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');

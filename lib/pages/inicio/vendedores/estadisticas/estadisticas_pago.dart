@@ -135,7 +135,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
         (totalVentasPorTipoPago['Banca Móvil'] ?? 0) / totalVentas * 100;
 
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

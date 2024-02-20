@@ -21,7 +21,7 @@ class _AdministradorState extends State<Administrador> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
-            fontSize: 24.0, // Ajusta el tamaño del texto de la AppBar
+            fontSize: 24.0,
           ),
         ),
         leading: IconButton(
@@ -38,8 +38,7 @@ class _AdministradorState extends State<Administrador> {
         elevation: 5,
       ),
       body: Padding(
-        padding:
-            const EdgeInsets.all(16.0), // Agrega margen alrededor del contenido
+        padding: const EdgeInsets.all(16.0),
         child: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(

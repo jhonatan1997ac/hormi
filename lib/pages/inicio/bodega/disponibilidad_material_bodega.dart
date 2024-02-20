@@ -1,10 +1,11 @@
-// ignore_for_file: unused_local_variable, unnecessary_null_comparison
+// ignore_for_file: unused_local_variable, unnecessary_null_comparison, use_key_in_widget_constructors, library_private_types_in_public_api, unnecessary_cast, prefer_const_constructors_in_immutables, deprecated_member_use
 
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -58,10 +59,14 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
           'descripcion': materialEditado.descripcion,
         });
 
-        print('Material actualizado: $materialEditado');
+        if (kDebugMode) {
+          print('Material actualizado: $materialEditado');
+        }
       }
     } catch (e) {
-      print('Error al editar el material: $e');
+      if (kDebugMode) {
+        print('Error al editar el material: $e');
+      }
     }
   }
 
@@ -127,8 +132,8 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                         final material = MaterialAgregado.fromSnapshot(
                             snapshot.data!.docs[index]);
                         return Container(
-                          margin: EdgeInsets.symmetric(vertical: 8.0),
-                          padding: EdgeInsets.all(12.0),
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.all(12.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8.0),
@@ -153,15 +158,18 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                                     children: [
                                       Text(
                                         'Nombre: ${material.nombre}',
-                                        style: TextStyle(color: Colors.black),
+                                        style: const TextStyle(
+                                            color: Colors.black),
                                       ),
                                       Text(
                                         'Cantidad: ${material.cantidad}',
-                                        style: TextStyle(color: Colors.black),
+                                        style: const TextStyle(
+                                            color: Colors.black),
                                       ),
                                       Text(
                                         'Descripción: ${material.descripcion}',
-                                        style: TextStyle(color: Colors.black),
+                                        style: const TextStyle(
+                                            color: Colors.black),
                                       ),
                                     ],
                                   ),
@@ -186,8 +194,10 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                                       if (materialActualizado != null) {
                                         await editarMaterial(
                                             materialActualizado);
-                                        print(
-                                            'Material actualizado: $materialActualizado');
+                                        if (kDebugMode) {
+                                          print(
+                                              'Material actualizado: $materialActualizado');
+                                        }
                                       }
                                     });
                                   },
@@ -217,9 +227,13 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
   Future<void> eliminarMaterial(MaterialAgregado material) async {
     try {
       await materialesCollection.doc(material.nombre).delete();
-      print('Material eliminado: ${material.nombre}');
+      if (kDebugMode) {
+        print('Material eliminado: ${material.nombre}');
+      }
     } catch (e) {
-      print('Error al eliminar el material: $e');
+      if (kDebugMode) {
+        print('Error al eliminar el material: $e');
+      }
     }
   }
 
@@ -294,8 +308,7 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
   late TextEditingController nombreController;
   late TextEditingController cantidadController;
   late TextEditingController descripcionController;
-  late TextEditingController
-      imagenURLController; // Nuevo controlador para imagenURL
+  late TextEditingController imagenURLController;
   File? _image;
   @override
   void initState() {
@@ -402,7 +415,7 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                     future: _getImageUrl(widget.material.imagenURL),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return const CircularProgressIndicator();
                       }
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
@@ -443,7 +456,9 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                       _image = File(pickedFile.path);
                     });
                   } else {
-                    print('No image selected.');
+                    if (kDebugMode) {
+                      print('No image selected.');
+                    }
                   }
                 },
                 child: const Text('Agregar Foto desde la Cámara'),
@@ -477,7 +492,9 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
       final url = await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
       return url;
     } catch (e) {
-      print('Error al obtener la URL de la imagen: $e');
+      if (kDebugMode) {
+        print('Error al obtener la URL de la imagen: $e');
+      }
       return null;
     }
   }

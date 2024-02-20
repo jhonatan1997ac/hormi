@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, unnecessary_const
 
 import 'package:flutter/material.dart';
 import 'inicio.dart';
@@ -45,16 +45,28 @@ class Principal extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  color: Colors.white, // Color de fondo blanco
-                  padding: const EdgeInsets.all(
-                      16.0), // Padding para agregar espacio alrededor del texto
-                  child: const Text(
-                    'Bienvenido',
-                    style: TextStyle(
-                      fontSize: 50.0,
-                      color: Color.fromARGB(255, 8, 2, 2),
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(16.0),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Bienvenido',
+                        style: TextStyle(
+                          fontSize: 50.0,
+                          color: Color.fromARGB(255, 8, 2, 2),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Hormibloque Ecuador S.A',
+                        style: TextStyle(
+                          fontSize: 30.0,
+                          color: Color.fromARGB(255, 8, 2, 2),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 600),

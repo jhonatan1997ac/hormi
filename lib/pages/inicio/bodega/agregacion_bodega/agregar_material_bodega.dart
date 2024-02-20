@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors
+
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
@@ -19,23 +21,31 @@ class MaterialService {
           .get();
 
       if (existingMaterial.docs.isNotEmpty) {
-        print('Material existente. Puedes implementar lógica específica.');
+        if (kDebugMode) {
+          print('Material existente. Puedes implementar lógica específica.');
+        }
       } else {
         if (_esValido(nombre, descripcion, cantidad)) {
           await _firestore.collection('disponibilidadmaterial').add({
             'nombre': nombre,
             'descripcion': descripcion,
-            'cantidad': int.parse(cantidad), // Convierte a entero
-            'imagenURL': imagenURL, // Agrega la URL de la imagen
+            'cantidad': int.parse(cantidad),
+            'imagenURL': imagenURL,
           });
 
-          print('Material agregado correctamente a la base de datos.');
+          if (kDebugMode) {
+            print('Material agregado correctamente a la base de datos.');
+          }
         } else {
-          print('Datos no válidos. No se ha agregado el material.');
+          if (kDebugMode) {
+            print('Datos no válidos. No se ha agregado el material.');
+          }
         }
       }
     } catch (e) {
-      print('Error al agregar el material: $e');
+      if (kDebugMode) {
+        print('Error al agregar el material: $e');
+      }
     }
   }
 
@@ -125,9 +135,8 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                   padding: const EdgeInsets.all(8.0),
                   child: DropdownButton<String>(
                     value: _selectedMaterial,
-                    dropdownColor:
-                        Colors.white, // Fondo blanco del menú desplegable
-                    style: TextStyle(color: Colors.black), // Texto negro
+                    dropdownColor: Colors.white,
+                    style: const TextStyle(color: Colors.black),
                     items: [
                       'Arena',
                       'Piedra',
@@ -245,8 +254,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                     onTap: _tomarFoto,
                     child: _imagenTomada != null
                         ? Image.file(_imagenTomada!)
-                        : const Icon(Icons.camera_alt,
-                            color: Colors.black), // Icono en negro
+                        : const Icon(Icons.camera_alt, color: Colors.black),
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -289,10 +297,11 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
       await materialService.agregarMaterial(
           nombre, descripcion, cantidad, imagenURL);
 
-      // ignore: use_build_context_synchronously
       Navigator.pushNamed(context, '/disponibilidadmaterial');
     } else {
-      print('Por favor, primero tome una foto.');
+      if (kDebugMode) {
+        print('Por favor, primero tome una foto.');
+      }
     }
   }
 

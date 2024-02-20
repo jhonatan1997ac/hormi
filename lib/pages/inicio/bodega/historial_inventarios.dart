@@ -1,5 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, prefer_const_constructors, sort_child_properties_last, use_key_in_widget_constructors
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,48 +23,98 @@ class HistorialInventario extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Historial de Inventario'),
+        title: Text(
+          'Historial de Inventario',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('historialinventario')
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          var historial = snapshot.data?.docs;
-
-          if (historial == null || historial.isEmpty) {
-            return Center(
-              child: Text('No hay registros en el historial de inventario.'),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: historial.length,
-            itemBuilder: (context, index) {
-              var registro = historial[index].data() as Map<String, dynamic>;
-              return ListTile(
-                title:
-                    Text(registro['idproducto'] ?? 'Producto no especificado'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('ID Historial: ${registro['idhistorial'] ?? 'N/A'}'),
-                    Text(
-                        'Tipo de Movimiento: ${registro['tipomovimiento'] ?? 'N/A'}'),
-                    Text('Cantidad: ${registro['cantidad'] ?? 'N/A'}'),
-                    Text('Fecha: ${registro['fecha'] ?? 'N/A'}'),
-                  ],
-                ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('historialinventario')
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          );
-        },
+            }
+
+            var historial = snapshot.data?.docs;
+
+            if (historial == null || historial.isEmpty) {
+              return Center(
+                child: Text('No hay registros en el historial de inventario.'),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: historial.length,
+              itemBuilder: (context, index) {
+                var registro = historial[index].data() as Map<String, dynamic>;
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    title: Text(
+                        registro['idproducto'] ?? 'Producto no especificado'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            'ID Historial: ${registro['idhistorial'] ?? 'N/A'}'),
+                        Text(
+                            'Tipo de Movimiento: ${registro['tipomovimiento'] ?? 'N/A'}'),
+                        Text('Cantidad: ${registro['cantidad'] ?? 'N/A'}'),
+                        Text('Fecha: ${registro['fecha'] ?? 'N/A'}'),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -73,7 +124,6 @@ class HistorialInventario extends StatelessWidget {
           );
 
           if (result != null && result is Map<String, dynamic>) {
-            // Agregar el nuevo registro al historial en Firebase
             await FirebaseFirestore.instance
                 .collection('historialinventario')
                 .add(result);

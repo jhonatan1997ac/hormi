@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -217,24 +217,21 @@ class _InicioState extends State<Inicio> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const VendedorHome()),
-                (route) =>
-                    false, // This will remove all routes below VendedorHome
+                (route) => false,
               );
               break;
             case "bodeguero":
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const BodegueroHome()),
-                (route) =>
-                    false, // This will remove all routes below BodegueroHome
+                (route) => false,
               );
               break;
             default:
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const Administrador()),
-                (route) =>
-                    false, // This will remove all routes below Administrador
+                (route) => false,
               );
           }
         } else {

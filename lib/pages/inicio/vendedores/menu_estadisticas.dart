@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -67,7 +69,7 @@ class MenuEstadisticasHome extends StatelessWidget {
               HomeCard(
                 title: 'Estadísticas de pago',
                 icon: Icons.attach_money,
-                color: Color(0xFF2196F3),
+                color: const Color(0xFF2196F3),
                 onTap: () {
                   Navigator.pushNamed(context, '/estadisticapago');
                 },
@@ -75,7 +77,7 @@ class MenuEstadisticasHome extends StatelessWidget {
               HomeCard(
                 title: 'Estadistica de fecha de ventas',
                 icon: Icons.event,
-                color: Color(0xFF673AB7),
+                color: const Color(0xFF673AB7),
                 onTap: () {
                   Navigator.pushNamed(context, '/fechaventas');
                 },
@@ -83,7 +85,7 @@ class MenuEstadisticasHome extends StatelessWidget {
               HomeCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,
-                color: Color(0xFF512DA8),
+                color: const Color(0xFF512DA8),
                 onTap: () {
                   logout(context);
                 },

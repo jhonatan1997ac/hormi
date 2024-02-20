@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,7 +63,6 @@ class _FechaVentasState extends State<FechaVentas> {
       ),
       body: Stack(
         children: [
-          // Capa inferior para el fondo degradado
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -74,18 +75,17 @@ class _FechaVentasState extends State<FechaVentas> {
               ),
             ),
           ),
-          // Capa superior para el contenido del calendario
           Container(
             margin: EdgeInsets.all(20.0),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7), // Fondo blanco translúcido
+              color: Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(20.0),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 5,
                   blurRadius: 7,
-                  offset: Offset(0, 3), // changes position of shadow
+                  offset: Offset(0, 3),
                 ),
               ],
             ),
@@ -143,11 +143,11 @@ class _FechaVentasState extends State<FechaVentas> {
         Column(
           children: [
             Text(
-              _getMonthName(_selectedDate.month), // Obtener el nombre del mes
+              _getMonthName(_selectedDate.month),
               style: TextStyle(fontSize: 20, color: Colors.black),
             ),
             Text(
-              '${_selectedDate.year}', // Mostrar el año en números
+              '${_selectedDate.year}',
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ],
@@ -302,7 +302,7 @@ class _FechaVentasState extends State<FechaVentas> {
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
-                            ), // Mostrar la imagen desde la URL
+                            ),
                             Text('Nombre: ${producto['nombre']}',
                                 style: TextStyle(color: Colors.black)),
                             Text('Precio: ${producto['precio']}',

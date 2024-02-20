@@ -34,8 +34,7 @@ class _ClientesState extends State<Clientes> {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
-                    .where('rool',
-                        isEqualTo: 'cliente') // Filtrar por rol 'cliente'
+                    .where('rool', isEqualTo: 'cliente')
                     .snapshots(),
                 builder: (context, usersSnapshot) {
                   if (usersSnapshot.connectionState ==
@@ -72,7 +71,7 @@ class _ClientesState extends State<Clientes> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.edit),
+                                        icon: const Icon(Icons.edit),
                                         onPressed: () {
                                           _showEditDialog(
                                             context,
@@ -149,7 +148,6 @@ class _ClientesState extends State<Clientes> {
             ),
             TextButton(
               onPressed: () {
-                // Actualizar los datos en Firestore
                 FirebaseFirestore.instance
                     .collection('users')
                     .doc(userId)
