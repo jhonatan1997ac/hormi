@@ -1,8 +1,11 @@
+// ignore_for_file: unused_element, use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,21 +80,19 @@ class _RutaEnvioState extends State<RutaEnvio> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(
-                    10.0), // Añadir relleno alrededor del Row
-                color: Colors.white, // Fondo blanco
+                padding: const EdgeInsets.all(10.0),
+                color: Colors.white,
                 child: const Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .center, // Centrar el contenido horizontalmente
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.route, color: Colors.black), // Icono negro
+                    Icon(Icons.route, color: Colors.black),
                     SizedBox(width: 20),
                     Text(
                       'Información sobre Ruta Envios',
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black, // Texto negro
+                        color: Colors.black,
                       ),
                     ),
                   ],
@@ -107,7 +108,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                     _mostrarDialogoAgregarRutaenvio(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue,
+                    backgroundColor: Colors.blue,
                   ),
                   child: const Text(
                     'Agregar Rutaenvio',
@@ -138,8 +139,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Container(
-            color:
-                Colors.white.withOpacity(0.8), // Fondo blanco semitransparente
+            color: Colors.white.withOpacity(0.8),
             child: DataTable(
               columns: const [
                 DataColumn(label: Text('ID')),
@@ -153,7 +153,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 DataColumn(label: Text('Documentación')),
                 DataColumn(label: Text('Notas y Comentarios')),
                 DataColumn(
-                  label: Text('Acciones'), // Columna para botones de acciones
+                  label: Text('Acciones'),
                 ),
               ],
               rows: rutaenvios.map((rutaenvio) {
@@ -179,7 +179,6 @@ class _RutaEnvioState extends State<RutaEnvio> {
                   DataCell(Text(costosTarifas)),
                   DataCell(Text(documentacion)),
                   DataCell(Text(notasComentarios)),
-                  // Botones de acciones
                   DataCell(Row(
                     children: [
                       IconButton(
@@ -189,7 +188,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () {
                           _eliminarRutaenvio(id);
                         },
@@ -206,7 +205,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
   }
 
   Future<void> _mostrarDialogoAgregarRutaenvio(BuildContext context) async {
-    errores.clear(); // Limpiar mensajes de error al abrir el diálogo
+    errores.clear();
 
     showDialog(
       context: context,
@@ -257,7 +256,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 TextButton(
                   onPressed: () {
                     _validarCampos();
-                    setState(() {}); // Actualizar el estado del diálogo
+                    setState(() {});
                   },
                   child: const Text('Agregar'),
                 ),
@@ -267,6 +266,32 @@ class _RutaEnvioState extends State<RutaEnvio> {
         );
       },
     );
+  }
+
+  Future<void> _getLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    if (kDebugMode) {
+      print('Ubicación actual: ${position.latitude}, ${position.longitude}');
+    }
+  }
+
+  void _getOtherCollectionData() {
+    FirebaseFirestore.instance
+        .collection('otraColeccion')
+        .doc('documento')
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (kDebugMode) {
+          print('Datos de otro documento: ${documentSnapshot.data()}');
+        }
+      } else {
+        if (kDebugMode) {
+          print('El documento no existe');
+        }
+      }
+    });
   }
 
   void _mostrarDialogoEditarRutaenvio(
@@ -282,7 +307,6 @@ class _RutaEnvioState extends State<RutaEnvio> {
     documentacionController.clear();
     notasComentariosController.clear();
 
-    // Asignar los valores del documento a los controladores de texto
     idController.text = rutaenvio['idrutaenvio'];
     origenController.text = rutaenvio['origen'];
     destinoController.text = rutaenvio['destino'];
@@ -294,7 +318,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
     documentacionController.text = rutaenvio['documentacion'];
     notasComentariosController.text = rutaenvio['notas_comentarios'];
 
-    errores.clear(); // Limpiar mensajes de error al abrir el diálogo
+    errores.clear();
 
     showDialog(
       context: context,
@@ -344,7 +368,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 TextButton(
                   onPressed: () {
                     _validarCampos();
-                    setState(() {}); // Actualizar el estado del diálogo
+                    setState(() {});
                   },
                   child: const Text('Guardar'),
                 ),
@@ -450,7 +474,6 @@ class _RutaEnvioState extends State<RutaEnvio> {
     CollectionReference rutaenvioCollection =
         _firestore.collection('rutaenvio');
 
-    // Obtener la referencia al documento específico que deseamos actualizar
     DocumentReference rutaenvioRef = rutaenvioCollection.doc(id);
 
     Map<String, dynamic> datosActualizados = {

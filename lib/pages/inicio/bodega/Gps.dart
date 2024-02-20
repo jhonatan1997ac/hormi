@@ -1,9 +1,8 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously, unused_local_variable, unused_import, unnecessary_null_comparison, prefer_typing_uninitialized_variables, non_constant_identifier_names
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, sort_child_properties_last, unnecessary_null_comparison, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, unused_local_variable, unnecessary_cast, avoid_function_literals_in_foreach_calls, prefer_collection_literals, file_names
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/date_symbol_data_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
@@ -48,7 +47,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
   void initState() {
     super.initState();
     _checkLocationPermission();
-    _updateTableFromFirestore(); // Para cargar los datos al inicio
+    _updateTableFromFirestore();
   }
 
   @override
@@ -88,7 +87,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
               onPressed: _showLocationInputDialog,
               child: const Text('Mostrar mi Ubicación'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                backgroundColor: Colors.blue,
                 textStyle: const TextStyle(fontSize: 18),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -101,7 +100,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
               onPressed: _searchDestination,
               child: const Text('Buscar Destino'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.green,
+                backgroundColor: Colors.green,
                 textStyle: const TextStyle(fontSize: 18),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -152,14 +151,14 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
                       DataCell(
                         Text(fechaEntrega != null
                             ? DateFormat('dd/MM/yyyy').format(fechaEntrega
-                                .subtract(Duration(days: 1))
+                                .subtract(const Duration(days: 1))
                                 .toLocal())
                             : 'N/A'),
                       ),
                       DataCell(
                         Text(fechaOrden != null
                             ? DateFormat('dd/MM/yyyy').format(fechaOrden
-                                .subtract(Duration(days: 1))
+                                .subtract(const Duration(days: 1))
                                 .toLocal())
                             : 'N/A'),
                       ),
@@ -167,14 +166,14 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
                           ? DateFormat('dd/MM/yyyy').format(
                               (firstLocation['fecha_entrega'] as Timestamp)
                                   .toDate()
-                                  .subtract(Duration(days: 1))
+                                  .subtract(const Duration(days: 1))
                                   .toLocal())
                           : 'N/A')),
                       DataCell(Text(firstLocation != null
                           ? DateFormat('dd/MM/yyyy').format(
                               (firstLocation['fecha_orden'] as Timestamp)
                                   .toDate()
-                                  .subtract(Duration(days: 1))
+                                  .subtract(const Duration(days: 1))
                                   .toLocal())
                           : 'N/A')),
                     ]);
@@ -435,15 +434,14 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
   Future<List<String>> _getIdOrdenes() async {
     final firestoreInstance = FirebaseFirestore.instance;
     final querySnapshot = await firestoreInstance.collection('ordenes').get();
-    Set<String> idOrdenesSet = Set(); // Usar un conjunto para evitar duplicados
+    Set<String> idOrdenesSet = Set();
 
     querySnapshot.docs.forEach((doc) {
       final data = doc.data() as Map<String, dynamic>;
       idOrdenesSet.add(data['idOrden']);
     });
 
-    return idOrdenesSet
-        .toList(); // Convertir el conjunto a lista antes de devolver
+    return idOrdenesSet.toList();
   }
 
   void _updateMapWithLocation(double latitude, double longitude) {

@@ -1,8 +1,9 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'inicio.dart';
 
@@ -47,8 +48,7 @@ class _RegisterState extends State<Register> {
           height: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image:
-                  AssetImage("assets/carga.png"), // Ruta de la imagen de fondo
+              image: AssetImage("assets/carga.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -56,22 +56,22 @@ class _RegisterState extends State<Register> {
             child: Column(
               children: <Widget>[
                 Container(
-                  color: Color.fromARGB(179, 8, 14, 44),
+                  color: const Color.fromARGB(179, 8, 14, 44),
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   child: SingleChildScrollView(
                     child: Container(
-                      margin: EdgeInsets.all(12),
+                      margin: const EdgeInsets.all(12),
                       child: Form(
                         key: _formkey,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 80,
                             ),
-                            Text(
+                            const Text(
                               "REGISTRARSE",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -79,10 +79,10 @@ class _RegisterState extends State<Register> {
                                 fontSize: 40,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 50,
                             ),
                             TextFormField(
@@ -92,14 +92,16 @@ class _RegisterState extends State<Register> {
                                 fillColor: Colors.white,
                                 hintText: 'Correo',
                                 enabled: true,
-                                contentPadding: EdgeInsets.only(
+                                contentPadding: const EdgeInsets.only(
                                     left: 14.0, bottom: 8.0, top: 8.0),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
@@ -118,7 +120,7 @@ class _RegisterState extends State<Register> {
                               onChanged: (value) {},
                               keyboardType: TextInputType.emailAddress,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             TextFormField(
@@ -138,20 +140,21 @@ class _RegisterState extends State<Register> {
                                 fillColor: Colors.white,
                                 hintText: 'Contraseña',
                                 enabled: true,
-                                contentPadding: EdgeInsets.only(
+                                contentPadding: const EdgeInsets.only(
                                     left: 14.0, bottom: 8.0, top: 15.0),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
                               validator: (value) {
-                                RegExp regex = RegExp(
-                                    r'^.{6,15}$'); // Modificado a 15 caracteres
+                                RegExp regex = RegExp(r'^.{6,15}$');
                                 if (value!.isEmpty) {
                                   return "La contraseña no puede estar vacía";
                                 }
@@ -163,7 +166,7 @@ class _RegisterState extends State<Register> {
                               },
                               onChanged: (value) {},
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             TextFormField(
@@ -183,14 +186,16 @@ class _RegisterState extends State<Register> {
                                 fillColor: Colors.white,
                                 hintText: 'confirmar Contraseña',
                                 enabled: true,
-                                contentPadding: EdgeInsets.only(
+                                contentPadding: const EdgeInsets.only(
                                     left: 14.0, bottom: 8.0, top: 15.0),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
@@ -204,10 +209,10 @@ class _RegisterState extends State<Register> {
                               },
                               onChanged: (value) {},
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             Row(
@@ -215,7 +220,7 @@ class _RegisterState extends State<Register> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 MaterialButton(
-                                  shape: RoundedRectangleBorder(
+                                  shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(20.0))),
                                   elevation: 5.0,
@@ -225,7 +230,7 @@ class _RegisterState extends State<Register> {
                                         context, '/logpag');
                                   },
                                   color: Colors.white,
-                                  child: Text(
+                                  child: const Text(
                                     "Acceso",
                                     style: TextStyle(
                                       fontSize: 20,
@@ -233,7 +238,7 @@ class _RegisterState extends State<Register> {
                                   ),
                                 ),
                                 MaterialButton(
-                                  shape: RoundedRectangleBorder(
+                                  shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(20.0))),
                                   elevation: 5.0,
@@ -246,7 +251,7 @@ class _RegisterState extends State<Register> {
                                         passwordController.text, rool);
                                   },
                                   color: Colors.white,
-                                  child: Text(
+                                  child: const Text(
                                     "Registro",
                                     style: TextStyle(
                                       fontSize: 20,
@@ -255,7 +260,7 @@ class _RegisterState extends State<Register> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                           ],
@@ -273,30 +278,27 @@ class _RegisterState extends State<Register> {
   }
 
   void signUp(String email, String password, String rool) async {
-    CircularProgressIndicator();
+    const CircularProgressIndicator();
     if (_formkey.currentState!.validate()) {
       try {
         await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
-        // Si el registro es exitoso, postDetailsToFirestore será llamado
         postDetailsToFirestore(email, rool);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
-          // El correo electrónico ya está en uso, muestra un mensaje emergente
-          // ignore: use_build_context_synchronously
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Error de registro'),
-                content: Text(
+                title: const Text('Error de registro'),
+                content: const Text(
                     'El correo electrónico ya está en uso. Por favor, utiliza otro correo electrónico.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('Aceptar'),
+                    child: const Text('Aceptar'),
                   ),
                 ],
               );
@@ -304,8 +306,9 @@ class _RegisterState extends State<Register> {
           );
         }
       } catch (e) {
-        // Otras excepciones que puedan ocurrir durante el registro
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     }
   }
@@ -325,7 +328,7 @@ void main() {
       initialRoute: '/',
       routes: {
         '/': (context) => Register(),
-        '/logpag': (context) => Inicio(),
+        '/logpag': (context) => const Inicio(),
       },
     ),
   );

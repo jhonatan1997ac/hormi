@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -187,14 +189,14 @@ class _ReclamacionesState extends State<Reclamaciones> {
               ),
               const SizedBox(height: 40.0),
               Center(
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
                       _guardarReclamacion();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
+                      backgroundColor: Colors.green,
                     ),
                     child: const Text(
                       'Notificar Reclamación',
@@ -216,23 +218,18 @@ class _ReclamacionesState extends State<Reclamaciones> {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('ordenes').get();
     List<String> ordenes = [];
-    querySnapshot.docs.forEach((doc) {
+    for (var doc in querySnapshot.docs) {
       ordenes.add(doc['idOrden']);
-    });
+    }
     setState(() {
       _ordenes = ordenes;
     });
   }
 
   void _guardarReclamacion() async {
-    String idOrden = _ordenes.isNotEmpty
-        ? _ordenes.first
-        : ''; // Obtener la primera orden si está disponible
+    String idOrden = _ordenes.isNotEmpty ? _ordenes.first : '';
     String estado = _estadoController.text;
-
-    // Validar que los campos no estén vacíos y que el motivo sea seleccionado
     if (idOrden.isEmpty || _motivoSeleccionado.isEmpty || estado.isEmpty) {
-      // Mostrar un mensaje de error o realizar otra acción de manejo de errores
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -254,15 +251,12 @@ class _ReclamacionesState extends State<Reclamaciones> {
       return;
     }
 
-    // Guardar en Firebase
     await FirebaseFirestore.instance.collection('reclamaciones').add({
       'idOrden': idOrden,
       'motivo': _motivoSeleccionado,
       'estado': estado,
       'fecha': FieldValue.serverTimestamp(),
     });
-
-    // Limpiar los controladores después de enviar la reclamación
     _estadoController.clear();
   }
 }

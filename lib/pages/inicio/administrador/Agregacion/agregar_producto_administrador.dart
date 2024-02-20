@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors
 
 import 'dart:io';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
@@ -36,7 +36,9 @@ class ProductoService {
             'calidad': nuevoProducto.calidad,
           });
         } else {
-          print('Error: Quality is different.');
+          if (kDebugMode) {
+            print('Error: Quality is different.');
+          }
         }
       } else {
         await _firestore.collection('disponibilidadproducto').add({
@@ -72,8 +74,12 @@ class ProductoService {
       }
       return null;
     } catch (e, stackTrace) {
-      print('Error al subir la imagen: $e');
-      print(stackTrace);
+      if (kDebugMode) {
+        print('Error al subir la imagen: $e');
+      }
+      if (kDebugMode) {
+        print(stackTrace);
+      }
       return null;
     }
   }
@@ -182,8 +188,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(
-                  255, 55, 111, 139), // Color del inicio del degradado
+              Color.fromARGB(255, 55, 111, 139),
               Color.fromARGB(255, 165, 160, 160),
             ],
           ),
@@ -231,15 +236,13 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
               ),
               const SizedBox(height: 16.0),
               Container(
-                color: Colors.white, // Fondo blanco para los datos
+                color: Colors.white,
                 child: Column(
                   children: [
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Precio',
-                        labelStyle: TextStyle(
-                            color: Colors
-                                .black), // Color de texto para la etiqueta
+                        labelStyle: TextStyle(color: Colors.black),
                       ),
                       controller: _precioController,
                       keyboardType:
@@ -254,9 +257,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Cantidad',
-                        labelStyle: TextStyle(
-                            color: Colors
-                                .black), // Color de texto para la etiqueta
+                        labelStyle: TextStyle(color: Colors.black),
                       ),
                       controller: _cantidadController,
                       keyboardType: TextInputType.number,
@@ -272,9 +273,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                       children: [
                         const Text(
                           'Calidad:',
-                          style: TextStyle(
-                              color: Colors
-                                  .black), // Color de texto para el título
+                          style: TextStyle(color: Colors.black),
                         ),
                         const SizedBox(width: 16.0),
                         DropdownButton<String>(
@@ -299,9 +298,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                       children: [
                         const Text(
                           'Disponible:',
-                          style: TextStyle(
-                              color: Colors
-                                  .black), // Color de texto para el título
+                          style: TextStyle(color: Colors.black),
                         ),
                         Switch(
                           value: _disponible,

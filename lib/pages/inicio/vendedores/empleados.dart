@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,8 +40,7 @@ class _EmpleadosState extends State<Empleados> {
               return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
-                    .where('rool',
-                        isEqualTo: 'vendedor') // Filtrar por rol 'vendedor'
+                    .where('rool', isEqualTo: 'vendedor')
                     .snapshots(),
                 builder: (context, usersSnapshot) {
                   if (usersSnapshot.connectionState ==
@@ -77,7 +78,7 @@ class _EmpleadosState extends State<Empleados> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.edit),
+                                        icon: const Icon(Icons.edit),
                                         onPressed: () {
                                           _showEditDialog(
                                             context,
@@ -88,7 +89,7 @@ class _EmpleadosState extends State<Empleados> {
                                         },
                                       ),
                                       IconButton(
-                                        icon: Icon(Icons.delete),
+                                        icon: const Icon(Icons.delete),
                                         onPressed: () {
                                           FirebaseFirestore.instance
                                               .collection('users')
@@ -154,7 +155,6 @@ class _EmpleadosState extends State<Empleados> {
             ),
             TextButton(
               onPressed: () {
-                // Actualizar los datos en Firestore
                 FirebaseFirestore.instance
                     .collection('users')
                     .doc(userId)

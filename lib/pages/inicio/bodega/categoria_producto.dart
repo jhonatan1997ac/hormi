@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,108 +20,159 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categorías de Productos'),
+        title: const Text(
+          'Categorías de Productos',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
+            color: Colors.black,
             onPressed: () {
               _mostrarDialogoAgregar(context);
             },
           ),
         ],
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            User? usuarioActual = snapshot.data;
-
-            if (usuarioActual == null) {
-              return const Text('No hay usuarios autenticados.');
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             } else {
-              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('categoriasproducto')
-                    .orderBy('idcategoria') // Ordena por el campo idcategoria
-                    .snapshots(),
-                builder: (context, snapshotCategorias) {
-                  if (snapshotCategorias.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshotCategorias.hasError) {
-                    return Text('Error: ${snapshotCategorias.error}');
-                  } else {
-                    var categorias = snapshotCategorias.data?.docs;
+              User? usuarioActual = snapshot.data;
 
-                    if (categorias == null || categorias.isEmpty) {
-                      return const Text(
-                          'No se encontraron categorías de productos.');
+              if (usuarioActual == null) {
+                return const Text('No hay usuarios autenticados.');
+              } else {
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('categoriasproducto')
+                      .orderBy('idcategoria')
+                      .snapshots(),
+                  builder: (context, snapshotCategorias) {
+                    if (snapshotCategorias.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshotCategorias.hasError) {
+                      return Text('Error: ${snapshotCategorias.error}');
                     } else {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: categorias.length,
-                              itemBuilder: (context, index) {
-                                var datosCategoria = categorias[index].data();
-                                var idCategoria = categorias[index].id;
-                                return ListTile(
-                                  title: Text(
-                                    'Categoría ID: ${datosCategoria['idcategoria']}',
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Nombre: ${datosCategoria['nombre']}',
+                      var categorias = snapshotCategorias.data?.docs;
+
+                      if (categorias == null || categorias.isEmpty) {
+                        return const Text(
+                            'No se encontraron categorías de productos.');
+                      } else {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: categorias.length,
+                                itemBuilder: (context, index) {
+                                  var datosCategoria = categorias[index].data();
+                                  var idCategoria = categorias[index].id;
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListTile(
+                                      title: Text(
+                                        'Categoría ID: ${datosCategoria['idcategoria']}',
                                       ),
-                                      // Puedes agregar más campos según tus necesidades
-                                    ],
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () {
-                                          _mostrarDialogoEditar(
-                                            context,
-                                            idCategoria,
-                                            datosCategoria['nombre'],
-                                          );
-                                        },
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Nombre: ${datosCategoria['nombre']}',
+                                          ),
+                                        ],
                                       ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete),
-                                        onPressed: () {
-                                          FirebaseFirestore.instance
-                                              .collection('categoriasproducto')
-                                              .doc(idCategoria)
-                                              .delete();
-                                        },
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            onPressed: () {
+                                              _mostrarDialogoEditar(
+                                                context,
+                                                idCategoria,
+                                                datosCategoria['nombre'],
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            onPressed: () {
+                                              FirebaseFirestore.instance
+                                                  .collection(
+                                                      'categoriasproducto')
+                                                  .doc(idCategoria)
+                                                  .delete();
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      );
+                          ],
+                        );
+                      }
                     }
-                  }
-                },
-              );
+                  },
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }
@@ -142,7 +194,7 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'ID Categoría: $idCategoria', // Muestra el ID, no editable
+                'ID Categoría: $idCategoria',
               ),
               TextField(
                 controller: nombreControlador,
@@ -164,11 +216,14 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
                     .doc(idCategoria)
                     .update({
                   'nombre': nombreControlador.text,
-                  // Puedes agregar más campos según tus necesidades
                 }).then((_) {
-                  print('Documento actualizado correctamente');
+                  if (kDebugMode) {
+                    print('Documento actualizado correctamente');
+                  }
                 }).catchError((error) {
-                  print('Error al actualizar el documento: $error');
+                  if (kDebugMode) {
+                    print('Error al actualizar el documento: $error');
+                  }
                 });
 
                 Navigator.of(context).pop();
@@ -182,7 +237,6 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
   }
 
   void _mostrarDialogoAgregar(BuildContext context) async {
-    // Obtener el último idcategoria de la base de datos
     var ultimasCategorias = await FirebaseFirestore.instance
         .collection('categoriasproducto')
         .orderBy('idcategoria', descending: true)
@@ -193,7 +247,6 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
       var ultimaCategoria = ultimasCategorias.docs.first;
       _ultimoIdCategoria = (ultimaCategoria.data()['idcategoria'] ?? 0) + 1;
     } else {
-      // Si no hay categorías en la base de datos, comienza desde 1
       _ultimoIdCategoria = 1;
     }
 
@@ -214,7 +267,6 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
                 controller: nombreControlador,
                 decoration: const InputDecoration(labelText: 'Nombre'),
               ),
-              // Puedes agregar más campos según tus necesidades
             ],
           ),
           actions: [
@@ -231,7 +283,6 @@ class _CategoriaProductoState extends State<CategoriaProducto> {
                     .add({
                   'idcategoria': _ultimoIdCategoria,
                   'nombre': nombreControlador.text,
-                  // Puedes agregar más campos según tus necesidades
                 }).then((value) {
                   if (kDebugMode) {
                     print('Categoría agregada correctamente');

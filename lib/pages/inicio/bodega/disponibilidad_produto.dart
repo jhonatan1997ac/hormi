@@ -1,8 +1,11 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, unused_element, prefer_const_constructors_in_immutables
+
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -65,10 +68,14 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
           'calidad': productoEditado.calidad,
         });
 
-        print('Producto actualizado: $productoEditado');
+        if (kDebugMode) {
+          print('Producto actualizado: $productoEditado');
+        }
       }
     } catch (e) {
-      print('Error al editar el producto: $e');
+      if (kDebugMode) {
+        print('Error al editar el producto: $e');
+      }
     }
   }
 
@@ -82,10 +89,14 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
           await FirebaseStorage.instance.refFromURL(producto.imagen!).delete();
         }
 
-        print('Producto eliminado: $producto');
+        if (kDebugMode) {
+          print('Producto eliminado: $producto');
+        }
       }
     } catch (e) {
-      print('Error al eliminar el producto: $e');
+      if (kDebugMode) {
+        print('Error al eliminar el producto: $e');
+      }
     }
   }
 
@@ -101,7 +112,9 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
         return _imagen;
       }
     } catch (e) {
-      print('Error al cargar la imagen: $e');
+      if (kDebugMode) {
+        print('Error al cargar la imagen: $e');
+      }
     }
     return null;
   }
@@ -235,16 +248,14 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
                             Producto.fromSnapshot(snapshot.data!.docs[index]);
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors
-                                .white, // Establecer el color de fondo en blanco
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(10.0),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.5),
                                 spreadRadius: 2,
                                 blurRadius: 5,
-                                offset: Offset(0,
-                                    3), // Cambiar la posición de la sombra si lo deseas
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -287,8 +298,10 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
                                       if (productoActualizado != null) {
                                         await editarProducto(
                                             productoActualizado);
-                                        print(
-                                            'Producto actualizado: $productoActualizado');
+                                        if (kDebugMode) {
+                                          print(
+                                              'Producto actualizado: $productoActualizado');
+                                        }
                                       }
                                     });
                                   },
@@ -371,8 +384,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   late TextEditingController cantidadController;
   bool _disponible = true;
   String _selectedProducto = 'Adoquin jaboncillo peatonal sin color';
-  String _selectedCalidad =
-      'Calidad adoquin resistencia 300'; // Selecciona una calidad por defecto
+  String _selectedCalidad = 'Calidad adoquin resistencia 300';
   final List<String> _productos = [
     'Adoquin clasico peatonal sin color',
     'Adoquin clasico peatonal con color',
@@ -414,20 +426,17 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
         TextEditingController(text: widget.producto.cantidad.toString());
 
     _selectedProducto = widget.producto.nombre;
-    _selectedCalidad = widget.producto.calidad; // Set calidad inicial
+    _selectedCalidad = widget.producto.calidad;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Verificar si el valor seleccionado no es único y ajustarlo si es necesario
     if (!_productos.contains(_selectedProducto)) {
-      _selectedProducto =
-          _productos[0]; // Asignar el primer producto como valor seleccionado
+      _selectedProducto = _productos[0];
     }
 
     if (!_calidad.contains(_selectedCalidad)) {
-      _selectedCalidad =
-          _calidad[0]; // Asignar la primera calidad como valor seleccionado
+      _selectedCalidad = _calidad[0];
     }
 
     return Scaffold(

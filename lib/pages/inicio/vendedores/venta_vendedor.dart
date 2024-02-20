@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously, no_leading_underscores_for_local_identifiers, unnecessary_string_interpolations, sort_child_properties_last, library_private_types_in_public_api
+
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -58,7 +61,7 @@ class _VentasState extends State<Ventas> {
   void initState() {
     super.initState();
     cargarProductosDesdeFirestore();
-    tipoPagoSeleccionado = null; // Inicializar tipoPagoSeleccionado
+    tipoPagoSeleccionado = null;
   }
 
   Future<void> cargarProductosDesdeFirestore() async {
@@ -113,7 +116,7 @@ class _VentasState extends State<Ventas> {
               if (errorMessage != null)
                 Text(
                   errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 ),
             ],
           ),
@@ -128,9 +131,7 @@ class _VentasState extends State<Ventas> {
               onPressed: () async {
                 if (await verificarDisponibilidad(producto, selectedQuantity)) {
                   agregarAlCarrito(producto, selectedQuantity);
-                  // Cerrar el diálogo antes de registrar en historial
                   Navigator.of(context).pop();
-                  // No es necesario registrar en historial aquí, ya que se hace al final al presionar "Enviar Venta"
                 }
               },
               child: const Text('Aceptar'),
@@ -144,7 +145,6 @@ class _VentasState extends State<Ventas> {
   void mostrarMensajeEmergente(String mensaje, {Color color = Colors.white}) {
     OverlayEntry overlayEntry;
 
-    // Calcula la posición vertical para centrar la superposición debajo del número ingresado
     double overlayTop = MediaQuery.of(context).viewInsets.bottom +
         MediaQuery.of(context).size.height * 0.12;
 
@@ -156,7 +156,7 @@ class _VentasState extends State<Ventas> {
           color: Colors.transparent,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 50),
-            color: color, // Cambia el color del fondo del mensaje
+            color: color,
             child: Center(
               child: Text(
                 mensaje,
@@ -223,7 +223,9 @@ class _VentasState extends State<Ventas> {
 
       await cargarProductosDesdeFirestore();
     } catch (error) {
-      print("Error al restar la cantidad en Firestore: $error");
+      if (kDebugMode) {
+        print("Error al restar la cantidad en Firestore: $error");
+      }
     }
   }
 
@@ -249,7 +251,9 @@ class _VentasState extends State<Ventas> {
         ),
       );
     } catch (error) {
-      print("Error al agregar al carrito: $error");
+      if (kDebugMode) {
+        print("Error al agregar al carrito: $error");
+      }
     }
   }
 
@@ -285,7 +289,9 @@ class _VentasState extends State<Ventas> {
         'fecha': DateTime.now(),
       });
     } catch (error) {
-      print("Error al registrar la venta en el historial: $error");
+      if (kDebugMode) {
+        print("Error al registrar la venta en el historial: $error");
+      }
     }
   }
 
@@ -378,9 +384,7 @@ class _VentasState extends State<Ventas> {
                     nombre,
                     imagePath!,
                   );
-                } else {
-                  // Mostrar mensaje de error
-                }
+                } else {}
               },
               child: const Text('Aceptar'),
             ),
@@ -432,13 +436,11 @@ class _VentasState extends State<Ventas> {
                     calcularTotal(carrito),
                     'Efectivo',
                     '',
-                    '', // No hay image path en este caso
+                    '',
                   );
 
                   Navigator.of(context).pop();
-                } else {
-                  // Puedes mostrar un mensaje de error aquí
-                }
+                } else {}
               },
               child: const Text('Aceptar'),
             ),
@@ -509,7 +511,7 @@ class _VentasState extends State<Ventas> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 85, 142, 165),
+                  color: const Color.fromARGB(255, 85, 142, 165),
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
@@ -578,7 +580,7 @@ class _VentasState extends State<Ventas> {
               const SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 85, 142, 165),
+                  color: const Color.fromARGB(255, 85, 142, 165),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
@@ -586,7 +588,7 @@ class _VentasState extends State<Ventas> {
                           .withOpacity(0.5),
                       spreadRadius: 2,
                       blurRadius: 4,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -597,7 +599,7 @@ class _VentasState extends State<Ventas> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 250, 250, 250), // Color blanco
+                      color: Color.fromARGB(255, 250, 250, 250),
                     ),
                   ),
                 ),
@@ -664,8 +666,8 @@ class _VentasState extends State<Ventas> {
                 },
                 child: const Text('Enviar Venta'),
                 style: ElevatedButton.styleFrom(
-                  onPrimary: const Color.fromARGB(255, 241, 241, 241),
-                  primary: tipoPagoSeleccionado == null
+                  foregroundColor: const Color.fromARGB(255, 241, 241, 241),
+                  backgroundColor: tipoPagoSeleccionado == null
                       ? const Color.fromARGB(255, 39, 34, 34)
                       : const Color.fromARGB(255, 1, 243, 142),
                 ),

@@ -1,12 +1,14 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -58,7 +60,9 @@ class _NotificacionState extends State<Notificacion> {
           .map((doc) => doc['contenido'].toString())
           .toList();
     } catch (e) {
-      print("Error al cargar mensajes: $e");
+      if (kDebugMode) {
+        print("Error al cargar mensajes: $e");
+      }
       return [];
     }
   }
@@ -68,14 +72,12 @@ class _NotificacionState extends State<Notificacion> {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Ejemplo de cómo agregar un mensaje a Firestore
         await agregarMensaje(
           mensajeController.text,
           user.uid,
           selectedUser ?? '',
         );
 
-        // Esperar a que se carguen los mensajes antes de mostrar la notificación
         List<String> nuevosMensajes = await _cargarMensajes();
 
         var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
@@ -100,14 +102,13 @@ class _NotificacionState extends State<Notificacion> {
           mensajes = nuevosMensajes;
         });
 
-        // Limpiar el campo de texto después de enviar el mensaje
         mensajeController.clear();
-
-        // Cerrar el teclado virtual
         FocusScope.of(context).unfocus();
       }
     } catch (e) {
-      print("Error al mostrar notificación: $e");
+      if (kDebugMode) {
+        print("Error al mostrar notificación: $e");
+      }
     }
   }
 
@@ -150,7 +151,6 @@ class _NotificacionState extends State<Notificacion> {
                 if (selectedUser != null && mensajeController.text.isNotEmpty) {
                   await _mostrarNotificacion();
                 } else {
-                  // Muestra un mensaje de error si no se selecciona un usuario o el mensaje está vacío
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -163,7 +163,7 @@ class _NotificacionState extends State<Notificacion> {
             ),
             const SizedBox(height: 20),
             if (mensajes.isNotEmpty)
-              Text('Mensajes recibidos:',
+              const Text('Mensajes recibidos:',
                   style: TextStyle(fontWeight: FontWeight.bold)),
             for (String mensaje in mensajes) Text(mensaje),
           ],
@@ -173,11 +173,9 @@ class _NotificacionState extends State<Notificacion> {
   }
 }
 
-// Obtener una referencia a la colección de mensajes
 CollectionReference mensajes =
     FirebaseFirestore.instance.collection('mensajes');
 
-// Ejemplo de cómo agregar un mensaje a Firestore
 Future<void> agregarMensaje(
     String contenido, String idEmisor, String idReceptor) {
   return mensajes.add({

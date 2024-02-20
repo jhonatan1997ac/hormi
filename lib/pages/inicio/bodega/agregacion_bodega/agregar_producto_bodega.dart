@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors
 
 import 'dart:io';
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
@@ -35,7 +35,9 @@ class ProductoService {
             'calidad': nuevoProducto.calidad,
           });
         } else {
-          print('Error: Quality is different.');
+          if (kDebugMode) {
+            print('Error: Quality is different.');
+          }
         }
       } else {
         await _firestore.collection('disponibilidadproducto').add({
@@ -71,8 +73,12 @@ class ProductoService {
       }
       return null;
     } catch (e, stackTrace) {
-      print('Error al subir la imagen: $e');
-      print(stackTrace);
+      if (kDebugMode) {
+        print('Error al subir la imagen: $e');
+      }
+      if (kDebugMode) {
+        print(stackTrace);
+      }
     }
     return null;
   }
@@ -191,7 +197,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10.0),
-                color: Color.fromARGB(255, 137, 197, 145),
+                color: const Color.fromARGB(255, 137, 197, 145),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -435,7 +441,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
     );
 
     imageUrlFuture.then((imageUrl) async {
-      Navigator.of(context).pop(); // Cerrar el diálogo de carga
+      Navigator.of(context).pop();
 
       final nuevoProducto = Producto(
         nombre: nombre,

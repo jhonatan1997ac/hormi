@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
@@ -56,7 +58,6 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,7 +15,6 @@ class VendedorAdministrador extends StatefulWidget {
   const VendedorAdministrador({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _VendedorAdministradorState createState() => _VendedorAdministradorState();
 }
 
@@ -92,7 +93,7 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                           children: [
                             Expanded(
                               child: Container(
-                                color: Colors.transparent, // Fondo transparente
+                                color: Colors.transparent,
                                 child: ListView.builder(
                                   itemCount: users.length,
                                   itemBuilder: (context, index) {
@@ -108,7 +109,8 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                       child: ListTile(
                                         title: Text(
                                           'Usuario ID: ${users[index].id}',
-                                          style: TextStyle(color: Colors.black),
+                                          style: const TextStyle(
+                                              color: Colors.black),
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
@@ -116,12 +118,12 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                           children: [
                                             Text(
                                               'Email: ${userData['email']}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Colors.black),
                                             ),
                                             Text(
                                               'Rol: ${userData['rool']}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Colors.black),
                                             ),
                                           ],

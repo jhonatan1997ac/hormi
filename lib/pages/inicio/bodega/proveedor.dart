@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
 
 import 'dart:io';
 
@@ -144,7 +144,7 @@ class _ProveedorState extends State<Proveedor> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: const Icon(Icons.edit),
                                       onPressed: () {
                                         _mostrarDialogoEditar(
                                           context,
@@ -157,7 +157,7 @@ class _ProveedorState extends State<Proveedor> {
                                       },
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: const Icon(Icons.delete),
                                       onPressed: () {
                                         FirebaseFirestore.instance
                                             .collection('proveedor')
@@ -268,9 +268,13 @@ class _ProveedorState extends State<Proveedor> {
                   'contacto': contactoControlador.text,
                   'imagen': imageUrl,
                 }).then((_) {
-                  print('Documento actualizado correctamente');
+                  if (kDebugMode) {
+                    print('Documento actualizado correctamente');
+                  }
                 }).catchError((error) {
-                  print('Error al actualizar el documento: $error');
+                  if (kDebugMode) {
+                    print('Error al actualizar el documento: $error');
+                  }
                 });
 
                 Navigator.of(context).pop();
@@ -284,7 +288,6 @@ class _ProveedorState extends State<Proveedor> {
   }
 
   void _mostrarDialogoAgregar(BuildContext context) async {
-    // Obtener el último idproveedor de la base de datos
     var ultimosProveedores = await FirebaseFirestore.instance
         .collection('proveedor')
         .orderBy('idproveedor', descending: true)
@@ -392,7 +395,7 @@ class _ProveedorState extends State<Proveedor> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.photo_library),
+                leading: const Icon(Icons.photo_library),
                 title: const Text('Seleccionar de la galería'),
                 onTap: () {
                   _cargarImagen(ImageSource.gallery);
@@ -400,8 +403,8 @@ class _ProveedorState extends State<Proveedor> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Tomar una foto'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Tomar una foto'),
                 onTap: () {
                   _cargarImagen(ImageSource.camera);
                   Navigator.pop(context);
@@ -427,12 +430,13 @@ class _ProveedorState extends State<Proveedor> {
 
   Future<String?> _subirImagen(File imageFile, String nombreProveedor) async {
     try {
-      var imagePath =
-          'proveedor/$nombreProveedor.jpg'; // Cambio en la ruta de almacenamiento
+      var imagePath = 'proveedor/$nombreProveedor.jpg';
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
-      print('Error al subir la imagen: $e');
+      if (kDebugMode) {
+        print('Error al subir la imagen: $e');
+      }
       return null;
     }
   }

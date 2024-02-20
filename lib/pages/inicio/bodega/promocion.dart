@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api, prefer_const_constructors, use_build_context_synchronously, deprecated_member_use
+
 import 'dart:io';
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,120 +24,172 @@ class _PromocionState extends State<Promocion> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Promociones'),
+        title: const Text(
+          'Promociones',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
+            color: Colors.black,
             onPressed: () {
               _mostrarDialogoAgregar(context);
             },
           ),
         ],
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            User? usuarioActual = snapshot.data;
-
-            if (usuarioActual == null) {
-              return const Text('No hay usuarios autenticados.');
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             } else {
-              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('promocion')
-                    .orderBy('idpromocion') // Ordena por el campo idpromocion
-                    .snapshots(),
-                builder: (context, snapshotPromociones) {
-                  if (snapshotPromociones.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshotPromociones.hasError) {
-                    return Text('Error: ${snapshotPromociones.error}');
-                  } else {
-                    var promociones = snapshotPromociones.data?.docs;
+              User? usuarioActual = snapshot.data;
 
-                    if (promociones == null || promociones.isEmpty) {
-                      return const Text('No se encontraron promociones.');
+              if (usuarioActual == null) {
+                return const Text('No hay usuarios autenticados.');
+              } else {
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('promocion')
+                      .orderBy('idpromocion')
+                      .snapshots(),
+                  builder: (context, snapshotPromociones) {
+                    if (snapshotPromociones.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshotPromociones.hasError) {
+                      return Text('Error: ${snapshotPromociones.error}');
                     } else {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: promociones.length,
-                              itemBuilder: (context, index) {
-                                var datosPromocion = promociones[index].data();
-                                var idpromocion = promociones[index].id;
-                                return ListTile(
-                                  leading:
-                                      Image.network(datosPromocion['imageUrl']),
-                                  title: Text(
-                                    'Promoción ID: ${datosPromocion['idpromocion']}',
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'ID Producto: ${datosPromocion['idproducto']}',
+                      var promociones = snapshotPromociones.data?.docs;
+
+                      if (promociones == null || promociones.isEmpty) {
+                        return const Text('No se encontraron promociones.');
+                      } else {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: promociones.length,
+                                itemBuilder: (context, index) {
+                                  var datosPromocion =
+                                      promociones[index].data();
+                                  var idpromocion = promociones[index].id;
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListTile(
+                                      leading: Image.network(
+                                          datosPromocion['imageUrl']),
+                                      title: Text(
+                                        'Promoción ID: ${datosPromocion['idpromocion']}',
                                       ),
-                                      Text(
-                                        'Descuento: ${datosPromocion['descuento']}',
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'ID Producto: ${datosPromocion['idproducto']}',
+                                          ),
+                                          Text(
+                                            'Descuento: ${datosPromocion['descuento']}',
+                                          ),
+                                          Text(
+                                            'Fecha Inicio: ${datosPromocion['fechainicio']}',
+                                          ),
+                                          Text(
+                                            'Fecha Fin: ${datosPromocion['fechafin']}',
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        'Fecha Inicio: ${datosPromocion['fechainicio']}',
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.edit),
+                                            onPressed: () {
+                                              _mostrarDialogoEditar(
+                                                context,
+                                                idpromocion,
+                                                datosPromocion['idproducto'],
+                                                datosPromocion['descuento'],
+                                                datosPromocion['fechainicio'],
+                                                datosPromocion['fechafin'],
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () {
+                                              FirebaseFirestore.instance
+                                                  .collection('promocion')
+                                                  .doc(idpromocion)
+                                                  .delete();
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        'Fecha Fin: ${datosPromocion['fechafin']}',
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () {
-                                          _mostrarDialogoEditar(
-                                            context,
-                                            idpromocion,
-                                            datosPromocion['idproducto'],
-                                            datosPromocion['descuento'],
-                                            datosPromocion['fechainicio'],
-                                            datosPromocion['fechafin'],
-                                          );
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete),
-                                        onPressed: () {
-                                          FirebaseFirestore.instance
-                                              .collection('promocion')
-                                              .doc(idpromocion)
-                                              .delete();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      );
+                          ],
+                        );
+                      }
                     }
-                  }
-                },
-              );
+                  },
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }
@@ -165,7 +220,7 @@ class _PromocionState extends State<Promocion> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'ID Promoción: $idpromocion', // Muestra el ID, no editable
+                'ID Promoción: $idpromocion',
               ),
               TextField(
                 controller: idproductoControlador,
@@ -203,9 +258,13 @@ class _PromocionState extends State<Promocion> {
                   'fechainicio': fechainicioControlador.text,
                   'fechafin': fechafinControlador.text,
                 }).then((_) {
-                  print('Documento actualizado correctamente');
+                  if (kDebugMode) {
+                    print('Documento actualizado correctamente');
+                  }
                 }).catchError((error) {
-                  print('Error al actualizar el documento: $error');
+                  if (kDebugMode) {
+                    print('Error al actualizar el documento: $error');
+                  }
                 });
 
                 Navigator.of(context).pop();
@@ -250,7 +309,7 @@ class _PromocionState extends State<Promocion> {
               ),
               _selectedImage != null
                   ? Image.file(_selectedImage!)
-                  : Text('Seleccionar imagen'),
+                  : const Text('Seleccionar imagen'),
               ElevatedButton(
                 onPressed: () {
                   _mostrarOpcionesImagen(context);
@@ -284,17 +343,14 @@ class _PromocionState extends State<Promocion> {
             ),
             TextButton(
               onPressed: () async {
-                // Subir imagen a Firebase Storage
                 String imageUrl = await _subirImagenFirebaseStorage();
-
-                // Guardar datos en Firestore
                 await FirebaseFirestore.instance.collection('promocion').add({
                   'idpromocion': _ultimoIdPromocion,
                   'idproducto': idproductoControlador.text,
                   'descuento': descuentoControlador.text,
                   'fechainicio': fechainicioControlador.text,
                   'fechafin': fechafinControlador.text,
-                  'imageUrl': imageUrl, // Guardar la URL de la imagen
+                  'imageUrl': imageUrl,
                 }).then((value) {
                   if (kDebugMode) {
                     print('Promoción agregada correctamente');
@@ -316,19 +372,16 @@ class _PromocionState extends State<Promocion> {
 
     if (_selectedImage != null) {
       try {
-        // Obtener referencia de Firebase Storage
         final ref = FirebaseStorage.instance
             .ref()
             .child('promocion')
             .child('imagen_$_ultimoIdPromocion.jpg');
-
-        // Subir imagen a Firebase Storage
         await ref.putFile(_selectedImage!);
-
-        // Obtener la URL de la imagen subida
         imageUrl = await ref.getDownloadURL();
       } catch (e) {
-        print('Error al subir la imagen: $e');
+        if (kDebugMode) {
+          print('Error al subir la imagen: $e');
+        }
       }
     }
 
@@ -374,7 +427,9 @@ class _PromocionState extends State<Promocion> {
       if (pickedFile != null) {
         _selectedImage = File(pickedFile.path);
       } else {
-        print('No se ha seleccionado ninguna imagen.');
+        if (kDebugMode) {
+          print('No se ha seleccionado ninguna imagen.');
+        }
       }
     });
   }
@@ -387,7 +442,9 @@ class _PromocionState extends State<Promocion> {
       if (pickedFile != null) {
         _selectedImage = File(pickedFile.path);
       } else {
-        print('No se ha seleccionado ninguna imagen.');
+        if (kDebugMode) {
+          print('No se ha seleccionado ninguna imagen.');
+        }
       }
     });
   }

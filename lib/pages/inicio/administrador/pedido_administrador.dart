@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,9 +43,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: Colors.blue,
-            textStyle: TextStyle(fontSize: 18),
-            padding: EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: Colors.blue,
+            textStyle: const TextStyle(fontSize: 18),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -119,7 +121,7 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
                       .snapshots(),
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
@@ -145,14 +147,14 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
                           child: ListTile(
                             title: Text(
                               'ID Detalle: ${detalleOrden.idDetalle}',
-                              style: TextStyle(color: Colors.black87),
+                              style: const TextStyle(color: Colors.black87),
                             ),
                             subtitle: Text(
                               'ID Orden: ${detalleOrden.idOrden}\nCantidad: ${_getCantidadText(detalleOrden.cantidad)}',
-                              style: TextStyle(color: Colors.black87),
+                              style: const TextStyle(color: Colors.black87),
                             ),
                             trailing: IconButton(
-                              icon: Icon(Icons.delete),
+                              icon: const Icon(Icons.delete),
                               onPressed: () {
                                 _eliminarDetalle(detalleOrden.idDetalle);
                               },
@@ -166,7 +168,7 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
               ),
               ElevatedButton(
                 onPressed: () => _agregarDetalle(context),
-                child: Text('Agregar Detalle'),
+                child: const Text('Agregar Detalle'),
               ),
             ],
           ),
@@ -187,7 +189,7 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Agregar Detalle'),
+          title: const Text('Agregar Detalle'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -195,19 +197,19 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
               children: [
                 TextFormField(
                   controller: idDetalleController,
-                  decoration: InputDecoration(labelText: 'ID Detalle'),
+                  decoration: const InputDecoration(labelText: 'ID Detalle'),
                 ),
                 TextFormField(
                   controller: idOrdenController,
-                  decoration: InputDecoration(labelText: 'ID Orden'),
+                  decoration: const InputDecoration(labelText: 'ID Orden'),
                 ),
                 TextFormField(
                   controller: idProductoController,
-                  decoration: InputDecoration(labelText: 'ID Producto'),
+                  decoration: const InputDecoration(labelText: 'ID Producto'),
                 ),
                 TextFormField(
                   controller: cantidadController,
-                  decoration: InputDecoration(labelText: 'Cantidad'),
+                  decoration: const InputDecoration(labelText: 'Cantidad'),
                 ),
               ],
             ),
@@ -215,16 +217,16 @@ class _DetallepedidoadminState extends State<Detallepedidoadmin> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop();
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () {
                 _enviarDatosAFirebase();
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop();
               },
-              child: Text('Agregar'),
+              child: const Text('Agregar'),
             ),
           ],
         );

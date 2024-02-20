@@ -1,6 +1,9 @@
+// ignore_for_file: deprecated_member_use, use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -103,11 +106,9 @@ class OrdenList extends StatelessWidget {
               var order = orders[index].data() as Map<String, dynamic>;
 
               return InkWell(
-                onTap: () {
-                  // Handle onTap
-                },
+                onTap: () {},
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -127,28 +128,28 @@ class OrdenList extends StatelessWidget {
                               ),
                             ),
                           ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                   order['cliente'] ?? 'Cliente no especificado',
-                                  style: TextStyle(color: Colors.black)),
+                                  style: const TextStyle(color: Colors.black)),
                               Text('ID Orden: ${order['idOrden'] ?? 'N/A'}',
-                                  style: TextStyle(color: Colors.black)),
+                                  style: const TextStyle(color: Colors.black)),
                               Text('ID Usuario: ${order['idUsuario'] ?? 'N/A'}',
-                                  style: TextStyle(color: Colors.black)),
+                                  style: const TextStyle(color: Colors.black)),
                               Text(
                                   'Fecha Creación: ${order['fechaCreacion'] ?? 'N/A'}',
-                                  style: TextStyle(color: Colors.black)),
+                                  style: const TextStyle(color: Colors.black)),
                               Text('Estado: ${order['estado'] ?? 'N/A'}',
-                                  style: TextStyle(color: Colors.black)),
+                                  style: const TextStyle(color: Colors.black)),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.edit),
+                          icon: const Icon(Icons.edit),
                           onPressed: () async {
                             var result = await showDialog(
                               context: context,
@@ -173,7 +174,7 @@ class OrdenList extends StatelessWidget {
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: const Icon(Icons.delete),
                           onPressed: () async {
                             await FirebaseFirestore.instance
                                 .collection('ordenes')
@@ -203,7 +204,7 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
   final TextEditingController idUsuarioController = TextEditingController();
   final TextEditingController idOrdenController = TextEditingController();
   final TextEditingController fechaCreacionController = TextEditingController();
-  String estadoValue = 'Pendiente'; // Initial value
+  String estadoValue = 'Pendiente';
   String errorText = '';
   File? _imageFile;
 
@@ -213,7 +214,9 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
-      print('Error uploading image: $e');
+      if (kDebugMode) {
+        print('Error uploading image: $e');
+      }
       return null;
     }
   }
@@ -230,21 +233,21 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Agregar Nueva Orden'),
+      title: const Text('Agregar Nueva Orden'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: idOrdenController,
-            decoration: InputDecoration(labelText: 'ID Orden *'),
+            decoration: const InputDecoration(labelText: 'ID Orden *'),
           ),
           TextField(
             controller: idUsuarioController,
-            decoration: InputDecoration(labelText: 'ID Usuario *'),
+            decoration: const InputDecoration(labelText: 'ID Usuario *'),
           ),
           TextField(
             controller: fechaCreacionController,
-            decoration: InputDecoration(labelText: 'Fecha Creación *'),
+            decoration: const InputDecoration(labelText: 'Fecha Creación *'),
             onTap: () async {
               DateTime? pickedDate = await showDatePicker(
                 context: context,
@@ -260,7 +263,7 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
               }
             },
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _imageFile != null
               ? Image.file(
                   _imageFile!,
@@ -268,8 +271,8 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
                   height: 100,
                   fit: BoxFit.cover,
                 )
-              : SizedBox(),
-          SizedBox(height: 8),
+              : const SizedBox(),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -285,9 +288,9 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
                     });
                   }
                 },
-                child: Text('Tomar Foto'),
+                child: const Text('Tomar Foto'),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () async {
                   final picker = ImagePicker();
@@ -300,7 +303,7 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
                     });
                   }
                 },
-                child: Text('Seleccionar Imagen'),
+                child: const Text('Seleccionar Imagen'),
               ),
             ],
           ),
@@ -318,12 +321,12 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
                 estadoValue = newValue ?? 'Pendiente';
               });
             },
-            decoration: InputDecoration(labelText: 'Estado *'),
+            decoration: const InputDecoration(labelText: 'Estado *'),
           ),
           if (errorText.isNotEmpty)
             Text(
               errorText,
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             ),
         ],
       ),
@@ -356,13 +359,13 @@ class _AgregarOrdenDialogState extends State<AgregarOrdenDialog> {
               }
             }
           },
-          child: Text('Guardar'),
+          child: const Text('Guardar'),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
       ],
     );
@@ -394,7 +397,7 @@ class EditarOrdenDialog extends StatefulWidget {
   final String? estado;
   final String? imagen;
 
-  EditarOrdenDialog({
+  const EditarOrdenDialog({
     required this.id,
     required this.idUsuario,
     required this.idOrden,
@@ -431,7 +434,9 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
       await FirebaseStorage.instance.ref(imagePath).putFile(imageFile);
       return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
     } catch (e) {
-      print('Error uploading image: $e');
+      if (kDebugMode) {
+        print('Error uploading image: $e');
+      }
       return null;
     }
   }
@@ -446,7 +451,7 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
           children: [
             TextField(
               controller: idOrdenController,
-              decoration: InputDecoration(labelText: 'ID Orden *'),
+              decoration: const InputDecoration(labelText: 'ID Orden *'),
             ),
             if (widget.imagen != null)
               Image.network(
@@ -491,11 +496,11 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
             ),
             TextField(
               controller: idUsuarioController,
-              decoration: InputDecoration(labelText: 'ID Usuario *'),
+              decoration: const InputDecoration(labelText: 'ID Usuario *'),
             ),
             TextField(
               controller: fechaCreacionController,
-              decoration: InputDecoration(labelText: 'Fecha Creación *'),
+              decoration: const InputDecoration(labelText: 'Fecha Creación *'),
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
@@ -525,12 +530,12 @@ class _EditarOrdenDialogState extends State<EditarOrdenDialog> {
                   estadoValue = newValue ?? 'Pendiente';
                 });
               },
-              decoration: InputDecoration(labelText: 'Estado *'),
+              decoration: const InputDecoration(labelText: 'Estado *'),
             ),
             if (errorText.isNotEmpty)
               Text(
                 errorText,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
           ],
         ),
