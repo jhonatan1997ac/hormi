@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, use_key_in_widget_constructors, library_private_types_in_public_api
+// ignore_for_file: unused_element, use_key_in_widget_constructors, library_private_types_in_public_api, unused_import
 
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/foundation.dart';
@@ -268,34 +268,8 @@ class _RutaEnvioState extends State<RutaEnvio> {
     );
   }
 
-  Future<void> _getLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    if (kDebugMode) {
-      print('Ubicación actual: ${position.latitude}, ${position.longitude}');
-    }
-  }
-
-  void _getOtherCollectionData() {
-    FirebaseFirestore.instance
-        .collection('otraColeccion')
-        .doc('documento')
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        if (kDebugMode) {
-          print('Datos de otro documento: ${documentSnapshot.data()}');
-        }
-      } else {
-        if (kDebugMode) {
-          print('El documento no existe');
-        }
-      }
-    });
-  }
-
-  void _mostrarDialogoEditarRutaenvio(
-      BuildContext context, DocumentSnapshot rutaenvio) {
+  Future<void> _mostrarDialogoEditarRutaenvio(
+      BuildContext context, DocumentSnapshot rutaenvio) async {
     idController.clear();
     origenController.clear();
     destinoController.clear();
@@ -326,7 +300,7 @@ class _RutaEnvioState extends State<RutaEnvio> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Editar Rutaenvio'),
+              title: const Text('Editar Ruta envio'),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -368,7 +342,8 @@ class _RutaEnvioState extends State<RutaEnvio> {
                 TextButton(
                   onPressed: () {
                     _validarCampos();
-                    setState(() {});
+                    _editarRutaenvio(rutaenvio.id);
+                    Navigator.pushNamed(context, '/rutaenvio');
                   },
                   child: const Text('Guardar'),
                 ),

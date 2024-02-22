@@ -441,95 +441,132 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Producto'),
+        title: const Text(
+          'Editar Producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Nombre:'),
-            const SizedBox(width: 16.0),
-            DropdownButton<String>(
-              value: _selectedProducto,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedProducto = newValue!;
-                });
-              },
-              items: _productos.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: precioController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  const InputDecoration(labelText: 'Precio del Producto'),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: cantidadController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Cantidad'),
-            ),
-            const SizedBox(height: 16.0),
-            const Text('Calidad:'),
-            const SizedBox(width: 16.0),
-            DropdownButton<String>(
-              value: _selectedCalidad,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedCalidad = newValue!;
-                });
-              },
-              items: _calidad.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16.0),
-            Row(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Disponible:'),
-                Switch(
-                  value: _disponible,
-                  onChanged: (value) {
+                const Text('Nombre:'),
+                const SizedBox(width: 16.0),
+                DropdownButton<String>(
+                  value: _selectedProducto,
+                  onChanged: (String? newValue) {
                     setState(() {
-                      _disponible = value;
+                      _selectedProducto = newValue!;
                     });
                   },
+                  items:
+                      _productos.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  controller: precioController,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration:
+                      const InputDecoration(labelText: 'Precio del Producto'),
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  controller: cantidadController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Cantidad'),
+                ),
+                const SizedBox(height: 16.0),
+                const Text('Calidad:'),
+                const SizedBox(width: 16.0),
+                DropdownButton<String>(
+                  value: _selectedCalidad,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCalidad = newValue!;
+                    });
+                  },
+                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  children: [
+                    const Text('Disponible:'),
+                    Switch(
+                      value: _disponible,
+                      onChanged: (value) {
+                        setState(() {
+                          _disponible = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (precioController.text.isNotEmpty &&
+                        cantidadController.text.isNotEmpty) {
+                      final productoActualizado = Producto(
+                        id: widget.producto.id,
+                        nombre: _selectedProducto,
+                        precio: double.tryParse(precioController.text) ?? 0.0,
+                        cantidad: int.tryParse(cantidadController.text) ?? 0,
+                        disponible: _disponible,
+                        imagen: widget.producto.imagen,
+                        calidad: _selectedCalidad,
+                      );
+
+                      Navigator.pop(context, productoActualizado);
+                    }
+                  },
+                  child: const Text('Guardar Cambios'),
                 ),
               ],
             ),
-            const SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () async {
-                if (precioController.text.isNotEmpty &&
-                    cantidadController.text.isNotEmpty) {
-                  final productoActualizado = Producto(
-                    id: widget.producto.id,
-                    nombre: _selectedProducto,
-                    precio: double.tryParse(precioController.text) ?? 0.0,
-                    cantidad: int.tryParse(cantidadController.text) ?? 0,
-                    disponible: _disponible,
-                    imagen: widget.producto.imagen,
-                    calidad: _selectedCalidad,
-                  );
-
-                  Navigator.pop(context, productoActualizado);
-                }
-              },
-              child: const Text('Guardar Cambios'),
-            ),
-          ],
+          ),
         ),
       ),
     );

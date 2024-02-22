@@ -304,10 +304,10 @@ class _VentasState extends State<Ventas> {
           content: Column(
             children: [
               ListTile(
-                title: const Text('Pagar por Banca Móvil'),
+                title: const Text('Registro de pago'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  mostrarDialogDatosBancaMovil();
+                  mostrarDialogDatosRegistropago();
                 },
               ),
               ListTile(
@@ -324,7 +324,7 @@ class _VentasState extends State<Ventas> {
     );
   }
 
-  Future<void> mostrarDialogDatosBancaMovil() async {
+  Future<void> mostrarDialogDatosRegistropago() async {
     TextEditingController nombreController = TextEditingController();
 
     String? imagePath;
@@ -344,7 +344,7 @@ class _VentasState extends State<Ventas> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Ingrese los Datos para Pagar por Banca Móvil'),
+          title: const Text('Ingrese los Datos para Pagar por Registro pago'),
           content: Column(
             children: [
               TextField(
@@ -380,7 +380,7 @@ class _VentasState extends State<Ventas> {
                     calcularSubtotal(carrito),
                     calcularIVA(carrito),
                     calcularTotal(carrito),
-                    'Banca Móvil',
+                    'Registro pago',
                     nombre,
                     imagePath!,
                   );
@@ -654,8 +654,8 @@ class _VentasState extends State<Ventas> {
                   if (tipoPagoSeleccionado == null) {
                     mostrarDialogTipoPago();
                   } else {
-                    if (tipoPagoSeleccionado == 'Banca Móvil') {
-                      mostrarDialogDatosBancaMovil();
+                    if (tipoPagoSeleccionado == 'Registro pago') {
+                      mostrarDialogDatosRegistropago();
                     } else if (tipoPagoSeleccionado == 'Efectivo') {
                       mostrarDialogDatosEfectivo();
                     } else {
