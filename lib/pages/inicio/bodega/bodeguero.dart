@@ -112,14 +112,6 @@ class BodegueroHome extends StatelessWidget {
                 },
               ),
               HomeCard(
-                title: 'Ordenes',
-                icon: Icons.shopping_cart,
-                color: const Color(0xFF202055),
-                onTap: () {
-                  Navigator.pushNamed(context, '/ordenes');
-                },
-              ),
-              HomeCard(
                 title: 'Detalle de Ordenes',
                 icon: Icons.receipt_long,
                 color: const Color(0xFF245520),

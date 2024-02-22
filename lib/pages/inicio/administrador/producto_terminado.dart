@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, sort_child_properties_last
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, sort_child_properties_last, unused_element
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:flutter/foundation.dart';
@@ -213,7 +213,8 @@ class _DisponibilidadMaterialScreenState
               int.tryParse(ripioSnapshot.docs.first['cantidad'].toString()) ??
                   0;
         }
-        if (cantidadArena > 0 && cantidadRipio > 0) {
+        if (cantidadArena > 1 && cantidadRipio > 1) {
+          // Modificación aquí
           disponibilidadMaterialRef.doc(arenaSnapshot.docs.first.id).update({
             'cantidad': cantidadArena - 1,
           });
@@ -236,12 +237,29 @@ class _DisponibilidadMaterialScreenState
         } else {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-                'No hay suficiente cantidad de arena y/o ripio para producir el producto'),
+                'Advertencia: La cantidad de arena y/o ripio es baja. El producto se producirá, pero considera realizar un pedido pronto.'),
           ));
-          // Verificar si se debe realizar un pedido
-          if (cantidadArena == 0 || cantidadRipio == 0) {
-            _mostrarAlertaPedido(context);
-          }
+
+          disponibilidadMaterialRef.doc(arenaSnapshot.docs.first.id).update({
+            'cantidad': cantidadArena - 1,
+          });
+          disponibilidadMaterialRef.doc(ripioSnapshot.docs.first.id).update({
+            'cantidad': cantidadRipio - 1,
+          });
+
+          productosTerminadosRef.add({
+            'nombre': producto,
+            'descripcion': 'En proceso',
+            'cantidad': descripcion,
+          }).then((_) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Producto producido con éxito'),
+            ));
+          }).catchError((error) {
+            if (kDebugMode) {
+              print("Error al agregar el productos terminados: $error");
+            }
+          });
         }
       }).catchError((error) {
         if (kDebugMode) {
@@ -268,7 +286,8 @@ class _DisponibilidadMaterialScreenState
         return AlertDialog(
           title: const Text('Realizar pedido'),
           content: const Text(
-              'La cantidad de arena y/o ripio ha llegado a 0. Debes realizar un pedido.'),
+            'La cantidad de arena y/o ripio es baja. Considera realizar un pedido.',
+          ),
           actions: [
             TextButton(
               onPressed: () {
