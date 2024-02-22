@@ -62,6 +62,22 @@ class _AdministradorState extends State<Administrador> {
                 },
               ),
               buildMenuCard(
+                title: 'Proceso de productos',
+                color: const Color.fromARGB(255, 114, 97, 189),
+                icon: Icons.add_box_rounded,
+                onTap: () {
+                  Navigator.pushNamed(context, '/MaterialAvailabilityPage');
+                },
+              ),
+              buildMenuCard(
+                title: 'Vista de proceso de productos',
+                color: const Color.fromARGB(255, 130, 151, 141),
+                icon: Icons.list_outlined,
+                onTap: () {
+                  Navigator.pushNamed(context, '/procesoproductos');
+                },
+              ),
+              buildMenuCard(
                 title: 'Disponibilidad de Productos',
                 color: const Color(0xFFD38460),
                 icon: Icons.data_thresholding,

@@ -3,6 +3,7 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/proceso_productos.dart';
 import 'package:apphormi/pages/inicio/administrador/producto_terminado.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
@@ -105,6 +106,7 @@ class _MyAppState extends State<MyApp> {
         '/geolocatorwidget': (context) => const GeolocatorWidget(),
         '/MaterialAvailabilityPage': (context) =>
             DisponibilidadMaterialScreen(),
+        '/procesoproductos': (context) => ProcesoProductos(),
       },
     );
   }
