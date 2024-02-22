@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -59,10 +58,7 @@ class _ReclamacionesState extends State<Reclamaciones> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const VendedorHome()),
-            );
+            Navigator.pop(context); // Navegar hacia atrás
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,
@@ -73,141 +69,143 @@ class _ReclamacionesState extends State<Reclamaciones> {
         backgroundColor: Colors.white,
         elevation: 5,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 55, 111, 139),
-              Color.fromARGB(255, 165, 160, 160),
-            ],
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(255, 55, 111, 139),
+                Color.fromARGB(255, 165, 160, 160),
+              ],
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButtonFormField(
-                value: _motivoSeleccionado,
-                items: _motivos.map((motivo) {
-                  return DropdownMenuItem(
-                    value: motivo,
-                    child: Text(
-                      motivo,
-                      style: const TextStyle(
-                        color: Colors.black,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField(
+                  value: _motivoSeleccionado,
+                  items: _motivos.map((motivo) {
+                    return DropdownMenuItem(
+                      value: motivo,
+                      child: Text(
+                        motivo,
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
                       ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _motivoSeleccionado = value!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Motivo',
+                    hintText: 'Seleccione el motivo',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
                     ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _motivoSeleccionado = value!;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Motivo',
-                  hintText: 'Seleccione el motivo',
-                  labelStyle: const TextStyle(
+                    hintStyle: const TextStyle(
+                      color: Colors.black38,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40.0),
+                DropdownButtonFormField(
+                  value: null,
+                  items: _ordenes.map((orden) {
+                    return DropdownMenuItem(
+                      value: orden,
+                      child: Text(
+                        orden,
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {},
+                  decoration: InputDecoration(
+                    labelText: 'ID de Orden',
+                    hintText: 'Seleccione la orden',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                    ),
+                    hintStyle: const TextStyle(
+                      color: Colors.black38,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40.0),
+                TextField(
+                  controller: _estadoController,
+                  style: const TextStyle(
                     color: Colors.black,
                   ),
-                  hintStyle: const TextStyle(
-                    color: Colors.black38,
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
+                  decoration: InputDecoration(
+                    labelText: 'Estado',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40.0),
-              DropdownButtonFormField(
-                value: null,
-                items: _ordenes.map((orden) {
-                  return DropdownMenuItem(
-                    value: orden,
-                    child: Text(
-                      orden,
-                      style: const TextStyle(
-                        color: Colors.black,
+                const SizedBox(height: 40.0),
+                Center(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _guardarReclamacion();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
                       ),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {},
-                decoration: InputDecoration(
-                  labelText: 'ID de Orden',
-                  hintText: 'Seleccione la orden',
-                  labelStyle: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  hintStyle: const TextStyle(
-                    color: Colors.black38,
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40.0),
-              TextField(
-                controller: _estadoController,
-                style: const TextStyle(
-                  color: Colors.black,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Estado',
-                  labelStyle: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40.0),
-              Center(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _guardarReclamacion();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    child: const Text(
-                      'Notificar Reclamación',
-                      style: TextStyle(
-                        color: Colors.white,
+                      child: const Text(
+                        'Notificar Reclamación',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

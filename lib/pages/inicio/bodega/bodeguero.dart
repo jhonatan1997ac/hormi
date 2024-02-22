@@ -1,9 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../inicio_secion/inicio.dart';
 
 class Bodeguero extends StatefulWidget {
   const Bodeguero({Key? key}) : super(key: key);
@@ -62,6 +61,14 @@ class BodegueroHome extends StatelessWidget {
                 color: const Color(0xFFB1355A),
                 onTap: () {
                   Navigator.pushNamed(context, '/geolocatorwidget');
+                },
+              ),
+              HomeCard(
+                title: 'producto terminado',
+                icon: Icons.add_box_sharp,
+                color: const Color.fromARGB(255, 53, 158, 177),
+                onTap: () {
+                  Navigator.pushNamed(context, '/MaterialAvailabilityPage');
                 },
               ),
               HomeCard(

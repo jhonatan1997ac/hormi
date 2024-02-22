@@ -2,10 +2,9 @@
 
 import 'dart:io';
 
-import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
@@ -15,17 +14,28 @@ class MaterialService {
   Future<void> agregarMaterial(String nombre, String descripcion,
       String cantidad, String imagenURL) async {
     try {
-      var existingMaterial = await _firestore
+      var existingMaterialQuery = await _firestore
           .collection('disponibilidadmaterial')
           .where('nombre', isEqualTo: nombre)
+          .where('descripcion', isEqualTo: descripcion)
           .get();
 
-      if (existingMaterial.docs.isNotEmpty) {
+      if (existingMaterialQuery.docs.isNotEmpty) {
+        // Si ya existe un material con el mismo nombre y descripción, aumenta la cantidad en la base de datos
+        var existingMaterialDoc = existingMaterialQuery.docs.first;
+        var existingCantidad = existingMaterialDoc['cantidad'] ?? 0;
+        var nuevaCantidad = existingCantidad + int.parse(cantidad);
+
+        await existingMaterialDoc.reference.update({
+          'cantidad': nuevaCantidad,
+        });
+
         if (kDebugMode) {
-          print('Material existente. Puedes implementar lógica específica.');
+          print('Cantidad del material actualizada en la base de datos.');
         }
       } else {
         if (_esValido(nombre, descripcion, cantidad)) {
+          // Si no existe un material con el mismo nombre y descripción, agrega un nuevo registro
           await _firestore.collection('disponibilidadmaterial').add({
             'nombre': nombre,
             'descripcion': descripcion,
@@ -44,7 +54,7 @@ class MaterialService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error al agregar el material: $e');
+        print('Error al agregar o actualizar el material: $e');
       }
     }
   }
@@ -82,10 +92,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Bodeguero()),
-            );
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,
@@ -179,7 +186,6 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                     value: _selectedDescripcion,
                     items: [
                       'Volqueta',
-                      'Mamut',
                     ].map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

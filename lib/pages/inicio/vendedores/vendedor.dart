@@ -88,22 +88,22 @@ class VendedorHome extends StatelessWidget {
                   Navigator.pushNamed(context, '/reclamaciones');
                 },
               ),
-              HomeCard(
-                title: 'Clientes',
-                icon: Icons.group,
-                color: Colors.orange[600]!,
-                onTap: () {
-                  Navigator.pushNamed(context, '/clientes');
-                },
-              ),
-              HomeCard(
-                title: 'Gps',
-                icon: Icons.group,
-                color: const Color.fromARGB(255, 74, 105, 16),
-                onTap: () {
-                  Navigator.pushNamed(context, '/mapagps');
-                },
-              ),
+              // HomeCard(
+              //   title: 'Clientes',
+              //   icon: Icons.group,
+              //   color: Colors.orange[600]!,
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/clientes');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Gps',
+              //   icon: Icons.group,
+              //   color: const Color.fromARGB(255, 74, 105, 16),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/mapagps');
+              //   },
+              // ),
               HomeCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,

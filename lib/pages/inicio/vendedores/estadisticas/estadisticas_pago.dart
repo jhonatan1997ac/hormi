@@ -116,7 +116,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Widget _buildIndicators(List<Map<String, dynamic>> historialVentas) {
     Map<String, double> totalVentasPorTipoPago = {
       'Efectivo': 0,
-      'Banca Móvil': 0,
+      'Registro pago': 0,
     };
 
     for (var venta in historialVentas) {
@@ -132,7 +132,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
     double porcentajeEfectivo =
         (totalVentasPorTipoPago['Efectivo'] ?? 0) / totalVentas * 100;
     double porcentajeBancaMovil =
-        (totalVentasPorTipoPago['Banca Móvil'] ?? 0) / totalVentas * 100;
+        (totalVentasPorTipoPago['Registro pago'] ?? 0) / totalVentas * 100;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -150,7 +150,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
           Row(
             children: [
               _buildIndicator(
-                  const Color.fromARGB(255, 3, 10, 15), 'Banca Móvil'),
+                  const Color.fromARGB(255, 3, 10, 15), 'Registro pago'),
               const SizedBox(width: 100),
               _buildIndicator(Colors.green, 'Efectivo'),
             ],
@@ -160,7 +160,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
               'Porcentaje Efectivo: ${porcentajeEfectivo.toStringAsFixed(2)}%'),
           const SizedBox(height: 16),
           Text(
-              'Porcentaje Banca Móvil: ${porcentajeBancaMovil.toStringAsFixed(2)}%'),
+              'Porcentaje Registro pago: ${porcentajeBancaMovil.toStringAsFixed(2)}%'),
         ],
       ),
     );
@@ -185,7 +185,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
       top: 50,
       left: 16,
       child: Text(
-        'Cual es el tipo de pago que se usa mas ?',
+        'Cual es el tipo de pago que se usa más ?',
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -228,7 +228,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Color _getColorFor(String metodoPago) {
     if (metodoPago == 'Efectivo') {
       return Colors.green;
-    } else if (metodoPago == 'Banca Móvil') {
+    } else if (metodoPago == 'Registro pago') {
       return const Color.fromARGB(255, 3, 10, 15);
     } else {
       return Colors.grey;
