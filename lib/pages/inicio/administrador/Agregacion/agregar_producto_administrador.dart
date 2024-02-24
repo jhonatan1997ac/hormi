@@ -127,8 +127,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
     'Calidad bloques 4MPA',
   ];
 
-  final FirebaseFirestore _firestore = FirebaseFirestore
-      .instance; // Aquí creamos la instancia de FirebaseFirestore
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {

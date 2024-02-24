@@ -226,7 +226,6 @@ void _producirProducto(
       );
     }
   } else {
-    // Si la cantidad es nula o vacía, muestra un mensaje de error
     showDialog(
       context: context,
       builder: (BuildContext context) {
