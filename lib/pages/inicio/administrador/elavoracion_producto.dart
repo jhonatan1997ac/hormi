@@ -1,0 +1,126 @@
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors
+
+import 'package:apphormi/pages/inicio/administrador/administrador.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class ProcesoProductos extends StatefulWidget {
+  @override
+  _ProcesoProductosState createState() => _ProcesoProductosState();
+}
+
+class _ProcesoProductosState extends State<ProcesoProductos> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Productos en Proceso',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Administrador()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: firestore.collection('procesoproducto').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+
+            List<DocumentSnapshot> productos = snapshot.data!.docs;
+
+            return Stack(
+              children: [
+                ListView.builder(
+                  itemCount: productos.length,
+                  itemBuilder: (context, index) {
+                    String cantidad = productos[index]['cantidad'];
+                    String descripcion = productos[index]['descripcion'];
+                    String nombre = productos[index]['nombre'];
+
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        child: ListTile(
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nombre: $nombre',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Descripción: $descripcion'),
+                              Text('Cantidad: $cantidad'),
+                              const SizedBox(height: 8.0),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _cambiarEstadoProducto(
+                                      productos[index].reference);
+                                },
+                                child:
+                                    const Text('Cambiar Proceso del Producto'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _cambiarEstadoProducto(DocumentReference productoRef) {
+    Navigator.pushReplacementNamed(context, '/productosadministrador');
+  }
+}

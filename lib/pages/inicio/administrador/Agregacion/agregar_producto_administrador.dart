@@ -1,63 +1,48 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_declarations
 
 import 'dart:io';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+const Map<String, int> cantidadesPredeterminadas = {
+  'Adoquin clasico vehicular sin color': 3034,
+  'Adoquin clasico vehicular con color': 3034,
+  'Adoquin jaboncillo vehicular sin color': 7585,
+  'Adoquin jaboncillo vehicular con color': 7585,
+  'Adoquin paleta vehicular sin color': 5612,
+  'Adoquin paleta vehicular con color': 5612,
+  'Bloque de 10cm alivianado': 1050,
+  'Bloque de 10cm estructural': 1050,
+  'Bloque de 15cm alivianado': 800,
+  'Bloque de 15cm estructural': 800,
+  'Postes de alambrado 1.60m': 504,
+  'Postes de alambrado 2m': 396,
+  'Bloque de anclaje': 468,
+  'Tapas para canaleta': 234,
+};
+
 class ProductoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  Future<void> agregarProducto(Producto nuevoProducto, String imageUrl) async {
+  Future<void> agregarProducto(
+      Producto nuevoProducto, String imageUrl, int cantidad) async {
     try {
-      var existingProduct = await _firestore
-          .collection('disponibilidadproducto')
-          .where('nombre', isEqualTo: nuevoProducto.nombre)
-          .get();
-
-      if (existingProduct.docs.isNotEmpty) {
-        var existingDoc = existingProduct.docs.first;
-        var existingCantidad = existingDoc['cantidad'] as int;
-        var nuevaCantidad = existingCantidad + nuevoProducto.cantidad;
-        var existingCalidad = existingDoc['calidad'] as String;
-
-        if (existingCalidad == nuevoProducto.calidad) {
-          await _firestore
-              .collection('disponibilidadproducto')
-              .doc(existingDoc.id)
-              .update({
-            'cantidad': nuevaCantidad,
-            'precio': nuevoProducto.precio,
-            'calidad': nuevoProducto.calidad,
-          });
-        } else {
-          if (kDebugMode) {
-            print('Error: Quality is different.');
-          }
-        }
-      } else {
-        await _firestore.collection('disponibilidadproducto').add({
-          'nombre': nuevoProducto.nombre,
-          'precio': nuevoProducto.precio,
-          'cantidad': nuevoProducto.cantidad,
-          'disponible': nuevoProducto.disponible,
-          'imagen': imageUrl,
-          'calidad': nuevoProducto.calidad,
-        });
-      }
-
-      if (kDebugMode) {
-        print('Producto agregado correctamente a la base de datos.');
-      }
-    } catch (e, stackTrace) {
+      await _firestore.collection('productoterminado').add({
+        'nombre': nuevoProducto.nombre,
+        'precio': nuevoProducto.precio,
+        'disponible': nuevoProducto.disponible,
+        'imagen': imageUrl,
+        'calidad': nuevoProducto.calidad,
+        'cantidad': cantidad,
+      });
+    } catch (e) {
       if (kDebugMode) {
         print('Error al agregar el producto: $e');
-        print(stackTrace);
       }
     }
   }
@@ -69,16 +54,29 @@ class ProductoService {
             'imagenes_productos/${DateTime.now().millisecondsSinceEpoch}');
         UploadTask uploadTask = storageReference.putFile(imagen);
         await uploadTask.whenComplete(() => null);
-        String imageUrl = await storageReference.getDownloadURL();
-        return imageUrl;
+        return await storageReference.getDownloadURL();
       }
       return null;
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (kDebugMode) {
         print('Error al subir la imagen: $e');
       }
+      return null;
+    }
+  }
+
+  Future<int?> obtenerCantidadProductoDesdeFirestore(String producto) async {
+    try {
+      final docSnapshot =
+          await _firestore.collection('procesoproducto').doc(producto).get();
+      final data = docSnapshot.data();
+      if (data != null && data.containsKey('cantidad')) {
+        return data['cantidad'] as int?;
+      }
+      return null;
+    } catch (e) {
       if (kDebugMode) {
-        print(stackTrace);
+        print('Error al obtener la cantidad del producto desde Firestore: $e');
       }
       return null;
     }
@@ -88,7 +86,6 @@ class ProductoService {
 class Producto {
   String nombre;
   double precio;
-  int cantidad;
   bool disponible;
   File? imagen;
   String calidad;
@@ -96,7 +93,6 @@ class Producto {
   Producto({
     required this.nombre,
     required this.precio,
-    required this.cantidad,
     required this.disponible,
     this.imagen,
     required this.calidad,
@@ -108,7 +104,10 @@ class Producto {
 }
 
 class ProductosAdministrador extends StatefulWidget {
-  const ProductosAdministrador({Key? key}) : super(key: key);
+  final String selectedProduct;
+
+  const ProductosAdministrador({Key? key, required this.selectedProduct})
+      : super(key: key);
 
   @override
   _ProductosAdministradorState createState() => _ProductosAdministradorState();
@@ -116,43 +115,20 @@ class ProductosAdministrador extends StatefulWidget {
 
 class _ProductosAdministradorState extends State<ProductosAdministrador> {
   final _precioController = TextEditingController();
-  final _cantidadController = TextEditingController();
   bool _disponible = true;
-  String _selectedProducto = 'Adoquin clasico peatonal sin color';
   String _selectedCalidad = 'Calidad adoquin resistencia 300';
   File? _selectedImage;
 
-  final List<String> _productos = [
-    'Adoquin clasico peatonal sin color',
-    'Adoquin clasico peatonal con color',
-    'Adoquin clasico vehicular sin color',
-    'Adoquin clasico vehicular con color',
-    'Adoquin jaboncillo peatonal sin color',
-    'Adoquin jaboncillo peatonal con color',
-    'Adoquin jaboncillo vehicular sin color',
-    'Adoquin jaboncillo vehicular con color',
-    'Adoquin paleta peatonal sin color',
-    'Adoquin paleta peatonal con color',
-    'Adoquin paleta vehicular sin color',
-    'Adoquin paleta vehicular con color',
-    'Bloque de 10cm alivianado',
-    'Bloque de 10cm estructural',
-    'Bloque de 15cm alivianado',
-    'Bloque de 15cm estructural',
-    'Bloque de 20cm alivianado',
-    'Bloque de 20cm estructural',
-    'Postes de alambrado 1.60m',
-    'Postes de alambrado 2m',
-    'Bloque de anclaje',
-    'Tapas para canaleta',
-  ];
-  final List<String> _calidad = [
+  final List<String> _calidadOptions = [
     'Calidad adoquin resistencia 300',
     'Calidad adoquin resistencia 350',
     'Calidad adoquin resistencia 400',
     'Calidad bloques 2MPA',
     'Calidad bloques 4MPA',
   ];
+
+  final FirebaseFirestore _firestore = FirebaseFirestore
+      .instance; // Aquí creamos la instancia de FirebaseFirestore
 
   @override
   Widget build(BuildContext context) {
@@ -210,26 +186,43 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    DropdownButton<String>(
-                      value: _selectedProducto,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedProducto = newValue!;
-                        });
-                      },
-                      items: _productos
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
+                    StreamBuilder<QuerySnapshot>(
+                      stream:
+                          _firestore.collection('procesoproducto').snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+
+                        List<DocumentSnapshot> productos = snapshot.data!.docs;
+
+                        if (productos.isEmpty) {
+                          return const Text(
+                            'No hay productos seleccionados',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
+                          );
+                        } else {
+                          String nombre = productos[0]['nombre'];
+
+                          return Text(
+                            nombre,
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16.0,
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -248,50 +241,39 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                     ),
-                    if (_precioController.text.isNotEmpty &&
-                        double.parse(_precioController.text) <= 0)
-                      const Text(
-                        'El precio debe ser mayor a 0',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Cantidad',
-                        labelStyle: TextStyle(color: Colors.black),
-                      ),
-                      controller: _cantidadController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    if (_cantidadController.text.isNotEmpty &&
-                        int.parse(_cantidadController.text) < 1)
-                      const Text(
-                        'La cantidad debe ser mayor o igual a 1',
-                        style: TextStyle(color: Colors.red),
-                      ),
                     const SizedBox(height: 16.0),
-                    Row(
-                      children: [
-                        const Text(
-                          'Calidad:',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        const SizedBox(width: 16.0),
-                        DropdownButton<String>(
-                          value: _selectedCalidad,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedCalidad = newValue!;
-                            });
-                          },
-                          items: _calidad
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                    Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: [
+                          const Text(
+                            'Calidad:',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          const SizedBox(width: 16.0),
+                          DropdownButton<String>(
+                            value: _selectedCalidad,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCalidad = newValue!;
+                              });
+                            },
+                            items: _calidadOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     Row(
@@ -331,9 +313,10 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
               ElevatedButton(
                 onPressed: () async {
                   if (_selectedImage != null &&
-                      _precioController.text.isNotEmpty &&
-                      _cantidadController.text.isNotEmpty) {
-                    await _agregarProducto();
+                      _precioController.text.isNotEmpty) {
+                    final cantidadPredeterminada =
+                        cantidadesPredeterminadas[widget.selectedProduct];
+                    await _agregarProducto(cantidadPredeterminada ?? 0);
                   } else {
                     showDialog(
                       context: context,
@@ -375,35 +358,30 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
     });
   }
 
-  Future<void> logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const Administrador(),
-      ),
-    );
-  }
-
-  Future<void> _agregarProducto() async {
-    final nombre = _selectedProducto;
+  Future<void> _agregarProducto(int cantidadPredeterminada) async {
+    final nombre = widget.selectedProduct;
     final precio = double.parse(_precioController.text);
-    final cantidad = int.parse(_cantidadController.text);
+    final calidad = _selectedCalidad;
 
     final productoService = ProductoService();
     final imageUrl = await productoService.subirImagen(_selectedImage);
 
     if (imageUrl != null) {
+      final cantidadDesdeFirestore = await productoService
+          .obtenerCantidadProductoDesdeFirestore(widget.selectedProduct);
+      final cantidadTotal =
+          cantidadPredeterminada + (cantidadDesdeFirestore ?? 0);
+
       final nuevoProducto = Producto(
         nombre: nombre,
         precio: precio,
-        cantidad: cantidad,
         disponible: _disponible,
         imagen: _selectedImage,
-        calidad: _selectedCalidad,
+        calidad: calidad,
       );
 
-      await productoService.agregarProducto(nuevoProducto, imageUrl);
+      await productoService.agregarProducto(
+          nuevoProducto, imageUrl, cantidadTotal);
 
       showDialog(
         context: context,
@@ -449,10 +427,48 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Mi Aplicación',
       debugShowCheckedModeBanner: false,
-      home: ProductosAdministrador(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const ProcesoProductosScreen(),
+        '/disponibilidadproductoadministrador': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+          if (arguments is String) {
+            return ProductosAdministrador(selectedProduct: arguments);
+          } else {
+            return const Scaffold(
+              body: Center(
+                child: Text('No se proporcionaron argumentos'),
+              ),
+            );
+          }
+        },
+      },
+    );
+  }
+}
+
+class ProcesoProductosScreen extends StatelessWidget {
+  const ProcesoProductosScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            final selectedProduct = 'Nombre del Producto Seleccionado';
+            Navigator.pushNamed(
+              context,
+              '/disponibilidadproductoadministrador',
+              arguments: selectedProduct,
+            );
+          },
+          child: const Text('Seleccionar Producto'),
+        ),
+      ),
     );
   }
 }

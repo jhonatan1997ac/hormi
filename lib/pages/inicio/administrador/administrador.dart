@@ -54,17 +54,9 @@ class _AdministradorState extends State<Administrador> {
             mainAxisSpacing: 16.0,
             children: [
               buildMenuCard(
-                title: 'Gestión de Productos',
-                color: Colors.blue,
-                icon: Icons.shopping_cart,
-                onTap: () {
-                  Navigator.pushNamed(context, '/productosadministrador');
-                },
-              ),
-              buildMenuCard(
                 title: 'Proceso de productos',
                 color: const Color.fromARGB(255, 114, 97, 189),
-                icon: Icons.add_box_rounded,
+                icon: Icons.auto_mode,
                 onTap: () {
                   Navigator.pushNamed(context, '/MaterialAvailabilityPage');
                 },
@@ -72,9 +64,17 @@ class _AdministradorState extends State<Administrador> {
               buildMenuCard(
                 title: 'Vista de proceso de productos',
                 color: const Color.fromARGB(255, 130, 151, 141),
-                icon: Icons.list_outlined,
+                icon: Icons.remove_red_eye_sharp,
                 onTap: () {
                   Navigator.pushNamed(context, '/procesoproductos');
+                },
+              ),
+              buildMenuCard(
+                title: 'Gestión de Productos',
+                color: Colors.blue,
+                icon: Icons.change_circle_rounded,
+                onTap: () {
+                  Navigator.pushNamed(context, '/productosadministrador');
                 },
               ),
               buildMenuCard(

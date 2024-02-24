@@ -3,8 +3,8 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/proceso_productos.dart';
-import 'package:apphormi/pages/inicio/administrador/producto_terminado.dart';
+import 'package:apphormi/pages/inicio/administrador/elavoracion_producto.dart';
+import 'package:apphormi/pages/inicio/administrador/proceso_producto.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
@@ -79,7 +79,9 @@ class _MyAppState extends State<MyApp> {
         '/empleados': (context) => const Empleados(),
         '/clientes': (context) => const Clientes(),
         '/notificacion': (context) => Notificacion(),
-        '/productosadministrador': (context) => const ProductosAdministrador(),
+        '/productosadministrador': (context) => const ProductosAdministrador(
+              selectedProduct: '',
+            ),
         '/pedidovendedor': (context) => const Detallepedidoadmin(),
         '/bodeguero': (context) => const BodegueroAdmin(),
         '/agregarproducto': (context) => const AgregarProducto(),
@@ -105,7 +107,7 @@ class _MyAppState extends State<MyApp> {
             const DisponibilidadProductoAdministrador(),
         '/geolocatorwidget': (context) => const GeolocatorWidget(),
         '/MaterialAvailabilityPage': (context) =>
-            DisponibilidadMaterialScreen(),
+            const DisponibilidadMaterialScreen(),
         '/procesoproductos': (context) => ProcesoProductos(),
       },
     );
