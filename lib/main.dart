@@ -4,6 +4,7 @@ import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/elavoracion_producto.dart';
+import 'package:apphormi/pages/inicio/administrador/getion_productos.dart';
 import 'package:apphormi/pages/inicio/administrador/proceso_producto.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
@@ -81,6 +82,7 @@ class _MyAppState extends State<MyApp> {
         '/notificacion': (context) => Notificacion(),
         '/productosadministrador': (context) => const ProductosAdministrador(
               selectedProduct: '',
+              cantidadProducto: '',
             ),
         '/pedidovendedor': (context) => const Detallepedidoadmin(),
         '/bodeguero': (context) => const BodegueroAdmin(),
@@ -109,6 +111,8 @@ class _MyAppState extends State<MyApp> {
         '/MaterialAvailabilityPage': (context) =>
             const DisponibilidadMaterialScreen(),
         '/procesoproductos': (context) => ProcesoProductos(),
+        '/GestiornarProductoAdministrador': (context) =>
+            const GestiornarProductoAdministrador(),
       },
     );
   }

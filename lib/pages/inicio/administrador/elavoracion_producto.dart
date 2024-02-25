@@ -1,5 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, use_build_context_synchronously
 
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -120,7 +121,18 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
     );
   }
 
-  void _cambiarEstadoProducto(DocumentReference productoRef) {
-    Navigator.pushReplacementNamed(context, '/productosadministrador');
+  void _cambiarEstadoProducto(DocumentReference productoRef) async {
+    DocumentSnapshot productoSnapshot = await productoRef.get();
+    String nombre = productoSnapshot['nombre'] as String;
+    String cantidad = productoSnapshot['cantidad'] as String;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductosAdministrador(
+          selectedProduct: nombre,
+          cantidadProducto: cantidad,
+        ),
+      ),
+    );
   }
 }

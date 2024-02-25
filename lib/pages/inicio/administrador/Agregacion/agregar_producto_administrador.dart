@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_declarations
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_declarations, unused_field
 
 import 'dart:io';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
@@ -105,9 +105,13 @@ class Producto {
 
 class ProductosAdministrador extends StatefulWidget {
   final String selectedProduct;
+  final String cantidadProducto;
 
-  const ProductosAdministrador({Key? key, required this.selectedProduct})
-      : super(key: key);
+  const ProductosAdministrador({
+    Key? key,
+    required this.selectedProduct,
+    required this.cantidadProducto,
+  }) : super(key: key);
 
   @override
   _ProductosAdministradorState createState() => _ProductosAdministradorState();
@@ -185,43 +189,12 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    StreamBuilder<QuerySnapshot>(
-                      stream:
-                          _firestore.collection('procesoproducto').snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        }
-
-                        List<DocumentSnapshot> productos = snapshot.data!.docs;
-
-                        if (productos.isEmpty) {
-                          return const Text(
-                            'No hay productos seleccionados',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                            ),
-                          );
-                        } else {
-                          String nombre = productos[0]['nombre'];
-
-                          return Text(
-                            nombre,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                            ),
-                          );
-                        }
-                      },
+                    Text(
+                      widget.selectedProduct,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
                     ),
                   ],
                 ),
@@ -393,7 +366,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushReplacementNamed(
-                      context, '/disponibilidadproductoadministrador');
+                      context, '/GestiornarProductoAdministrador');
                 },
                 child: const Text('OK'),
               ),
@@ -435,7 +408,10 @@ class MyApp extends StatelessWidget {
         '/disponibilidadproductoadministrador': (context) {
           final arguments = ModalRoute.of(context)?.settings.arguments;
           if (arguments is String) {
-            return ProductosAdministrador(selectedProduct: arguments);
+            return ProductosAdministrador(
+              selectedProduct: arguments,
+              cantidadProducto: '',
+            );
           } else {
             return const Scaffold(
               body: Center(
@@ -458,7 +434,7 @@ class ProcesoProductosScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            final selectedProduct = 'Nombre del Producto Seleccionado';
+            final selectedProduct = 'nombre';
             Navigator.pushNamed(
               context,
               '/disponibilidadproductoadministrador',

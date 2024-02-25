@@ -74,7 +74,8 @@ class _AdministradorState extends State<Administrador> {
                 color: Colors.blue,
                 icon: Icons.change_circle_rounded,
                 onTap: () {
-                  Navigator.pushNamed(context, '/productosadministrador');
+                  Navigator.pushNamed(
+                      context, '/GestiornarProductoAdministrador');
                 },
               ),
               buildMenuCard(
