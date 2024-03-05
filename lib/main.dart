@@ -13,6 +13,7 @@ import 'package:apphormi/pages/inicio/administrador/proceso_producto.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/vista_datos.dart';
 import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/Gps.dart';
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_material_bodega.dart';
@@ -123,6 +124,7 @@ class _MyAppState extends State<MyApp> {
         '/iniciarpedido': (context) => IniciarPedido(),
         '/vistapedidos': (context) => VistaPedidos(),
         '/eliminardatos': (context) => EliminarDatosScreen(),
+        '/vistadatos': (context) => VistaDatos(),
       },
     );
   }

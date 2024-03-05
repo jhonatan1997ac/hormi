@@ -79,6 +79,14 @@ class _AdministradorState extends State<Administrador> {
                 },
               ),
               buildMenuCard(
+                title: 'Vista Datos',
+                icon: Icons.remove_red_eye_outlined,
+                color: const Color.fromARGB(255, 190, 202, 84),
+                onTap: () {
+                  Navigator.pushNamed(context, '/vistadatos');
+                },
+              ),
+              buildMenuCard(
                 title: 'Datos Eliminar',
                 icon: Icons.delete_sweep_outlined,
                 color: const Color.fromARGB(164, 84, 202, 100),
