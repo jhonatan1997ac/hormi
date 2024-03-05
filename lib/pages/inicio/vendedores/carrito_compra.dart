@@ -74,7 +74,7 @@ class CarritoDeCompras extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 27, 99, 29),
+                    backgroundColor: const Color.fromARGB(255, 130, 235, 134),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -85,6 +85,7 @@ class CarritoDeCompras extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
+                      color: Colors.white,
                     ),
                   ),
                 ),
