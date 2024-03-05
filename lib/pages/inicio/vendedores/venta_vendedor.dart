@@ -151,7 +151,7 @@ class _VentasState extends State<Ventas> {
 
     Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 1), () {
       overlayEntry.remove();
       Navigator.push(
         context,

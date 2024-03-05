@@ -1,6 +1,9 @@
 // ignore_for_file: unused_local_variable
 
+import 'package:apphormi/pages/inicio/administrador/eliminar_datos.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CarritoDeCompras extends StatelessWidget {
@@ -117,8 +120,8 @@ class CarritoDeCompras extends StatelessWidget {
                 title: const Text('Efectivo'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  // Lógica para el pago en efectivo
-                  mostrarDialogoRegistroPago(context);
+                  // Mostrar la lista de opciones de efectivo
+                  mostrarDialogoOpcionesEfectivo(context);
                 },
               ),
               ListTile(
@@ -142,6 +145,117 @@ class CarritoDeCompras extends StatelessWidget {
         );
       },
     );
+  }
+
+  void mostrarDialogoOpcionesEfectivo(BuildContext context) {
+    double subtotal = calcularSubtotal(carrito);
+    double iva = subtotal * 0.12;
+    double total = subtotal + iva;
+
+    List<int> denominaciones = [1, 2, 5, 10, 20, 50, 100];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Opciones de Efectivo'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Mostrar botones para cada denominación
+              for (int denominacion in denominaciones)
+                ElevatedButton(
+                  onPressed: () {
+                    if (denominacion >= total) {
+                      double cambio = denominacion - total;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Cambio a devolver: \$${cambio.toStringAsFixed(2)}'),
+                        ),
+                      );
+
+                      Future.delayed(const Duration(seconds: 0), () {
+                        Navigator.of(context).pop();
+
+                        carrito.clear();
+                        setState(() {});
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('El monto ingresado es insuficiente.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '\$$denominacion',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const Icon(Icons.attach_money),
+                    ],
+                  ),
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Cancelar',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Icon(Icons.cancel),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void enviarVentaAHistorial({
+    required String imagen,
+    required double iva,
+    required String metodoPago,
+    required String nombrePersona,
+    required List<Map<String, dynamic>> productos,
+    required double subtotal,
+    required double total,
+  }) async {
+    try {
+      // Obtener una referencia a la colección 'historialventas'
+      CollectionReference historialVentas =
+          FirebaseFirestore.instance.collection('historialventas');
+
+      // Crear un documento con una ID automática
+      DocumentReference docRef = await historialVentas.add({
+        'fecha': Timestamp.now(),
+        'imagen': imagen,
+        'iva': iva,
+        'metodoPago': metodoPago,
+        'nombrePersona': nombrePersona,
+        'productos': productos,
+        'subtotal': subtotal,
+        'total': total,
+      });
+
+      if (kDebugMode) {
+        print('Venta registrada en el historial con ID: ${docRef.id}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al enviar venta al historial: $e');
+      }
+    }
   }
 
   Future<void> mostrarDialogoRegistroPago(BuildContext context) async {
