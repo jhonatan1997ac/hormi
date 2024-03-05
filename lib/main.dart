@@ -6,6 +6,7 @@ import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_
 import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/elavoracion_producto.dart';
+import 'package:apphormi/pages/inicio/administrador/eliminar_datos.dart';
 import 'package:apphormi/pages/inicio/administrador/getion_productos.dart';
 import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/proceso_producto.dart';
@@ -121,6 +122,7 @@ class _MyAppState extends State<MyApp> {
             ),
         '/iniciarpedido': (context) => IniciarPedido(),
         '/vistapedidos': (context) => VistaPedidos(),
+        '/eliminardatos': (context) => EliminarDatosScreen(),
       },
     );
   }

@@ -62,9 +62,9 @@ class _AdministradorState extends State<Administrador> {
                 },
               ),
               buildMenuCard(
-                title: 'Vista de proceso de productos',
+                title: 'Proceso de productos',
                 color: const Color.fromARGB(255, 130, 151, 141),
-                icon: Icons.remove_red_eye_sharp,
+                icon: Icons.all_inbox_rounded,
                 onTap: () {
                   Navigator.pushNamed(context, '/procesoproductos');
                 },
@@ -79,42 +79,17 @@ class _AdministradorState extends State<Administrador> {
                 },
               ),
               buildMenuCard(
-                title: 'Disponibilidad de Productos',
-                color: const Color(0xFFD38460),
-                icon: Icons.data_thresholding,
+                title: 'Datos Eliminar',
+                icon: Icons.delete_sweep_outlined,
+                color: const Color.fromARGB(164, 84, 202, 100),
                 onTap: () {
-                  Navigator.pushNamed(
-                      context, '/disponibilidadproductoadministrador');
-                },
-              ),
-              buildMenuCard(
-                title: 'Pedidos',
-                color: const Color(0xFFAF4CAA),
-                icon: Icons.assignment,
-                onTap: () {
-                  Navigator.pushNamed(context, '/pedidovendedor');
-                },
-              ),
-              buildMenuCard(
-                title: 'Transportista',
-                icon: Icons.car_repair_rounded,
-                color: const Color(0xFF504992),
-                onTap: () {
-                  Navigator.pushNamed(context, '/transporte');
-                },
-              ),
-              buildMenuCard(
-                title: 'Ruta de envío',
-                icon: Icons.alt_route_rounded,
-                color: const Color(0xFF301121),
-                onTap: () {
-                  Navigator.pushNamed(context, '/rutaenvio');
+                  Navigator.pushNamed(context, '/eliminardatos');
                 },
               ),
               buildMenuCard(
                 title: 'Gestión de Vendedor',
                 icon: Icons.person,
-                color: const Color(0xFFC05050),
+                color: const Color.fromARGB(242, 192, 80, 80),
                 onTap: () {
                   Navigator.pushNamed(context, '/vendedoradministrador');
                 },
