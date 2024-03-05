@@ -1,6 +1,5 @@
 // ignore_for_file: unused_local_variable
 
-import 'package:apphormi/pages/inicio/administrador/eliminar_datos.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -52,16 +51,62 @@ class CarritoDeCompras extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Subtotal: \$${calcularSubtotal(carrito).toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black,
+              Expanded(
+                // Envuelve el contenido desplazable dentro de un Expanded
+                child: SingleChildScrollView(
+                  reverse: true, // Establece reverse como true
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Subtotal: \$${calcularSubtotal(carrito).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'IVA: \$${(calcularSubtotal(carrito) * 0.12).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        'Total: \$${(calcularSubtotal(carrito) * 1.12).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Productos:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: carrito.length,
+                        itemBuilder: (context, index) {
+                          final producto = carrito[index];
+                          return Text(
+                            '- ${producto.nombre} x${producto.cantidad}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(
+                width: 16,
+              ), // Añade un espacio entre el contenido y el botón
               SizedBox(
                 width: 160,
                 child: ElevatedButton(
@@ -77,18 +122,17 @@ class CarritoDeCompras extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 130, 235, 134),
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color.fromARGB(255, 223, 195, 185),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
-                    ),
+                    ), // Color café
                   ),
                   child: const Text(
-                    'Proceder al Pago',
+                    'Pagar',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
                       fontSize: 18,
-                      color: Colors.white,
+                      color: Colors.black, // Color negro para el texto
                     ),
                   ),
                 ),
@@ -107,51 +151,50 @@ class CarritoDeCompras extends StatelessWidget {
   }
 
   void mostrarDialogoTipoPago(BuildContext context) {
+    double subtotal = calcularSubtotal(carrito);
+    double iva = subtotal * 0.12;
+    double total = subtotal + iva;
+
+    List<Map<String, dynamic>> productos = carrito.map((producto) {
+      return {
+        'nombre': producto.nombre,
+        'precio': producto.precio,
+        'cantidad': producto.cantidad,
+      };
+    }).toList();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Tipo de Pago'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Opciones de pago
-              ListTile(
-                title: const Text('Efectivo'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  // Mostrar la lista de opciones de efectivo
-                  mostrarDialogoOpcionesEfectivo(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Tarjeta de Crédito'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  // Lógica para el pago con tarjeta de crédito
-                  // Puedes implementar una función similar a mostrarDialogoRegistroPago() para la entrada de detalles de tarjeta
-                },
-              ),
-              ListTile(
-                title: const Text('Transferencia Bancaria'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  // Lógica para el pago con transferencia bancaria
-                  // Puedes implementar una función similar a mostrarDialogoRegistroPago() para la entrada de detalles de transferencia
-                },
-              ),
-            ],
-          ),
+          title: const Text('Resumen de Venta'),
+          actions: [
+            ListTile(
+              title: const Text('Efectivo'),
+              onTap: () {
+                Navigator.of(context).pop();
+                mostrarDialogoOpcionesEfectivo(
+                    context, productos, subtotal, iva, total);
+              },
+            ),
+            ListTile(
+              title: const Text('Tarjeta de Crédito'),
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );
   }
 
-  void mostrarDialogoOpcionesEfectivo(BuildContext context) {
-    double subtotal = calcularSubtotal(carrito);
-    double iva = subtotal * 0.12;
-    double total = subtotal + iva;
-
+  void mostrarDialogoOpcionesEfectivo(
+      BuildContext context,
+      List<Map<String, dynamic>> productos,
+      double subtotal,
+      double iva,
+      double total) {
     List<int> denominaciones = [1, 2, 5, 10, 20, 50, 100];
 
     showDialog(
@@ -162,7 +205,6 @@ class CarritoDeCompras extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Mostrar botones para cada denominación
               for (int denominacion in denominaciones)
                 ElevatedButton(
                   onPressed: () {
@@ -177,9 +219,16 @@ class CarritoDeCompras extends StatelessWidget {
 
                       Future.delayed(const Duration(seconds: 0), () {
                         Navigator.of(context).pop();
-
                         carrito.clear();
-                        setState(() {});
+                        enviarVentaAHistorial(
+                          imagen: '',
+                          iva: iva,
+                          metodoPago: 'Efectivo',
+                          nombrePersona: '',
+                          productos: productos,
+                          subtotal: subtotal,
+                          total: total,
+                        );
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -232,11 +281,9 @@ class CarritoDeCompras extends StatelessWidget {
     required double total,
   }) async {
     try {
-      // Obtener una referencia a la colección 'historialventas'
       CollectionReference historialVentas =
           FirebaseFirestore.instance.collection('historialventas');
 
-      // Crear un documento con una ID automática
       DocumentReference docRef = await historialVentas.add({
         'fecha': Timestamp.now(),
         'imagen': imagen,
@@ -284,9 +331,6 @@ class CarritoDeCompras extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Aquí puedes realizar la lógica de registrar el pago con el monto ingresado
-                // Por ejemplo, puedes llamar a una función que maneje el pago y la actualización del estado
-                // handlePayment(double.parse(montoPago));
               },
               child: const Text('Aceptar'),
             ),
