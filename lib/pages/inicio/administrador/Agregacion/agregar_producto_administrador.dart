@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_declarations, unused_field
 
 import 'dart:io';
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 const Map<String, int> cantidadesPredeterminadas = {
   'Adoquin clasico vehicular sin color': 3034,

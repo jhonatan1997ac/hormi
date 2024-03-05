@@ -89,11 +89,11 @@ class VendedorHome extends StatelessWidget {
                 },
               ),
               // HomeCard(
-              //   title: 'Clientes',
-              //   icon: Icons.group,
+              //   title: 'carrito de compra',
+              //   icon: Icons.shopping_cart,
               //   color: Colors.orange[600]!,
               //   onTap: () {
-              //     Navigator.pushNamed(context, '/clientes');
+              //     Navigator.pushNamed(context, '/carritodecompras');
               //   },
               // ),
               // HomeCard(

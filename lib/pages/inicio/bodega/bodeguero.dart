@@ -56,6 +56,14 @@ class BodegueroHome extends StatelessWidget {
             mainAxisSpacing: 16.0,
             children: [
               HomeCard(
+                title: 'Pedidos',
+                icon: Icons.receipt_long,
+                color: const Color(0xFF245520),
+                onTap: () {
+                  Navigator.pushNamed(context, '/detalleorden');
+                },
+              ),
+              HomeCard(
                 title: 'Ubicacion',
                 icon: Icons.local_offer,
                 color: const Color(0xFFB1355A),
@@ -109,14 +117,6 @@ class BodegueroHome extends StatelessWidget {
                 color: const Color(0xFF72AD12),
                 onTap: () {
                   Navigator.pushNamed(context, '/disponibilidadmaterial');
-                },
-              ),
-              HomeCard(
-                title: 'Detalle de Ordenes',
-                icon: Icons.receipt_long,
-                color: const Color(0xFF245520),
-                onTap: () {
-                  Navigator.pushNamed(context, '/detalleorden');
                 },
               ),
               HomeCard(

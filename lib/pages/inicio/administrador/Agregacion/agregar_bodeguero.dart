@@ -1,6 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, unused_local_variable
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, unused_local_variable, deprecated_member_use
 
 import 'dart:io';
+
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

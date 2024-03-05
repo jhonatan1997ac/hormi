@@ -1,44 +1,47 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
+import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/elavoracion_producto.dart';
 import 'package:apphormi/pages/inicio/administrador/getion_productos.dart';
+import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/proceso_producto.dart';
 import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
+import 'package:apphormi/pages/inicio/bodega/Gps.dart';
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/categoria_producto.dart';
 import 'package:apphormi/pages/inicio/bodega/detalle_orden.dart';
 import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/bodega/historial_inventarios.dart';
 import 'package:apphormi/pages/inicio/bodega/ordenes.dart';
 import 'package:apphormi/pages/inicio/bodega/promocion.dart';
 import 'package:apphormi/pages/inicio/bodega/proveedor.dart';
-import 'package:apphormi/pages/inicio/bodega/Gps.dart';
+import 'package:apphormi/pages/inicio/vendedores/carrito_compra.dart';
 import 'package:apphormi/pages/inicio/vendedores/cliente_admin.dart';
 import 'package:apphormi/pages/inicio/vendedores/empleados.dart';
-import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/estadisticas_pago.dart';
 import 'package:apphormi/pages/inicio/vendedores/estadisticas/fecha_ventas.dart';
-import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
 import 'package:apphormi/pages/inicio/vendedores/historial_venta_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
 import 'package:apphormi/pages/inicio/vendedores/notificacion_admin.dart';
+import 'package:apphormi/pages/inicio/vendedores/pedido.dart';
 import 'package:apphormi/pages/inicio/vendedores/reclamaciones.dart';
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
-import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
-import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
-import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/pedido_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
+import 'package:apphormi/pages/inicio/vendedores/vista_pedido.dart';
 import 'package:apphormi/pages/inicio_secion/inicio.dart';
 import 'package:apphormi/pages/inicio_secion/principal.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'pages/servicio/firebase_options.dart';
 
 void main() async {
@@ -97,7 +100,7 @@ class _MyAppState extends State<MyApp> {
         '/fechaventas': (context) => FechaVentas(),
         '/agregarmaterial': (context) => const AgregarMaterial(),
         '/ordenes': (context) => Orden(),
-        '/detalleorden': (context) => const DetalleOrdenes(),
+        '/detalleorden': (context) => DetalleOrdenes(),
         '/proveedor': (context) => const Proveedor(),
         '/historialinventario': (context) => HistorialInventario(),
         '/categoriaproducto': (context) => const CategoriaProducto(),
@@ -113,6 +116,11 @@ class _MyAppState extends State<MyApp> {
         '/procesoproductos': (context) => ProcesoProductos(),
         '/GestiornarProductoAdministrador': (context) =>
             const GestiornarProductoAdministrador(),
+        '/carritodecompras': (context) => const CarritoDeCompras(
+              carrito: [],
+            ),
+        '/iniciarpedido': (context) => IniciarPedido(),
+        '/vistapedidos': (context) => VistaPedidos(),
       },
     );
   }

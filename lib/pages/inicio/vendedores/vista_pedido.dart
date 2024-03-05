@@ -1,11 +1,11 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: use_key_in_widget_constructors
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-class DetalleOrdenes extends StatelessWidget {
+class VistaPedidos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Intl.defaultLocale = 'es_EC';
@@ -13,7 +13,7 @@ class DetalleOrdenes extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pedidos Realizados'),
+        title: const Text('Vista de Pedidos'),
         backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder(
@@ -31,9 +31,8 @@ class DetalleOrdenes extends StatelessWidget {
             return const Center(child: Text('No hay pedidos realizados.'));
           }
           return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
+            scrollDirection: Axis.horizontal,
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
               child: DataTable(
                 headingRowColor: MaterialStateColor.resolveWith(
                     (states) => Colors.blue[700]!),
@@ -88,11 +87,6 @@ class DetalleOrdenes extends StatelessWidget {
                         Text('Precio', style: TextStyle(color: Colors.white)),
                     tooltip: 'Precio del producto',
                   ),
-                  DataColumn(
-                    label:
-                        Text('Acciones', style: TextStyle(color: Colors.white)),
-                    tooltip: 'Acciones',
-                  ),
                 ],
                 rows: snapshot.data!.docs.map((DocumentSnapshot document) {
                   Map<String, dynamic> data =
@@ -121,24 +115,14 @@ class DetalleOrdenes extends StatelessWidget {
                           style: TextStyle(color: Colors.blue[800]))),
                       DataCell(Text(
                           DateFormat('dd/MM/yyyy', Intl.defaultLocale).format(
-                              data['fecha']
-                                  .toDate()
-                                  .toUtc()
-                                  .add(const Duration(hours: -5))),
+                              data['fecha'].toDate().toUtc().add(const Duration(
+                                  hours:
+                                      -5))), // Convertir a UTC y ajustar a UTC-5
                           style: TextStyle(color: Colors.blue[800]))),
                       DataCell(Text(data['calidad'],
                           style: TextStyle(color: Colors.blue[800]))),
                       DataCell(Text('\$${data['precio'].toStringAsFixed(2)}',
                           style: TextStyle(color: Colors.blue[800]))),
-                      DataCell(
-                        IconButton(
-                          icon: Icon(Icons.check_box),
-                          onPressed: () {
-                            Navigator.pushNamed(
-                                context, '/MaterialAvailabilityPage');
-                          },
-                        ),
-                      ),
                     ],
                   );
                 }).toList(),

@@ -1,10 +1,10 @@
-// ignore_for_file: unused_import, unused_local_variable
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
 
-import 'dart:io';
+import 'package:apphormi/pages/inicio/vendedores/carrito_compra.dart';
+import 'package:apphormi/pages/inicio/vendedores/pedido.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
 
 class Producto {
   final String id;
@@ -153,13 +153,17 @@ class _VentasState extends State<Ventas> {
 
     Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => IniciarPedido()),
+      );
     });
   }
 
   Future<bool> verificarDisponibilidad(
       Producto producto, int selectedQuantity) async {
     if (producto.cantidad >= selectedQuantity &&
-        (producto.cantidad - selectedQuantity) >= 10) {
+        (producto.cantidad - selectedQuantity) >= 2300) {
       setState(() {
         errorMessage = null;
       });
@@ -231,6 +235,14 @@ class _VentasState extends State<Ventas> {
           content: Text('Producto agregado al carrito'),
         ),
       );
+
+      // Navegar a la vista del carrito
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CarritoDeCompras(carrito: carrito),
+        ),
+      );
     } catch (error) {
       if (kDebugMode) {
         print("Error al agregar al carrito: $error");
@@ -238,344 +250,51 @@ class _VentasState extends State<Ventas> {
     }
   }
 
-  Future<void> registrarVentaEnHistorial(
-    List<Producto> productos,
-    double subtotal,
-    double iva,
-    double total,
-    String metodoPago,
-    String nombrePersona,
-    String imagePath,
-  ) async {
-    try {
-      double montoPago =
-          total; // Se asume que el monto pagado es igual al total
-      double cambio = montoPago - total; // Calcular el cambio
-
-      CollectionReference historialVentasCollection =
-          FirebaseFirestore.instance.collection('historialventas');
-
-      await historialVentasCollection.add({
-        'productos': productos.map((producto) {
-          return {
-            'producto_id': producto.id,
-            'nombre': producto.nombre,
-            'precio': producto.precio,
-            'imagen': producto.imagen,
-            'cantidad': producto.cantidad,
-          };
-        }).toList(),
-        'subtotal': subtotal,
-        'iva': iva,
-        'total': total,
-        'metodoPago': metodoPago,
-        'nombrePersona': nombrePersona,
-        'imagen': imagePath,
-        'fecha': DateTime.now(),
-      });
-
-      setState(() {
-        carrito.clear();
-      });
-
-      // Mostrar mensaje emergente con el cambio devuelto
-      mostrarMensajeEmergente('Cambio devuelto: \$${cambio.toStringAsFixed(2)}',
-          color: Colors.green);
-    } catch (error) {
-      if (kDebugMode) {
-        print("Error al registrar la venta en el historial: $error");
-      }
-    }
-  }
-
-  double calcularSubtotal(List<Producto> productos) {
-    return productos.fold(0.0, (subtotal, producto) {
-      return subtotal + producto.precio * producto.cantidad;
-    });
-  }
-
-  double calcularIVA(List<Producto> productos) {
-    return calcularSubtotal(productos) * 0.16;
-  }
-
-  double calcularTotal(List<Producto> productos) {
-    return calcularSubtotal(productos) + calcularIVA(productos);
-  }
-
-  Future<void> mostrarDialogoTipoPago() async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Tipo de Pago'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Card(
-                elevation: 4,
-                margin: const EdgeInsets.all(8),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    mostrarDialogoSeleccionMetodo();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Efectivo'),
-                        Icon(Icons.attach_money_rounded),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 4,
-                margin: const EdgeInsets.all(8),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    mostrarDialogoRegistroPago();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Registrar Pago'),
-                        Icon(Icons.camera_alt),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> mostrarDialogoSeleccionMetodo() async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Cantidad de Pago'),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildPaymentCard(1),
-                      _buildPaymentCard(2),
-                      _buildPaymentCard(5),
-                      _buildPaymentCard(10),
-                      _buildPaymentCard(20),
-                      _buildPaymentCard(50),
-                      _buildPaymentCard(100),
-                      _buildExactPaymentCard(),
-                    ].map((widget) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: widget,
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: _buildCancelButton(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPaymentCard(int amount) {
-    return SizedBox(
-      width: 120,
-      height: 120,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-          registrarVentaEnHistorial(
-            carrito,
-            calcularSubtotal(carrito),
-            calcularIVA(carrito),
-            calcularTotal(carrito),
-            'Efectivo',
-            '',
-            '',
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueGrey,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          elevation: 5,
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.attach_money_rounded,
-                size: 40,
-                color: Colors.white,
-              ),
-              SizedBox(height: 5),
-              Text(
-                '$amount',
-                style: const TextStyle(fontSize: 24, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExactPaymentCard() {
-    return SizedBox(
-      width: 120,
-      height: 120,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-          registrarVentaEnHistorial(
-            carrito,
-            calcularSubtotal(carrito),
-            calcularIVA(carrito),
-            calcularTotal(carrito),
-            'Efectivo',
-            '',
-            '',
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          elevation: 5,
-        ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.attach_money_rounded,
-              size: 40,
-              color: Colors.white,
-            ),
-            SizedBox(height: 5),
-            Text(
-              'Pago Exacto',
-              style: TextStyle(fontSize: 14, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCancelButton() {
-    return SizedBox(
-      width: 120,
-      height: 120,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          elevation: 5,
-        ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.cancel,
-              size: 40,
-              color: Colors.white,
-            ),
-            SizedBox(height: 5),
-            Text(
-              'Cancelar',
-              style: TextStyle(fontSize: 14, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> mostrarDialogoRegistroPago() async {
-    String montoPago = "";
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Registrar Pago'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  montoPago = value;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Monto del pago',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text(
-          "Ventas",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 24.0,
-          ),
+        title: const Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Ventas",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 24.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         elevation: 5,
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (carrito.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CarritoDeCompras(carrito: []),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('El carrito está vacío'),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.shopping_cart),
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -646,6 +365,10 @@ class _VentasState extends State<Ventas> {
                               onPressed: () {
                                 mostrarDialogCantidad(producto);
                               },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 97, 228, 125),
+                              ),
                               child: const Text('Agregar al Carrito'),
                             ),
                           ],
@@ -676,73 +399,45 @@ class _VentasState extends State<Ventas> {
                     ),
                   ],
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Carrito de Compras',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 250, 250, 250),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: carrito.length,
-                  itemBuilder: (context, index) {
-                    final producto = carrito[index];
-                    return Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        title: Text(
-                          '${producto.nombre}',
-                          style: const TextStyle(fontSize: 18),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (carrito.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const CarritoDeCompras(carrito: []),
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('El carrito está vacío'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
                           children: [
+                            Icon(Icons.shopping_cart), // Icono del carrito
+                            SizedBox(
+                                width: 10), // Espacio entre el icono y el texto
                             Text(
-                              '\$${producto.precio.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'Cantidad: ${producto.cantidad}',
-                              style: const TextStyle(fontSize: 16),
+                              'Ver el carrito',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.grey, // Color gris
+                              ),
                             ),
                           ],
-                        ),
-                        leading: SizedBox(
-                          width: 50.0,
-                          child: producto.imagen != null
-                              ? Image.network(producto.imagen!)
-                              : const Placeholder(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (carrito.isNotEmpty) {
-                    mostrarDialogoTipoPago();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('El carrito está vacío'),
-                      ),
-                    );
-                  }
-                },
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Proceder al Pago',
-                    style: TextStyle(fontSize: 20),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

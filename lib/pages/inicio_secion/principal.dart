@@ -1,6 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, unnecessary_const
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+
 import 'inicio.dart';
 
 void main() {
@@ -8,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Principal extends StatelessWidget {
-  const Principal({super.key});
+  const Principal({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class Principal extends StatelessWidget {
                       Text(
                         'Bienvenido',
                         style: TextStyle(
-                          fontSize: 50.0,
+                          fontSize: 40.0,
                           color: Color.fromARGB(255, 8, 2, 2),
                           fontWeight: FontWeight.bold,
                         ),
@@ -61,7 +62,7 @@ class Principal extends StatelessWidget {
                       Text(
                         'Hormibloque Ecuador S.A',
                         style: TextStyle(
-                          fontSize: 30.0,
+                          fontSize: 24.0,
                           color: Color.fromARGB(255, 8, 2, 2),
                           fontWeight: FontWeight.bold,
                         ),
@@ -69,16 +70,16 @@ class Principal extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 600),
+                const SizedBox(height: 400),
                 SizedBox(
-                  width: 200,
-                  height: 60,
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
                       backgroundColor: const Color.fromARGB(255, 33, 184, 243),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
                     onPressed: () {
@@ -87,7 +88,7 @@ class Principal extends StatelessWidget {
                     child: const Text(
                       'Iniciar',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -107,7 +108,8 @@ class AnimatedButton extends StatefulWidget {
   final String text;
   final Function onPress;
 
-  const AnimatedButton({super.key, required this.text, required this.onPress});
+  const AnimatedButton({Key? key, required this.text, required this.onPress})
+      : super(key: key);
 
   @override
   _AnimatedButtonState createState() => _AnimatedButtonState();
