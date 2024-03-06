@@ -1,9 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, use_build_context_synchronously
-
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class ProcesoProductos extends StatefulWidget {
   @override
@@ -70,42 +68,44 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
             return Stack(
               children: [
                 ListView.builder(
-                  itemCount: productos.length,
-                  itemBuilder: (context, index) {
-                    String cantidad = productos[index]['cantidad'];
-                    String descripcion = productos[index]['descripcion'];
-                    String nombre = productos[index]['nombre'];
+                    itemCount: productos.length,
+                    itemBuilder: (context, index) {
+                      String cantidad = productos[index]['cantidad'].toString();
+                      String descripcion = productos[index]['descripcion'];
+                      String nombre = productos[index]['nombre'];
+                      String fecha = productos[index]['fecha'];
 
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        child: ListTile(
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Nombre: $nombre',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text('Descripción: $descripcion'),
-                              Text('Cantidad: $cantidad'),
-                              const SizedBox(height: 8.0),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _cambiarEstadoProducto(
-                                      productos[index].reference);
-                                },
-                                child:
-                                    const Text('Cambiar Proceso del Producto'),
-                              ),
-                            ],
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          child: ListTile(
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nombre: $nombre',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text('Descripción: $descripcion'),
+                                Text('Cantidad: $cantidad'),
+                                Text(
+                                    'Fecha de pedido: $fecha'), // Mostrar la fecha
+                                const SizedBox(height: 8.0),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _cambiarEstadoProducto(
+                                        productos[index].reference);
+                                  },
+                                  child: const Text(
+                                      'Cambiar Proceso del Producto'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    }),
                 if (snapshot.connectionState == ConnectionState.waiting)
                   Container(
                     color: Colors.black.withOpacity(0.5),
@@ -123,14 +123,14 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
 
   void _cambiarEstadoProducto(DocumentReference productoRef) async {
     DocumentSnapshot productoSnapshot = await productoRef.get();
-    String nombre = productoSnapshot['nombre'] as String;
-    String cantidad = productoSnapshot['cantidad'] as String;
+    String nombre = productoSnapshot['nombre'].toString();
+    int cantidad = productoSnapshot['cantidad'] as int;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => ProductosAdministrador(
           selectedProduct: nombre,
-          cantidadProducto: cantidad,
+          cantidadProducto: cantidad.toString(),
         ),
       ),
     );

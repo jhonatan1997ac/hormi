@@ -1,10 +1,9 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, sort_child_properties_last
-
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -17,7 +16,7 @@ void main() {
 }
 
 class DisponibilidadMaterialScreen extends StatefulWidget {
-  const DisponibilidadMaterialScreen({super.key});
+  const DisponibilidadMaterialScreen({Key? key}) : super(key: key);
 
   @override
   _DisponibilidadMaterialScreenState createState() =>
@@ -203,6 +202,21 @@ void _producirProducto(
   if (cantidad.isNotEmpty) {
     int cantidadInt = int.tryParse(cantidad) ?? 0;
     if (cantidadInt > 0) {
+      // Obtener la fecha actual
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+
+      // Crear el objeto a ser almacenado
+      Map<String, dynamic> data = {
+        'nombre': selectedProduct,
+        'descripcion': 'Volqueta', // Puedes cambiar esto si necesitas
+        'cantidad': cantidadInt,
+        'fecha': formattedDate,
+      };
+
+      // Agregar el objeto a la colección 'procesoproducto'
+      FirebaseFirestore.instance.collection('procesoproducto').add(data);
+
       if (kDebugMode) {
         print('Se van a producir $cantidadInt unidades de $selectedProduct');
       }

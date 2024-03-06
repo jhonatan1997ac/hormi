@@ -1,8 +1,7 @@
-// ignore_for_file: deprecated_member_use, use_key_in_widget_constructors, use_build_context_synchronously
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, avoid_unnecessary_containers, deprecated_member_use
 
 import 'dart:io';
 
-import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,19 +37,6 @@ class VistaDatos extends StatelessWidget {
             fontWeight: FontWeight.bold,
             color: Colors.black,
             fontSize: 24.0,
-          ),
-        ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Administrador()),
-            );
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Colors.black,
-            size: 30.0,
           ),
         ),
         backgroundColor: Colors.white,
@@ -109,8 +95,9 @@ class VistaDatos extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  PaginaDatosFirestore(nombreColeccion: collectionName),
+              builder: (context) => PaginaDatosFirestore(
+                nombreColeccion: collectionName,
+              ),
             ),
           );
         },
@@ -163,7 +150,11 @@ class PaginaDatosFirestore extends StatelessWidget {
                   .get();
               final rows = getRows(documents.docs, columnHeaders);
               await generateAndSavePDF(
-                  context, nombreColeccion, columnHeaders, rows);
+                context,
+                nombreColeccion,
+                columnHeaders,
+                rows,
+              );
             },
             icon: const Icon(Icons.picture_as_pdf),
           ),
@@ -195,16 +186,6 @@ class PaginaDatosFirestore extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.fromARGB(255, 55, 111, 139),
-                      Color.fromARGB(255, 83, 32, 32),
-                    ],
-                  ),
-                ),
                 child: Column(
                   children: [
                     DataTable(
@@ -244,17 +225,11 @@ class PaginaDatosFirestore extends StatelessWidget {
         'calidad',
       ];
     } else if (nombreColeccion == 'procesoproducto') {
-      return ['nombre', 'descripcion', 'cantidad'];
+      // Agrega 'fecha' al principio de la lista de encabezados
+      return ['fecha', 'nombre', 'descripcion', 'cantidad'];
     } else if (nombreColeccion == 'productoterminado') {
-      return [
-        'idproductoterminado',
-        'imagen',
-        'precio',
-        'calidad',
-        'cantidad',
-        'disponible',
-        'nombre'
-      ];
+      // Reorganiza los encabezados para que 'nombre' sea el primero
+      return ['nombre', 'precio', 'calidad', 'cantidad'];
     } else {
       return [];
     }
