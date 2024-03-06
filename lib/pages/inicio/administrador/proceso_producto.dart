@@ -204,24 +204,82 @@ void _producirProducto(
   if (cantidad.isNotEmpty) {
     int cantidadInt = int.tryParse(cantidad) ?? 0;
     if (cantidadInt > 0) {
-      // Obtener la fecha actual
-      DateTime now = DateTime.now();
-      String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+      // Verificar si hay suficiente cantidad de Cemento
+      FirebaseFirestore.instance
+          .collection('disponibilidadmaterial')
+          .where('nombre', isEqualTo: 'Cemento')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.size > 0) {
+          // Verificar si existe la cantidad de 36 y en descripción sea 'quintal'
+          bool encontrada = false;
+          querySnapshot.docs.forEach((doc) {
+            if (doc['cantidad'] == 36 && doc['descripcion'] == 'quintal') {
+              encontrada = true;
+            }
+          });
 
-      // Crear el objeto a ser almacenado
-      Map<String, dynamic> data = {
-        'nombre': selectedProduct,
-        'descripcion': 'Volqueta', // Puedes cambiar esto si necesitas
-        'cantidad': cantidadInt,
-        'fecha': formattedDate,
-      };
+          if (encontrada) {
+            // Obtener la fecha actual
+            DateTime now = DateTime.now();
+            String formattedDate = DateFormat('yyyy-MM-dd').format(now);
 
-      // Agregar el objeto a la colección 'procesoproducto'
-      FirebaseFirestore.instance.collection('procesoproducto').add(data);
+            // Crear el objeto a ser almacenado
+            Map<String, dynamic> data = {
+              'nombre': selectedProduct,
+              'descripcion': 'En proceso',
+              'cantidad': cantidadInt,
+              'fecha': formattedDate,
+            };
 
-      if (kDebugMode) {
-        print('Se van a producir $cantidadInt unidades de $selectedProduct');
-      }
+            // Agregar el objeto a la colección 'procesoproducto'
+            FirebaseFirestore.instance.collection('procesoproducto').add(data);
+
+            if (kDebugMode) {
+              print(
+                  'Se van a producir $cantidadInt unidades de $selectedProduct');
+            }
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text(
+                      'No se puede producir porque no hay suficiente cantidad de Cemento con la descripción adecuada.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: const Text(
+                    'No se puede producir porque no hay suficiente cantidad de Cemento.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      });
     } else {
       showDialog(
         context: context,
