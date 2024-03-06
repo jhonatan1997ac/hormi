@@ -116,7 +116,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Widget _buildIndicators(List<Map<String, dynamic>> historialVentas) {
     Map<String, double> totalVentasPorTipoPago = {
       'Efectivo': 0,
-      'Registro de Pago': 0,
+      'Registro de pago': 0,
     };
 
     for (var venta in historialVentas) {
@@ -132,7 +132,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
     double porcentajeEfectivo =
         (totalVentasPorTipoPago['Efectivo'] ?? 0) / totalVentas * 100;
     double porcentajeBancaMovil =
-        (totalVentasPorTipoPago['Registro de Pago'] ?? 0) / totalVentas * 100;
+        (totalVentasPorTipoPago['Registro de pago'] ?? 0) / totalVentas * 100;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -150,7 +150,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
           Row(
             children: [
               _buildIndicator(
-                  const Color.fromARGB(255, 3, 10, 15), 'Registro de Pago'),
+                  const Color.fromARGB(255, 3, 10, 15), 'Registro de pago'),
               const SizedBox(width: 100),
               _buildIndicator(Colors.green, 'Efectivo'),
             ],
@@ -160,7 +160,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
               'Porcentaje Efectivo: ${porcentajeEfectivo.toStringAsFixed(2)}%'),
           const SizedBox(height: 16),
           Text(
-              'Porcentaje Registro de Pago: ${porcentajeBancaMovil.toStringAsFixed(2)}%'),
+              'Porcentaje Registro de pago: ${porcentajeBancaMovil.toStringAsFixed(2)}%'),
         ],
       ),
     );
@@ -228,7 +228,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   Color _getColorFor(String metodoPago) {
     if (metodoPago == 'Efectivo') {
       return Colors.green;
-    } else if (metodoPago == 'Registro de Pago') {
+    } else if (metodoPago == 'Registro de pago') {
       return const Color.fromARGB(255, 3, 10, 15);
     } else {
       return Colors.grey;

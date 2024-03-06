@@ -1,8 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api, non_constant_identifier_names, unused_local_variable
 
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,8 @@ class Reclamaciones extends StatefulWidget {
 class _ReclamacionesState extends State<Reclamaciones> {
   final TextEditingController _estadoController = TextEditingController();
   String _motivoSeleccionado = 'Producto defectuoso';
-  List<String> _ordenes = [];
+  String? _productoSeleccionado;
+  List<Map<String, dynamic>> _historialventas = [];
   final List<String> _motivos = [
     'Producto defectuoso',
     'Envío incorrecto',
@@ -41,7 +42,7 @@ class _ReclamacionesState extends State<Reclamaciones> {
   @override
   void initState() {
     super.initState();
-    _cargarOrdenes();
+    _cargarhistorialventas();
   }
 
   @override
@@ -127,22 +128,38 @@ class _ReclamacionesState extends State<Reclamaciones> {
                 ),
                 const SizedBox(height: 40.0),
                 DropdownButtonFormField(
-                  value: null,
-                  items: _ordenes.map((orden) {
-                    return DropdownMenuItem(
-                      value: orden,
-                      child: Text(
-                        orden,
-                        style: const TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {},
+                  value: _productoSeleccionado,
+                  items: _historialventas.isNotEmpty
+                      ? _historialventas.map((orden) {
+                          return DropdownMenuItem(
+                            value: orden['producto_id'],
+                            child: Text(
+                              orden['producto_id'],
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList()
+                      : [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text(
+                              'No hay productos disponibles',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                  onChanged: (value) {
+                    setState(() {
+                      _productoSeleccionado = value as String?;
+                    });
+                  },
                   decoration: InputDecoration(
-                    labelText: 'ID de Orden',
-                    hintText: 'Seleccione la orden',
+                    labelText: 'Id producto',
+                    hintText: 'Seleccione el producto',
                     labelStyle: const TextStyle(
                       color: Colors.black,
                     ),
@@ -162,28 +179,6 @@ class _ReclamacionesState extends State<Reclamaciones> {
                   ),
                 ),
                 const SizedBox(height: 40.0),
-                TextField(
-                  controller: _estadoController,
-                  style: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: 'Estado',
-                    labelStyle: const TextStyle(
-                      color: Colors.black,
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 40.0),
                 Center(
                   child: SizedBox(
@@ -212,22 +207,33 @@ class _ReclamacionesState extends State<Reclamaciones> {
     );
   }
 
-  void _cargarOrdenes() async {
+  void _cargarhistorialventas() async {
     QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('ordenes').get();
-    List<String> ordenes = [];
+        await FirebaseFirestore.instance.collection('historialventas').get();
+    List<Map<String, dynamic>> historialventas = [];
     for (var doc in querySnapshot.docs) {
-      ordenes.add(doc['idOrden']);
+      var data = doc.data();
+      // Verificar si el documento tiene datos y si los datos son del tipo esperado
+      if (data != null && data is Map<String, dynamic>) {
+        var producto_id = data["producto_id"];
+        if (producto_id != null) {
+          historialventas.add({
+            'producto_id': producto_id,
+          });
+        }
+      }
     }
     setState(() {
-      _ordenes = ordenes;
+      _historialventas = historialventas;
     });
   }
 
   void _guardarReclamacion() async {
-    String idOrden = _ordenes.isNotEmpty ? _ordenes.first : '';
+    Map<String, dynamic>? firstItem =
+        _historialventas.isNotEmpty ? _historialventas.first : null;
+    String producto_id = firstItem != null ? firstItem['producto_id'] : '';
     String estado = _estadoController.text;
-    if (idOrden.isEmpty || _motivoSeleccionado.isEmpty || estado.isEmpty) {
+    if (producto_id.isEmpty || _motivoSeleccionado.isEmpty || estado.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -250,7 +256,7 @@ class _ReclamacionesState extends State<Reclamaciones> {
     }
 
     await FirebaseFirestore.instance.collection('reclamaciones').add({
-      'idOrden': idOrden,
+      'producto_id': producto_id,
       'motivo': _motivoSeleccionado,
       'estado': estado,
       'fecha': FieldValue.serverTimestamp(),

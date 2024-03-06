@@ -6,8 +6,12 @@
         "calcular",
         "cantidad",
         "carrito",
+        "Compras",
+        "imagen",
         "monto",
+        "nombre",
         "precio",
+        "producto",
         "productos"
     ]
 }

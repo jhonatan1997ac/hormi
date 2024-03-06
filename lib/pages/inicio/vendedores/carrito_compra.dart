@@ -1,9 +1,14 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
+import 'dart:io';
 
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+// ignore: depend_on_referenced_packages
+import 'package:uuid/uuid.dart'; // Importamos la librería uuid para generar IDs únicos
 
 class CarritoDeCompras extends StatelessWidget {
   final List<Producto> carrito;
@@ -37,12 +42,24 @@ class CarritoDeCompras extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
-                  subtitle: Text(
-                    'Cantidad: ${producto.cantidad}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                  subtitle: Row(
+                    children: [
+                      Text(
+                        'Cantidad: ${producto.cantidad}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Mostramos la imagen del producto en el carrito
+                      Image.network(
+                        producto.imagen ?? '',
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
                   ),
                 );
               },
@@ -53,9 +70,8 @@ class CarritoDeCompras extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                // Envuelve el contenido desplazable dentro de un Expanded
                 child: SingleChildScrollView(
-                  reverse: true, // Establece reverse como true
+                  reverse: true,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -106,7 +122,7 @@ class CarritoDeCompras extends StatelessWidget {
               ),
               const SizedBox(
                 width: 16,
-              ), // Añade un espacio entre el contenido y el botón
+              ),
               SizedBox(
                 width: 160,
                 child: ElevatedButton(
@@ -126,13 +142,13 @@ class CarritoDeCompras extends StatelessWidget {
                     backgroundColor: const Color.fromARGB(255, 223, 195, 185),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
-                    ), // Color café
+                    ),
                   ),
                   child: const Text(
                     'Pagar',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.black, // Color negro para el texto
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -160,6 +176,8 @@ class CarritoDeCompras extends StatelessWidget {
         'nombre': producto.nombre,
         'precio': producto.precio,
         'cantidad': producto.cantidad,
+        'producto_id': const Uuid().v4(),
+        'imagen': producto.imagen,
       };
     }).toList();
 
@@ -174,13 +192,28 @@ class CarritoDeCompras extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 mostrarDialogoOpcionesEfectivo(
-                    context, productos, subtotal, iva, total);
+                  context,
+                  productos,
+                  subtotal,
+                  iva,
+                  total,
+                  metodoPago: 'Efectivo', // Agregar el método de pago
+                  nombrePersona: '', // Agregar el nombre de la persona
+                  imagen: '', // Agregar la URL de la imagen
+                );
               },
             ),
             ListTile(
-              title: const Text('Tarjeta de Crédito'),
+              title: const Text('Registro de pago'),
               onTap: () {
                 Navigator.of(context).pop();
+                mostrarDialogoOpcionesRegistropago(
+                  context,
+                  productos,
+                  subtotal,
+                  iva,
+                  total,
+                );
               },
             ),
           ],
@@ -194,14 +227,17 @@ class CarritoDeCompras extends StatelessWidget {
       List<Map<String, dynamic>> productos,
       double subtotal,
       double iva,
-      double total) {
+      double total,
+      {required String metodoPago,
+      required String nombrePersona,
+      required String imagen}) {
     List<int> denominaciones = [1, 2, 5, 10, 20, 50, 100];
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Opciones de Efectivo'),
+          title: const Text('Opciones de Pago en Efectivo'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -221,13 +257,14 @@ class CarritoDeCompras extends StatelessWidget {
                         Navigator.of(context).pop();
                         carrito.clear();
                         enviarVentaAHistorial(
-                          imagen: '',
-                          iva: iva,
-                          metodoPago: 'Efectivo',
-                          nombrePersona: '',
                           productos: productos,
                           subtotal: subtotal,
                           total: total,
+                          iva: iva,
+                          metodoPago: metodoPago,
+                          nombrePersona: '',
+                          imagen: '',
+                          fecha: Timestamp.now(),
                         );
                       });
                     } else {
@@ -272,27 +309,28 @@ class CarritoDeCompras extends StatelessWidget {
   }
 
   void enviarVentaAHistorial({
-    required String imagen,
-    required double iva,
-    required String metodoPago,
-    required String nombrePersona,
     required List<Map<String, dynamic>> productos,
     required double subtotal,
+    required double iva,
     required double total,
+    required String metodoPago,
+    required String nombrePersona,
+    required String imagen,
+    required Timestamp fecha,
   }) async {
     try {
       CollectionReference historialVentas =
           FirebaseFirestore.instance.collection('historialventas');
 
       DocumentReference docRef = await historialVentas.add({
-        'fecha': Timestamp.now(),
-        'imagen': imagen,
-        'iva': iva,
-        'metodoPago': metodoPago,
-        'nombrePersona': nombrePersona,
+        'fecha': fecha,
         'productos': productos,
         'subtotal': subtotal,
+        'iva': iva,
         'total': total,
+        'metodoPago': metodoPago,
+        'nombrePersona': nombrePersona,
+        'imagen': imagen,
       });
 
       if (kDebugMode) {
@@ -305,36 +343,140 @@ class CarritoDeCompras extends StatelessWidget {
     }
   }
 
-  Future<void> mostrarDialogoRegistroPago(BuildContext context) async {
-    String montoPago = "";
+  void mostrarDialogoOpcionesRegistropago(
+    BuildContext context,
+    List<Map<String, dynamic>> productos,
+    double subtotal,
+    double iva,
+    double total,
+  ) {
+    TextEditingController nombreController = TextEditingController();
+    File? imageFile;
 
-    await showDialog(
+    showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Registrar Pago'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  montoPago = value;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Monto del pago',
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Registro de Pago'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nombreController,
+                      decoration: const InputDecoration(labelText: 'Nombre'),
+                    ),
+                    const SizedBox(height: 10),
+                    imageFile != null
+                        ? Image.file(
+                            imageFile!,
+                            height: 100,
+                          )
+                        : const SizedBox(),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final ImagePicker _picker = ImagePicker();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Seleccionar Fuente'),
+                              content: SingleChildScrollView(
+                                child: ListBody(
+                                  children: <Widget>[
+                                    GestureDetector(
+                                      child: const Text('Cámara'),
+                                      onTap: () async {
+                                        Navigator.of(context).pop();
+                                        final XFile? image =
+                                            await _picker.pickImage(
+                                                source: ImageSource.camera);
+                                        if (image != null) {
+                                          setState(() {
+                                            imageFile = File(image.path);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                    ),
+                                    GestureDetector(
+                                      child: const Text('Galería'),
+                                      onTap: () async {
+                                        Navigator.of(context).pop();
+                                        final XFile? image =
+                                            await _picker.pickImage(
+                                                source: ImageSource.gallery);
+                                        if (image != null) {
+                                          setState(() {
+                                            imageFile = File(image.path);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tomar Foto',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Icon(Icons.camera_alt),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (total > 0) {
+                          Navigator.of(context).pop();
+                          // Aquí puedes manejar la lógica para guardar la imagen
+                          var metodoPago = ''; // Definir el método de pago aquí
+                          var nombrePersona =
+                              ''; // Definir el nombre de la persona aquí
+                          var imagen = ''; // Definir la URL de la imagen aquí
+                          enviarVentaAHistorial(
+                            productos: productos,
+                            subtotal: subtotal,
+                            iva: iva,
+                            total: total,
+                            metodoPago: metodoPago,
+                            nombrePersona: nombrePersona,
+                            imagen: imagen,
+                            fecha: Timestamp.now(),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'El monto total debe ser mayor que cero.',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text('Aceptar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
