@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, sort_child_properties_last
+
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +12,7 @@ void main() {
     title: 'Material Availability',
     initialRoute: '/',
     routes: {
-      '/procesoproductos': (context) => DisponibilidadMaterialScreen(),
+      '/procesoproductos': (context) => const DisponibilidadMaterialScreen(),
     },
   ));
 }
