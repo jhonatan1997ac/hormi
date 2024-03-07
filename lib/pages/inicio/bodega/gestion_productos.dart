@@ -406,7 +406,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
                   Navigator.pop(context, productoActualizado);
                 }
               },
-              child: const Text('Guardar Cambios'),
+              child: const Text('Guardar Cambioss'),
             ),
           ],
         ),
