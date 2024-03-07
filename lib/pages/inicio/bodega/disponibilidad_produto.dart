@@ -21,19 +21,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const DisponibilidadProducto(),
+      home: const DisponibilidadProductobodega(),
     );
   }
 }
 
-class DisponibilidadProducto extends StatefulWidget {
-  const DisponibilidadProducto({Key? key}) : super(key: key);
+class DisponibilidadProductobodega extends StatefulWidget {
+  const DisponibilidadProductobodega({Key? key}) : super(key: key);
 
   @override
-  _DisponibilidadProductoState createState() => _DisponibilidadProductoState();
+  _DisponibilidadProductobodegaState createState() =>
+      _DisponibilidadProductobodegaState();
 }
 
-class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
+class _DisponibilidadProductobodegaState
+    extends State<DisponibilidadProductobodega> {
   late CollectionReference productosCollection;
   File? _imagen;
 
@@ -41,7 +43,7 @@ class _DisponibilidadProductoState extends State<DisponibilidadProducto> {
   void initState() {
     super.initState();
     productosCollection =
-        FirebaseFirestore.instance.collection('disponibilidadproducto');
+        FirebaseFirestore.instance.collection('DisponibilidadProductobodega');
   }
 
   Future<void> editarProducto(Producto producto) async {

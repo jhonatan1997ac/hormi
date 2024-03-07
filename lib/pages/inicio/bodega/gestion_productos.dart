@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api, unused_element
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api, unused_element, unnecessary_string_interpolations, prefer_const_constructors
 
 import 'dart:io';
 
@@ -203,12 +203,85 @@ class _GestionProductosState extends State<GestionProductos> {
                           padding: const EdgeInsets.all(16.0),
                           child: ListTile(
                             title: Text(
-                              producto.calidad,
-                              style: const TextStyle(color: Colors.black),
+                              producto.nombre,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight
+                                    .bold, // Agregamos esta línea para hacer que el texto aparezca en negrita
+                              ),
                             ),
-                            subtitle: Text(
-                              'Cantidad: ${producto.cantidad}',
-                              style: const TextStyle(color: Colors.black),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Calidad: ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                        width: 5), // Espacio entre los textos
+                                    Expanded(
+                                      // Utilizamos Expanded para que el texto se expanda y ocupe todo el espacio disponible
+                                      child: Text(
+                                        producto.calidad,
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Cantidad: ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${producto.cantidad}',
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Disponible: ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${producto.disponible ? 'Sí' : 'No'}',
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Precio: ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${producto.precio.toStringAsFixed(2)}',
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                             leading: producto.imagen != null
                                 ? Image.network(
@@ -333,82 +406,137 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> opcionesNombres = [
+      'Opción 1',
+      'Opción 2',
+      'Opción 3',
+      'Opción 4',
+      'Opción 5'
+    ];
+    String selectedNombre = opcionesNombres.contains(widget.producto.nombre)
+        ? widget.producto.nombre
+        : opcionesNombres.first;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Producto'),
+        title: const Text(
+          'Editar Producto',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 24.0,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/gestprod');
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.black,
+            size: 30.0,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 5,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: nombreController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre del Producto',
-                fillColor: Colors.white,
-                filled: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 55, 111, 139),
+              Color.fromARGB(255, 165, 160, 160),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white, // Color de fondo del contenedor
+                  borderRadius: BorderRadius.circular(
+                      8.0), // Bordes redondeados del contenedor
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 12.0), // Espaciado interno del contenedor
+                child: DropdownButton<String>(
+                  value: selectedNombre,
+                  items: opcionesNombres.map((String opcion) {
+                    return DropdownMenuItem<String>(
+                      value: opcion,
+                      child: Text(
+                        opcion,
+                        style: TextStyle(
+                          color: Colors.black, // Color del texto
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedNombre = newValue!;
+                    });
+                  },
+                  dropdownColor:
+                      Colors.white, // Color de fondo del menú desplegable
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: precioController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Precio del Producto',
-                fillColor: Colors.white,
-                filled: true,
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: precioController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Precio del Producto',
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: cantidadController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Cantidad',
-                fillColor: Colors.white,
-                filled: true,
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: cantidadController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Cantidad',
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: disponibleController,
-              keyboardType: TextInputType.text,
-              decoration: const InputDecoration(
-                labelText: 'Disponible (true/false)',
-                fillColor: Colors.white,
-                filled: true,
-              ),
-            ),
-            const SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () {
-                if (nombreController.text.isNotEmpty &&
-                    precioController.text.isNotEmpty &&
-                    cantidadController.text.isNotEmpty &&
-                    disponibleController.text.isNotEmpty) {
-                  final nombreCapitalizado =
-                      _capitalizeFirstLetter(nombreController.text);
-                  final calidad = _capitalizeFirstLetter(nombreController.text);
+              const SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: () {
+                  if (nombreController.text.isNotEmpty &&
+                      precioController.text.isNotEmpty &&
+                      cantidadController.text.isNotEmpty &&
+                      disponibleController.text.isNotEmpty) {
+                    final nombreCapitalizado =
+                        _capitalizeFirstLetter(nombreController.text);
+                    final calidad =
+                        _capitalizeFirstLetter(nombreController.text);
 
-                  final productoActualizado = Producto(
-                    id: widget.producto.id,
-                    nombre: nombreCapitalizado,
-                    calidad: calidad,
-                    precio: double.tryParse(precioController.text) ?? 0.0,
-                    cantidad: int.tryParse(cantidadController.text) ?? 0,
-                    disponible:
-                        disponibleController.text.toLowerCase() == 'true',
-                    imagen: widget.producto.imagen,
-                  );
+                    final productoActualizado = Producto(
+                      id: widget.producto.id,
+                      nombre: nombreCapitalizado,
+                      calidad: calidad,
+                      precio: double.tryParse(precioController.text) ?? 0.0,
+                      cantidad: int.tryParse(cantidadController.text) ?? 0,
+                      disponible:
+                          disponibleController.text.toLowerCase() == 'true',
+                      imagen: widget.producto.imagen,
+                    );
 
-                  Navigator.pop(context, productoActualizado);
-                }
-              },
-              child: const Text('Guardar Cambioss'),
-            ),
-          ],
+                    Navigator.pop(context, productoActualizado);
+                  }
+                },
+                child: const Text('Guardar Cambios'),
+              ),
+            ],
+          ),
         ),
       ),
     );

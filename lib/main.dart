@@ -3,6 +3,8 @@
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
+import 'package:apphormi/pages/inicio/administrador/Eliminacion/eliminacion_productos.dart';
+import 'package:apphormi/pages/inicio/administrador/Eliminacion/eliminar_material.dart';
 import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/elavoracion_producto.dart';
@@ -14,13 +16,13 @@ import 'package:apphormi/pages/inicio/administrador/ruta_envio.dart';
 import 'package:apphormi/pages/inicio/administrador/transporte.dart';
 import 'package:apphormi/pages/inicio/administrador/vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/vista_datos.dart';
-import 'package:apphormi/pages/inicio/bodega/Disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/Gps.dart';
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_material_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/categoria_producto.dart';
 import 'package:apphormi/pages/inicio/bodega/detalle_orden.dart';
 import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/disponibilidad_produto.dart';
 import 'package:apphormi/pages/inicio/bodega/elavoracion_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/bodega/historial_inventarios.dart';
@@ -93,8 +95,9 @@ class _MyAppState extends State<MyApp> {
             ),
         '/pedidovendedor': (context) => const Detallepedidoadmin(),
         '/bodeguero': (context) => const BodegueroAdmin(),
-        '/agregarproducto': (context) => const AgregarProducto(),
-        '/disponibilidadproducto': (context) => const DisponibilidadProducto(),
+        '/agregarproducto': (context) => const AgregarProductoBodega(),
+        '/disponibilidadproducto': (context) =>
+            const DisponibilidadProductobodega(),
         '/disponibilidadmaterial': (context) => const DisponibilidadMaterial(),
         '/agregarbodeguero': (context) => const AgregarBodeguero(),
         '/vendedoradministrador': (context) => const VendedorAdministrador(),
@@ -125,10 +128,12 @@ class _MyAppState extends State<MyApp> {
             ),
         '/iniciarpedido': (context) => IniciarPedido(),
         '/vistapedidos': (context) => VistaPedidos(),
-        '/eliminardatos': (context) => EliminarDatosScreen(),
+        '/eliminardatos': (context) => const EliminarDatosScreen(),
         '/vistadatos': (context) => VistaDatos(),
         '/procesoproductosadmin': (context) => const ProcesoProductoBode(),
         '/elavoracionproductobode': (context) => ElavoracionProductoBode(),
+        '/eliminarmaterial': (context) => EliminarMaterial(),
+        '/eliminarproducto': (context) => EliminarProducto(),
       },
     );
   }

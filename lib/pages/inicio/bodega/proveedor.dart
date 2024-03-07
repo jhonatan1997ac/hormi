@@ -3,12 +3,12 @@
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class Proveedor extends StatefulWidget {
   const Proveedor({Key? key}) : super(key: key);
