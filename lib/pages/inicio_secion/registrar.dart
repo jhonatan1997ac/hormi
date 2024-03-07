@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
 
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';

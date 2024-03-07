@@ -1,9 +1,10 @@
-// ignore_for_file: unused_import, unused_local_variable
+// ignore_for_file: unused_import, unused_local_variable, library_private_types_in_public_api, use_build_context_synchronously, unnecessary_string_interpolations
 
 import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Producto {
@@ -437,7 +438,7 @@ class _VentasState extends State<Ventas> {
                 size: 40,
                 color: Colors.white,
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Text(
                 '$amount',
                 style: const TextStyle(fontSize: 24, color: Colors.white),
