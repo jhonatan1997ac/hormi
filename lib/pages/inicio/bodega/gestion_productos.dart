@@ -53,19 +53,17 @@ class _GestionProductosState extends State<GestionProductos> {
         disponible: producto.disponible,
         imagen: producto.imagen,
       );
-      bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
-      if (confirmacion) {
-        await productosCollection.doc(producto.id).update({
-          'nombre': productoEditado.nombre,
-          'precio': productoEditado.precio,
-          'cantidad': productoEditado.cantidad,
-          'disponible': productoEditado.disponible,
-          'imagen': productoEditado.imagen,
-        });
 
-        if (kDebugMode) {
-          print('Producto actualizado: $productoEditado');
-        }
+      await productosCollection.doc(producto.id).update({
+        'nombre': productoEditado.nombre,
+        'precio': productoEditado.precio,
+        'cantidad': productoEditado.cantidad,
+        'disponible': productoEditado.disponible,
+        'imagen': productoEditado.imagen,
+      });
+
+      if (kDebugMode) {
+        print('Producto actualizado: $productoEditado');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -76,13 +74,9 @@ class _GestionProductosState extends State<GestionProductos> {
 
   Future<void> eliminarProducto(Producto producto) async {
     try {
-      Object confirmacion =
-          await _mostrarConfirmacionEliminar(context, producto);
-      if (confirmacion) {
-        await productosCollection.doc(producto.id).delete();
-        if (kDebugMode) {
-          print('Producto eliminado: ${producto.nombre}');
-        }
+      await productosCollection.doc(producto.id).delete();
+      if (kDebugMode) {
+        print('Producto eliminado: ${producto.nombre}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -127,40 +121,6 @@ class _GestionProductosState extends State<GestionProductos> {
       }
     }
     return null;
-  }
-
-  Future<bool> _mostrarConfirmacion(
-      BuildContext context, Producto producto) async {
-    return true;
-  }
-
-  Future<Object> _mostrarConfirmacionEliminar(
-      BuildContext context, Producto producto) async {
-    return showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirmar eliminación'),
-              content: Text(
-                  '¿Estás seguro de que deseas eliminar ${producto.nombre}?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('Eliminar'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
   }
 
   @override
@@ -263,40 +223,29 @@ class _GestionProductosState extends State<GestionProductos> {
                                 IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: () async {
-                                    bool confirmacion =
-                                        await _mostrarConfirmacion(
-                                            context, producto);
-                                    if (confirmacion) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditarProductoScreen(
-                                                  producto: producto),
-                                        ),
-                                      ).then((productoActualizado) async {
-                                        if (productoActualizado != null) {
-                                          await editarProducto(
-                                              productoActualizado);
-                                          if (kDebugMode) {
-                                            print(
-                                                'Producto actualizado: $productoActualizado');
-                                          }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditarProductoScreen(
+                                                producto: producto),
+                                      ),
+                                    ).then((productoActualizado) async {
+                                      if (productoActualizado != null) {
+                                        await editarProducto(
+                                            productoActualizado);
+                                        if (kDebugMode) {
+                                          print(
+                                              'Producto actualizado: $productoActualizado');
                                         }
-                                      });
-                                    }
+                                      }
+                                    });
                                   },
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () async {
-                                    Object confirmacion =
-                                        (await _mostrarConfirmacionEliminar(
-                                                context, producto)) ??
-                                            false;
-                                    if (confirmacion) {
-                                      eliminarProducto(producto);
-                                    }
+                                    await eliminarProducto(producto);
                                   },
                                 ),
                               ],
@@ -434,33 +383,27 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
             ),
             const SizedBox(height: 32.0),
             ElevatedButton(
-              onPressed: () async {
-                bool confirmacion =
-                    await _mostrarConfirmacion(context, widget.producto);
+              onPressed: () {
+                if (nombreController.text.isNotEmpty &&
+                    precioController.text.isNotEmpty &&
+                    cantidadController.text.isNotEmpty &&
+                    disponibleController.text.isNotEmpty) {
+                  final nombreCapitalizado =
+                      _capitalizeFirstLetter(nombreController.text);
+                  final calidad = _capitalizeFirstLetter(nombreController.text);
 
-                if (confirmacion) {
-                  if (nombreController.text.isNotEmpty &&
-                      precioController.text.isNotEmpty &&
-                      cantidadController.text.isNotEmpty &&
-                      disponibleController.text.isNotEmpty) {
-                    final nombreCapitalizado =
-                        _capitalizeFirstLetter(nombreController.text);
-                    final calidad =
-                        _capitalizeFirstLetter(nombreController.text);
+                  final productoActualizado = Producto(
+                    id: widget.producto.id,
+                    nombre: nombreCapitalizado,
+                    calidad: calidad,
+                    precio: double.tryParse(precioController.text) ?? 0.0,
+                    cantidad: int.tryParse(cantidadController.text) ?? 0,
+                    disponible:
+                        disponibleController.text.toLowerCase() == 'true',
+                    imagen: widget.producto.imagen,
+                  );
 
-                    final productoActualizado = Producto(
-                      id: widget.producto.id,
-                      nombre: nombreCapitalizado,
-                      calidad: calidad,
-                      precio: double.tryParse(precioController.text) ?? 0.0,
-                      cantidad: int.tryParse(cantidadController.text) ?? 0,
-                      disponible:
-                          disponibleController.text.toLowerCase() == 'true',
-                      imagen: widget.producto.imagen,
-                    );
-
-                    Navigator.pop(context, productoActualizado);
-                  }
+                  Navigator.pop(context, productoActualizado);
                 }
               },
               child: const Text('Guardar Cambios'),
@@ -474,9 +417,4 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   String _capitalizeFirstLetter(String text) {
     return text[0].toUpperCase() + text.substring(1);
   }
-}
-
-Future<bool> _mostrarConfirmacion(
-    BuildContext context, Producto producto) async {
-  return true;
 }
