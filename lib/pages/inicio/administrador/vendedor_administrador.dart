@@ -1,9 +1,9 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
 
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -107,24 +107,54 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                             BorderRadius.circular(10.0),
                                       ),
                                       child: ListTile(
-                                        title: Text(
-                                          'Usuario ID: ${users[index].id}',
-                                          style: const TextStyle(
-                                              color: Colors.black),
+                                        title: RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: 'Usuario : ',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: '${userData['email']}',
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Email: ${userData['email']}',
-                                              style: const TextStyle(
-                                                  color: Colors.black),
+                                              'Email: ',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                             Text(
-                                              'Rol: ${userData['rool']}',
-                                              style: const TextStyle(
-                                                  color: Colors.black),
+                                              '${userData['email']}',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Rol: ',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${userData['rool']}',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -173,7 +203,8 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                 },
                                 icon: const Icon(Icons.add),
                                 label: const Text('Agregar Vendedor'),
-                                backgroundColor: Colors.black,
+                                backgroundColor:
+                                    Color.fromARGB(255, 221, 204, 204),
                               ),
                             ),
                           ],

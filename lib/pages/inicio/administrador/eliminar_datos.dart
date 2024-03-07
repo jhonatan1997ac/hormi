@@ -78,7 +78,7 @@ class _EliminarDatosScreenState extends State<EliminarDatosScreen> {
                 color: Colors.blue,
                 icon: Icons.delete_sharp,
                 onTap: () {
-                  Navigator.pushNamed(context, '');
+                  Navigator.pushNamed(context, '/eliminarhistorial');
                 },
               ),
               buildMenuCard(

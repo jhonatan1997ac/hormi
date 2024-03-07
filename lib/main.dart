@@ -4,6 +4,7 @@ import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_bodeguero
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_vendedor_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/Eliminacion/eliminacion_productos.dart';
+import 'package:apphormi/pages/inicio/administrador/Eliminacion/eliminar_historial.dart';
 import 'package:apphormi/pages/inicio/administrador/Eliminacion/eliminar_material.dart';
 import 'package:apphormi/pages/inicio/administrador/bodeguero_administrador.dart';
 import 'package:apphormi/pages/inicio/administrador/disponibilidad_producto_administrador.dart';
@@ -134,6 +135,7 @@ class _MyAppState extends State<MyApp> {
         '/elavoracionproductobode': (context) => ElavoracionProductoBode(),
         '/eliminarmaterial': (context) => EliminarMaterial(),
         '/eliminarproducto': (context) => EliminarProducto(),
+        '/eliminarhistorial': (context) => EliminarHistorial(),
       },
     );
   }

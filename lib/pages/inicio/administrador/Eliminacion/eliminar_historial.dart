@@ -1,13 +1,15 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
+// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, prefer_const_constructors, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,16 +17,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: EliminarMaterial(),
+      home: EliminarHistorial(),
     );
   }
 }
 
-class EliminarMaterial extends StatelessWidget {
+class EliminarHistorial extends StatelessWidget {
   final CollectionReference disponibilidadMaterialCollection =
-      FirebaseFirestore.instance.collection('disponibilidadmaterial');
+      FirebaseFirestore.instance.collection('historialventas');
   final CollectionReference eliminacionDatosCollection =
-      FirebaseFirestore.instance.collection('eliminaciondatos');
+      FirebaseFirestore.instance.collection('eliminarhistorial');
 
   @override
   Widget build(BuildContext context) {
@@ -44,24 +46,27 @@ class EliminarMaterial extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columns: const [
-                DataColumn(label: Text('Cantidad')),
-                DataColumn(label: Text('Descripción')),
-                DataColumn(label: Text('Imagen')),
                 DataColumn(label: Text('Nombre')),
+                DataColumn(label: Text('Fecha')),
+                DataColumn(label: Text('IVA')),
+                DataColumn(label: Text('Método de Pago')),
                 DataColumn(label: Text('Eliminar')),
               ],
               rows: snapshot.data!.docs.map((DocumentSnapshot document) {
+                var fecha = document['fecha'] as Timestamp;
+                var iva = document['iva'] ?? '';
+                var metodoPago = document['metodoPago'] ?? '';
+
+                var productos = document['productos'] ?? [];
+                var primerProducto = productos.isNotEmpty ? productos[0] : null;
+                var nombreProducto =
+                    primerProducto != null ? primerProducto['nombre'] : '';
+
                 return DataRow(cells: [
-                  DataCell(Text(document['cantidad'].toString())),
-                  DataCell(Text(document['descripcion'].toString())),
-                  DataCell(
-                    Image.network(
-                      document['imagenURL'],
-                      width: 100,
-                      height: 100,
-                    ),
-                  ),
-                  DataCell(Text(document['nombre'].toString())),
+                  DataCell(Text(nombreProducto.toString())),
+                  DataCell(Text(fecha.toDate().toString())),
+                  DataCell(Text(iva.toString())),
+                  DataCell(Text(metodoPago)),
                   DataCell(
                     IconButton(
                       icon: const Icon(Icons.delete),
@@ -69,33 +74,43 @@ class EliminarMaterial extends StatelessWidget {
                         String? motivo = await showDialog<String>(
                           context: context,
                           builder: (BuildContext context) {
-                            String motivoText =
-                                ''; // Variable para almacenar el motivo ingresado
+                            String motivoText = '';
 
                             return AlertDialog(
                               title: const Text(
-                                  '¿Por qué deseas borrar este dato?'),
+                                  '¿Por qué deseas borrar este producto?'),
                               content: TextField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: 'Ingrese el motivo',
                                 ),
                                 onChanged: (value) {
-                                  motivoText =
-                                      value; // Almacenar el valor del texto en la variable
+                                  motivoText = value;
                                 },
                               ),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Cerrar el diálogo sin enviar motivo
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text('Cancelar'),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop(
-                                        motivoText); // Enviar el motivo ingresado al presionar "Aceptar"
+                                  onPressed: () async {
+                                    if (motivoText.isNotEmpty) {
+                                      await eliminacionDatosCollection.add({
+                                        'fechaEliminacion': DateTime.now(),
+                                        'ivaEliminacion': iva,
+                                        'metodoPagoEliminacion': metodoPago,
+                                        'nombreProductoEliminacion':
+                                            nombreProducto,
+                                        'motivoEliminacion': motivoText,
+                                      });
+
+                                      // Aquí puedes agregar la lógica para eliminar el producto
+                                      // Puedes usar document.reference.delete() para eliminar el documento completo
+
+                                      Navigator.of(context).pop();
+                                    }
                                   },
                                   child: Text('Aceptar'),
                                 ),
@@ -103,18 +118,6 @@ class EliminarMaterial extends StatelessWidget {
                             );
                           },
                         );
-
-                        if (motivo != null && motivo.isNotEmpty) {
-                          await document.reference.delete();
-                          await eliminacionDatosCollection.add({
-                            'cantidad': document['cantidad'],
-                            'descripcion': document['descripcion'],
-                            'imagenURL': document['imagenURL'],
-                            'nombre': document['nombre'],
-                            'motivoeliminacion': motivo,
-                            'fechaeliminacion': DateTime.now(),
-                          });
-                        }
                       },
                     ),
                   ),
