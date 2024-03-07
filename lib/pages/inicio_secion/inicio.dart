@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'registrar.dart';
-import '../inicio/vendedores/vendedor.dart';
-import '../inicio/bodega/bodeguero.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 import '../inicio/administrador/administrador.dart';
+import '../inicio/bodega/bodeguero.dart';
+import '../inicio/vendedores/vendedor.dart';
+import 'registrar.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class _InicioState extends State<Inicio> {
             children: <Widget>[
               SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               const Text(
-                "INICIAR SESIÓN",
+                "Iniciar Seción",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

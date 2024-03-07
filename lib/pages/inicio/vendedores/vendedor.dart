@@ -80,14 +80,14 @@ class VendedorHome extends StatelessWidget {
                   Navigator.pushNamed(context, '/menuestadisticas');
                 },
               ),
-              HomeCard(
-                title: 'Reclamaciones',
-                icon: Icons.error_outline,
-                color: Colors.red[600]!,
-                onTap: () {
-                  Navigator.pushNamed(context, '/reclamaciones');
-                },
-              ),
+              // HomeCard(
+              //   title: 'Reclamaciones',
+              //   icon: Icons.error_outline,
+              //   color: Colors.red[600]!,
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/reclamaciones');
+              //   },
+              // ),
               // HomeCard(
               //   title: 'Clientes',
               //   icon: Icons.group,

@@ -358,7 +358,7 @@ class _VentasState extends State<Ventas> {
                               style: const TextStyle(fontSize: 16),
                             ),
                             Text(
-                              '\$${producto.precio.toStringAsFixed(2)}',
+                              'Precio:  \$${producto.precio.toStringAsFixed(2)}  c/u',
                               style: const TextStyle(fontSize: 16),
                             ),
                             ElevatedButton(

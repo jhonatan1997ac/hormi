@@ -133,7 +133,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                   child: const Row(
                     children: [
                       Text(
-                        'Escoja el material:',
+                        'Seleccione el material:',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -187,7 +187,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                     child: const Row(
                       children: [
                         Text(
-                          'Escoja el modo:',
+                          'Seleccione el modo:',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -230,7 +230,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                     child: const Row(
                       children: [
                         Text(
-                          'Escoja la cantidad:',
+                          'Seleccione la cantidad:',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
