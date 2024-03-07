@@ -1,13 +1,10 @@
-// ignore_for_file: unused_local_variable, unnecessary_null_comparison, use_key_in_widget_constructors, library_private_types_in_public_api, unnecessary_cast, prefer_const_constructors_in_immutables, deprecated_member_use
-
-import 'dart:io';
+// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, no_leading_underscores_for_local_identifiers, prefer_typing_uninitialized_variables
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(MyApp());
@@ -45,16 +42,21 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
 
   Future<void> editarMaterial(MaterialAgregado material) async {
     try {
+      // Aquí, en lugar de crear una variable _selectedMaterial, actualiza directamente el nombre del material
       MaterialAgregado materialEditado = MaterialAgregado(
-        nombre: material.nombre,
+        nombreDocumento: material.nombreDocumento,
+        nombre: material.nombre, // Utiliza el nombre actual del material
         cantidad: material.cantidad,
         descripcion: material.descripcion,
         imagenURL: material.imagenURL,
       );
+
       bool confirmacion =
-          (await _mostrarConfirmacion(context, materialEditado)) as bool;
+          (await _mostrarConfirmacion(context, materialEditado));
       if (confirmacion) {
-        await materialesCollection.doc(material.nombre).update({
+        // Actualiza solo el campo 'nombre' en Firestore
+        await materialesCollection.doc(material.nombreDocumento).update({
+          'nombre': material.nombre, // Actualiza el nombre en Firestore
           'cantidad': materialEditado.cantidad,
           'descripcion': materialEditado.descripcion,
         });
@@ -131,86 +133,97 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                       itemBuilder: (context, index) {
                         final material = MaterialAgregado.fromSnapshot(
                             snapshot.data!.docs[index]);
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          padding: const EdgeInsets.all(12.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: ListTile(
-                            title: Row(
-                              children: [
-                                if (material.imagenURL != null)
-                                  SizedBox(
-                                    width: 80,
-                                    height: 80,
-                                    child: Image.network(
-                                      material.imagenURL!,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Nombre: ${material.nombre}',
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      Text(
-                                        'Cantidad: ${material.cantidad}',
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      Text(
-                                        'Descripción: ${material.descripcion}',
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            EditarMaterialScreen(
-                                          material: material,
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: materialesCollection
+                              .doc(material.nombreDocumento)
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData)
+                              return CircularProgressIndicator();
+                            final nombre =
+                                snapshot.data!.get('nombre') as String? ?? '';
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: ListTile(
+                                title: Row(
+                                  children: [
+                                    if (material.imagenURL != null)
+                                      SizedBox(
+                                        width: 80,
+                                        height: 80,
+                                        child: Image.network(
+                                          material.imagenURL!,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                    ).then((materialActualizado) async {
-                                      if (materialActualizado != null) {
-                                        await editarMaterial(
-                                            materialActualizado);
-                                        if (kDebugMode) {
-                                          print(
-                                              'Material actualizado: $materialActualizado');
-                                        }
-                                      }
-                                    });
-                                  },
+                                    const SizedBox(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Nombre: ${material.nombre}',
+                                            style: const TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                          Text(
+                                            'Cantidad: ${material.cantidad}',
+                                            style: const TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                          Text(
+                                            'Descripción: ${material.descripcion}',
+                                            style: const TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    eliminarMaterial(material);
-                                  },
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () async {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                EditarMaterialScreen(
+                                              material: material,
+                                            ),
+                                          ),
+                                        ).then((materialActualizado) async {
+                                          if (materialActualizado != null) {
+                                            await editarMaterial(
+                                                materialActualizado);
+                                            if (kDebugMode) {
+                                              print(
+                                                  'Material actualizado: $materialActualizado');
+                                            }
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        eliminarMaterial(material);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
@@ -226,7 +239,7 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
 
   Future<void> eliminarMaterial(MaterialAgregado material) async {
     try {
-      await materialesCollection.doc(material.nombre).delete();
+      await materialesCollection.doc(material.nombreDocumento).delete();
       if (kDebugMode) {
         print('Material eliminado: ${material.nombre}');
       }
@@ -268,12 +281,14 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
 }
 
 class MaterialAgregado {
-  final String nombre;
+  final String nombreDocumento; // Nombre del documento en Firestore
+  final String nombre; // Nombre del material
   final int cantidad;
   final String descripcion;
   final String? imagenURL;
 
   MaterialAgregado({
+    required this.nombreDocumento,
     required this.nombre,
     required this.cantidad,
     required this.descripcion,
@@ -281,7 +296,8 @@ class MaterialAgregado {
   });
 
   MaterialAgregado.fromSnapshot(DocumentSnapshot snapshot)
-      : nombre = snapshot.id,
+      : nombreDocumento = snapshot.id,
+        nombre = snapshot['nombre'] ?? '',
         cantidad = snapshot['cantidad'] ?? 0,
         descripcion = snapshot['descripcion'] ?? '',
         imagenURL = snapshot['imagenURL'] ?? '';
@@ -309,7 +325,8 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
   late TextEditingController cantidadController;
   late TextEditingController descripcionController;
   late TextEditingController imagenURLController;
-  File? _image;
+  String? _selectedMaterial; // 1. Declarar _selectedMaterial
+
   @override
   void initState() {
     super.initState();
@@ -326,9 +343,9 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Editar Material',
-          style: TextStyle(
+        title: Text(
+          'Editar ${widget.material.nombre}', // Mostrar el nombre del material en la barra de título
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
             fontSize: 24.0,
@@ -366,20 +383,37 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                decoration: BoxDecoration(
+              // Mostrar el nombre del material
+              Text(
+                'Nombre del Material : ${widget.material.nombre}', // Mostrar el nombre del material en la interfaz de usuario
+                style: const TextStyle(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.0),
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: TextField(
-                  controller: nombreController,
-                  style: const TextStyle(color: Colors.black),
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre del Material',
-                    labelStyle: TextStyle(color: Colors.black),
-                    border: InputBorder.none,
-                  ),
+              ),
+              const SizedBox(height: 16.0),
+              // Dropdown para seleccionar el nombre del material
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del Material',
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
+                value:
+                    _selectedMaterial, // 2. Valor seleccionado en el DropdownButtonFormField
+                items: ['Arena', 'Piedra', 'Cemento', 'Barrilla']
+                    .map((material) => DropdownMenuItem<String>(
+                          value: material,
+                          child: Text(material),
+                        ))
+                    .toList(),
+                onChanged: (selectedMaterial) {
+                  setState(() {
+                    _selectedMaterial =
+                        selectedMaterial; // Actualizar _selectedMaterial
+                  });
+                },
               ),
               const SizedBox(height: 16.0),
               Container(
@@ -406,73 +440,30 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              SizedBox(
-                width: 250,
-                height: 250,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FutureBuilder<String?>(
-                    future: _getImageUrl(widget.material.imagenURL),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-                      final imageUrl = snapshot.data;
-                      return _image != null
-                          ? Image.file(
-                              _image!,
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            )
-                          : imageUrl != null
-                              ? Image.network(
-                                  imageUrl,
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                )
-                              : const SizedBox(
-                                  width: 200,
-                                  height: 200,
-                                  child: Placeholder(),
-                                );
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  final picker = ImagePicker();
-                  final pickedFile =
-                      await picker.getImage(source: ImageSource.camera);
 
-                  if (pickedFile != null) {
-                    setState(() {
-                      _image = File(pickedFile.path);
-                    });
-                  } else {
-                    if (kDebugMode) {
-                      print('No image selected.');
-                    }
-                  }
-                },
-                child: const Text('Agregar Foto desde la Cámara'),
-              ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () async {
                   final materialActualizado = MaterialAgregado(
-                    nombre: nombreController.text,
+                    nombreDocumento: widget.material.nombreDocumento,
+                    nombre: _selectedMaterial ??
+                        widget.material.nombre, // 3. Utilizar _selectedMaterial
                     cantidad: int.parse(cantidadController.text),
                     descripcion: descripcionController.text,
-                    imagenURL: imagenURLController.text,
+                    imagenURL: widget.material
+                        .imagenURL, // Conservar la URL de la imagen existente
                   );
 
+                  // Actualiza el material solo si la cantidad o la descripción han cambiado
+                  if (cantidadController.text !=
+                          widget.material.cantidad.toString() ||
+                      descripcionController.text !=
+                          widget.material.descripcion) {
+                    // Guarda los cambios en Firestore
+                    await editarMaterial(materialActualizado);
+                  }
+
+                  // Cierra la pantalla de edición y pasa el material actualizado
                   Navigator.pop(context, materialActualizado);
                 },
                 child: const Text('Guardar Cambios'),
@@ -499,3 +490,5 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
     }
   }
 }
+
+editarMaterial(MaterialAgregado materialActualizado) {}

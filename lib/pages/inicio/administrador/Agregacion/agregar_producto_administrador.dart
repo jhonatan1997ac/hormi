@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field
+// ignore_for_file: unused_field, use_build_context_synchronously, use_key_in_widget_constructors, prefer_const_declarations, library_private_types_in_public_api
 
 import 'dart:io';
 
