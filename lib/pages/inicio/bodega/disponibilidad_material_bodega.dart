@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, no_leading_underscores_for_local_identifiers, prefer_typing_uninitialized_variables
+// ignore_for_file: unused_local_variable, use_key_in_widget_constructors, no_leading_underscores_for_local_identifiers, prefer_typing_uninitialized_variables, library_private_types_in_public_api, prefer_const_constructors, prefer_const_constructors_in_immutables, curly_braces_in_flow_control_structures, use_build_context_synchronously, unused_element
 
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -325,7 +325,7 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
   late TextEditingController cantidadController;
   late TextEditingController descripcionController;
   late TextEditingController imagenURLController;
-  String? _selectedMaterial; // 1. Declarar _selectedMaterial
+  String? _selectedMaterial;
 
   @override
   void initState() {
@@ -337,6 +337,7 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
         TextEditingController(text: widget.material.descripcion);
     imagenURLController =
         TextEditingController(text: widget.material.imagenURL ?? '');
+    _selectedMaterial = widget.material.nombre; // Establecer el valor inicial
   }
 
   @override
@@ -344,7 +345,7 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Editar ${widget.material.nombre}', // Mostrar el nombre del material en la barra de título
+          'Editar ${widget.material.nombre}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -383,9 +384,8 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Mostrar el nombre del material
               Text(
-                'Nombre del Material : ${widget.material.nombre}', // Mostrar el nombre del material en la interfaz de usuario
+                'Nombre del Material : ${widget.material.nombre}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,
@@ -393,15 +393,13 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              // Dropdown para seleccionar el nombre del material
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Nombre del Material',
                   filled: true,
                   fillColor: Colors.white,
                 ),
-                value:
-                    _selectedMaterial, // 2. Valor seleccionado en el DropdownButtonFormField
+                value: _selectedMaterial,
                 items: ['Arena', 'Piedra', 'Cemento', 'Barrilla']
                     .map((material) => DropdownMenuItem<String>(
                           value: material,
@@ -410,8 +408,15 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                     .toList(),
                 onChanged: (selectedMaterial) {
                   setState(() {
-                    _selectedMaterial =
-                        selectedMaterial; // Actualizar _selectedMaterial
+                    _selectedMaterial = selectedMaterial;
+                    // Actualizar la descripción según la selección del material
+                    if (_selectedMaterial == 'Arena' ||
+                        _selectedMaterial == 'Piedra') {
+                      descripcionController.text = 'Volqueta';
+                    } else if (_selectedMaterial == 'Cemento' ||
+                        _selectedMaterial == 'Barrilla') {
+                      descripcionController.text = 'Unidad';
+                    }
                   });
                 },
               ),
@@ -440,18 +445,14 @@ class _EditarMaterialScreenState extends State<EditarMaterialScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
-
-              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () async {
                   final materialActualizado = MaterialAgregado(
                     nombreDocumento: widget.material.nombreDocumento,
-                    nombre: _selectedMaterial ??
-                        widget.material.nombre, // 3. Utilizar _selectedMaterial
+                    nombre: _selectedMaterial ?? widget.material.nombre,
                     cantidad: int.parse(cantidadController.text),
                     descripcion: descripcionController.text,
-                    imagenURL: widget.material
-                        .imagenURL, // Conservar la URL de la imagen existente
+                    imagenURL: widget.material.imagenURL,
                   );
 
                   // Actualiza el material solo si la cantidad o la descripción han cambiado

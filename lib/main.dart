@@ -21,9 +21,11 @@ import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_
 import 'package:apphormi/pages/inicio/bodega/categoria_producto.dart';
 import 'package:apphormi/pages/inicio/bodega/detalle_orden.dart';
 import 'package:apphormi/pages/inicio/bodega/disponibilidad_material_bodega.dart';
+import 'package:apphormi/pages/inicio/bodega/elavoracion_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/gestion_productos.dart';
 import 'package:apphormi/pages/inicio/bodega/historial_inventarios.dart';
 import 'package:apphormi/pages/inicio/bodega/ordenes.dart';
+import 'package:apphormi/pages/inicio/bodega/proceso_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/promocion.dart';
 import 'package:apphormi/pages/inicio/bodega/proveedor.dart';
 import 'package:apphormi/pages/inicio/vendedores/carrito_compra.dart';
@@ -125,6 +127,8 @@ class _MyAppState extends State<MyApp> {
         '/vistapedidos': (context) => VistaPedidos(),
         '/eliminardatos': (context) => EliminarDatosScreen(),
         '/vistadatos': (context) => VistaDatos(),
+        '/procesoproductosadmin': (context) => const ProcesoProductoBode(),
+        '/elavoracionproductobode': (context) => ElavoracionProductoBode(),
       },
     );
   }

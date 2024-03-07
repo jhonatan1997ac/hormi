@@ -39,7 +39,7 @@ class _GestionProductosState extends State<GestionProductos> {
   void initState() {
     super.initState();
     productosCollection =
-        FirebaseFirestore.instance.collection('disponibilidadproducto');
+        FirebaseFirestore.instance.collection('productoterminado');
   }
 
   Future<void> editarProducto(Producto producto) async {
@@ -48,6 +48,7 @@ class _GestionProductosState extends State<GestionProductos> {
         id: producto.id,
         nombre: producto.nombre,
         precio: producto.precio,
+        calidad: producto.calidad,
         cantidad: producto.cantidad,
         disponible: producto.disponible,
         imagen: producto.imagen,
@@ -75,8 +76,8 @@ class _GestionProductosState extends State<GestionProductos> {
 
   Future<void> eliminarProducto(Producto producto) async {
     try {
-      bool confirmacion =
-          (await _mostrarConfirmacionEliminar(context, producto)) as bool;
+      Object confirmacion =
+          await _mostrarConfirmacionEliminar(context, producto);
       if (confirmacion) {
         await productosCollection.doc(producto.id).delete();
         if (kDebugMode) {
@@ -131,6 +132,35 @@ class _GestionProductosState extends State<GestionProductos> {
   Future<bool> _mostrarConfirmacion(
       BuildContext context, Producto producto) async {
     return true;
+  }
+
+  Future<Object> _mostrarConfirmacionEliminar(
+      BuildContext context, Producto producto) async {
+    return showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar eliminación'),
+              content: Text(
+                  '¿Estás seguro de que deseas eliminar ${producto.nombre}?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Eliminar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 
   @override
@@ -213,11 +243,11 @@ class _GestionProductosState extends State<GestionProductos> {
                           padding: const EdgeInsets.all(16.0),
                           child: ListTile(
                             title: Text(
-                              producto.nombre,
+                              producto.calidad,
                               style: const TextStyle(color: Colors.black),
                             ),
                             subtitle: Text(
-                              'Precio: \$${producto.precio.toStringAsFixed(2)}',
+                              'Cantidad: ${producto.cantidad}',
                               style: const TextStyle(color: Colors.black),
                             ),
                             leading: producto.imagen != null
@@ -260,9 +290,10 @@ class _GestionProductosState extends State<GestionProductos> {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () async {
-                                    bool confirmacion =
+                                    Object confirmacion =
                                         (await _mostrarConfirmacionEliminar(
-                                            context, producto)) as bool;
+                                                context, producto)) ??
+                                            false;
                                     if (confirmacion) {
                                       eliminarProducto(producto);
                                     }
@@ -283,34 +314,6 @@ class _GestionProductosState extends State<GestionProductos> {
       ),
     );
   }
-
-  Future<void> _mostrarConfirmacionEliminar(
-      BuildContext context, Producto producto) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar eliminación'),
-          content:
-              Text('¿Estás seguro de que deseas eliminar ${producto.nombre}?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 class Producto {
@@ -318,12 +321,14 @@ class Producto {
   final String nombre;
   final double precio;
   final int cantidad;
+  final String calidad;
   final bool disponible;
   String? imagen;
 
   Producto({
     required this.id,
     required this.nombre,
+    required this.calidad,
     required this.precio,
     required this.cantidad,
     required this.disponible,
@@ -333,6 +338,7 @@ class Producto {
   Producto.fromSnapshot(DocumentSnapshot snapshot)
       : id = snapshot.id,
         nombre = snapshot['nombre'] ?? '',
+        calidad = snapshot['calidad'] ?? '',
         precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
         cantidad = (snapshot['cantidad'] as num?)?.toInt() ?? 0,
         disponible = snapshot['disponible'] ?? false,
@@ -439,10 +445,13 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
                       disponibleController.text.isNotEmpty) {
                     final nombreCapitalizado =
                         _capitalizeFirstLetter(nombreController.text);
+                    final calidad =
+                        _capitalizeFirstLetter(nombreController.text);
 
                     final productoActualizado = Producto(
                       id: widget.producto.id,
                       nombre: nombreCapitalizado,
+                      calidad: calidad,
                       precio: double.tryParse(precioController.text) ?? 0.0,
                       cantidad: int.tryParse(cantidadController.text) ?? 0,
                       disponible:

@@ -76,7 +76,7 @@ class BodegueroHome extends StatelessWidget {
                 icon: Icons.auto_mode,
                 color: const Color.fromARGB(255, 53, 158, 177),
                 onTap: () {
-                  Navigator.pushNamed(context, '/MaterialAvailabilityPage');
+                  Navigator.pushNamed(context, '/procesoproductosadmin');
                 },
               ),
               HomeCard(
