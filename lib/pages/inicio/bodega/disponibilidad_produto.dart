@@ -386,16 +386,10 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   String _selectedProducto = 'Adoquin jaboncillo peatonal sin color';
   String _selectedCalidad = 'Calidad adoquin resistencia 300';
   final List<String> _productos = [
-    'Adoquin clasico peatonal sin color',
-    'Adoquin clasico peatonal con color',
     'Adoquin clasico vehicular sin color',
     'Adoquin clasico vehicular con color',
-    'Adoquin jaboncillo peatonal sin color',
-    'Adoquin jaboncillo peatonal con color',
     'Adoquin jaboncillo vehicular sin color',
     'Adoquin jaboncillo vehicular con color',
-    'Adoquin paleta peatonal sin color',
-    'Adoquin paleta peatonal con color',
     'Adoquin paleta vehicular sin color',
     'Adoquin paleta vehicular con color',
     'Bloque de 10cm alivianado',

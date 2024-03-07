@@ -1,32 +1,29 @@
-// ignore_for_file: library_private_types_in_public_api, sort_child_properties_last, avoid_function_literals_in_foreach_calls
+// ignore_for_file: library_private_types_in_public_api, sort_child_properties_last, avoid_function_literals_in_foreach_calls, unnecessary_import
 
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(MaterialApp(
     title: 'Material Availability',
     initialRoute: '/',
     routes: {
-      '/procesoproductos': (context) => const DisponibilidadMaterialScreen(),
+      '/elavoracionproductobode': (context) => const ProcesoProductoBode(),
     },
   ));
 }
 
-class DisponibilidadMaterialScreen extends StatefulWidget {
-  const DisponibilidadMaterialScreen({Key? key}) : super(key: key);
+class ProcesoProductoBode extends StatefulWidget {
+  const ProcesoProductoBode({Key? key}) : super(key: key);
 
   @override
-  _DisponibilidadMaterialScreenState createState() =>
-      _DisponibilidadMaterialScreenState();
+  _ProcesoProductoBodeState createState() => _ProcesoProductoBodeState();
 }
 
-class _DisponibilidadMaterialScreenState
-    extends State<DisponibilidadMaterialScreen> {
+class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
   String? _selectedProduct;
   int _cantidad = 0;
 
@@ -37,7 +34,7 @@ class _DisponibilidadMaterialScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Proceso del producto',
+          'Proceso del producto Bodega',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -48,7 +45,7 @@ class _DisponibilidadMaterialScreenState
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Administrador()),
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
             );
           },
           icon: const Icon(
@@ -175,7 +172,8 @@ class _DisponibilidadMaterialScreenState
                             if (_cantidad != 0) {
                               _producirProducto(context, _selectedProduct,
                                   _cantidad.toString());
-                              Navigator.pushNamed(context, '/procesoproductos');
+                              Navigator.pushNamed(
+                                  context, '/elavoracionproductobode');
                             }
                           }
                         : null,
@@ -204,82 +202,79 @@ void _producirProducto(
   if (cantidad.isNotEmpty) {
     int cantidadInt = int.tryParse(cantidad) ?? 0;
     if (cantidadInt > 0) {
-      // Verificar si hay suficiente cantidad de Cemento
-      FirebaseFirestore.instance
-          .collection('disponibilidadmaterial')
-          .where('nombre', isEqualTo: 'Cemento')
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        if (querySnapshot.size > 0) {
-          // Verificar si existe la cantidad de 36 y en descripción sea 'quintal'
-          bool encontrada = false;
-          querySnapshot.docs.forEach((doc) {
-            if (doc['cantidad'] == 36 && doc['descripcion'] == 'quintal') {
-              encontrada = true;
-            }
-          });
+      List<String> productsToCheck = [
+        'Adoquin clasico vehicular sin color',
+        'Adoquin clasico vehicular con color',
+        'Adoquin jaboncillo vehicular sin color',
+        'Adoquin jaboncillo vehicular con color',
+        'Adoquin paleta vehicular sin color',
+        'Adoquin paleta vehicular con color',
+        'Bloque de 10cm alivianado',
+        'Bloque de 10cm estructural',
+        'Bloque de 15cm alivianado',
+        'Bloque de 15cm estructural',
+        'Bloque de 20cm alivianado',
+        'Bloque de 20cm estructural',
+        'Bloque de anclaje',
+        'Postes de alambrado 1.60m',
+        'Postes de alambrado 2m',
+        'Tapas para canaleta',
+        'Barilla'
+      ];
 
-          if (encontrada) {
-            // Obtener la fecha actual
-            DateTime now = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+      // Verificar si el producto seleccionado está en la lista de productos a verificar
+      if (productsToCheck.contains(selectedProduct)) {
+        // Verificar la disponibilidad de Cemento, Piedra y Arena
+        FirebaseFirestore.instance
+            .collection('disponibilidadmaterial')
+            .where('nombre', whereIn: ['Cemento', 'Piedra', 'Arena'])
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+              bool materialAvailable = true;
+              querySnapshot.docs.forEach((doc) {
+                int disponible = doc['cantidad'];
+                if (disponible <= 0) {
+                  materialAvailable = false;
+                }
+              });
 
-            // Crear el objeto a ser almacenado
-            Map<String, dynamic> data = {
-              'nombre': selectedProduct,
-              'descripcion': 'En proceso',
-              'cantidad': cantidadInt,
-              'fecha': formattedDate,
-            };
+              if (materialAvailable) {
+                // Realizar la resta de una unidad para cada material
+                querySnapshot.docs.forEach((doc) {
+                  FirebaseFirestore.instance
+                      .collection('disponibilidadmaterial')
+                      .doc(doc.id)
+                      .update({'cantidad': doc['cantidad'] - 1});
+                });
 
-            // Agregar el objeto a la colección 'procesoproducto'
-            FirebaseFirestore.instance.collection('procesoproducto').add(data);
-
-            if (kDebugMode) {
-              print(
-                  'Se van a producir $cantidadInt unidades de $selectedProduct');
-            }
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Error'),
-                  content: const Text(
-                      'No se puede producir porque no hay suficiente cantidad de Cemento con la descripción adecuada.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
+                // Continuar con el proceso de producción
+                _continuarProduccion(context, selectedProduct, cantidadInt);
+              } else {
+                // Mostrar mensaje de pedido de material
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Aviso'),
+                      content: const Text(
+                          'Se necesita hacer un pedido de material (Cemento, Piedra, Arena).'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
                 );
-              },
-            );
-          }
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Error'),
-                content: const Text(
-                    'No se puede producir porque no hay suficiente cantidad de Cemento.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      });
+              }
+            });
+      } else {
+        // Si el producto no necesita verificación de cantidad, continuar con el proceso de producción
+        _continuarProduccion(context, selectedProduct, cantidadInt);
+      }
     } else {
       showDialog(
         context: context,
@@ -318,4 +313,57 @@ void _producirProducto(
       },
     );
   }
+}
+
+void _continuarProduccion(
+    BuildContext context, String? selectedProduct, int cantidadInt) {
+  // Obtener la fecha actual en formato "yyyy-MM-dd"
+  String formattedDate = DateTime.now().toString().substring(0, 10);
+
+  // Crear un nuevo documento en la colección 'procesoproducto'
+  FirebaseFirestore.instance.collection('procesoproducto').add({
+    'nombre': selectedProduct,
+    'cantidad': cantidadInt,
+    'descripcion': "En proceso",
+    // Utilizar formattedDate como la fecha
+    'fecha': formattedDate,
+  }).then((_) {
+    // Mostrar un mensaje de éxito
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Éxito'),
+          content: const Text('El producto se ha producido exitosamente.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }).catchError((error) {
+    // Mostrar un mensaje de error si ocurre un error al agregar los datos
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text('Se produjo un error: $error'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  });
 }

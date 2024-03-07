@@ -1,12 +1,13 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_declarations, unused_field
+// ignore_for_file: unused_field, use_build_context_synchronously, use_key_in_widget_constructors, prefer_const_declarations, library_private_types_in_public_api
 
 import 'dart:io';
+
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 const Map<String, int> cantidadesPredeterminadas = {
   'Adoquin clasico vehicular sin color': 3034,
@@ -118,7 +119,6 @@ class ProductosAdministrador extends StatefulWidget {
 }
 
 class _ProductosAdministradorState extends State<ProductosAdministrador> {
-  final _precioController = TextEditingController();
   bool _disponible = true;
   String _selectedCalidad = 'Calidad adoquin resistencia 300';
   File? _selectedImage;
@@ -204,16 +204,6 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
                 color: Colors.white,
                 child: Column(
                   children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Precio',
-                        labelStyle: TextStyle(color: Colors.black),
-                      ),
-                      controller: _precioController,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 16.0),
                     Container(
                       color: Colors.white,
                       child: Row(
@@ -284,8 +274,7 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
               const Spacer(),
               ElevatedButton(
                 onPressed: () async {
-                  if (_selectedImage != null &&
-                      _precioController.text.isNotEmpty) {
+                  if (_selectedImage != null) {
                     final cantidadPredeterminada =
                         cantidadesPredeterminadas[widget.selectedProduct];
                     await _agregarProducto(cantidadPredeterminada ?? 0);
@@ -332,8 +321,48 @@ class _ProductosAdministradorState extends State<ProductosAdministrador> {
 
   Future<void> _agregarProducto(int cantidadPredeterminada) async {
     final nombre = widget.selectedProduct;
-    final precio = double.parse(_precioController.text);
     final calidad = _selectedCalidad;
+    double precio = 0.0;
+    switch (nombre) {
+      case 'Adoquin clasico vehicular sin color':
+        precio = 0.30;
+        break;
+      case 'Adoquin clasico vehicular con color':
+        precio = 0.50;
+        break;
+      case 'Adoquin jaboncillo vehicular sin color':
+        precio = 0.16;
+        break;
+      case 'Adoquin jaboncillo vehicular con color':
+        precio = 0.20;
+        break;
+      case 'Adoquin paleta vehicular sin color':
+        precio = 0.21;
+        break;
+      case 'Adoquin paleta vehicular con color':
+        precio = 0.27;
+        break;
+      case 'Bloque de 10cm estructural':
+        precio = 0.35;
+        break;
+      case 'Bloque de 15cm estructural':
+        precio = 0.40;
+        break;
+      case 'Postes de alambrado 1.60m':
+        precio = 6;
+        break;
+      case 'Postes de alambrado 2m':
+        precio = 7;
+        break;
+      case 'Bloque de anclaje':
+        precio = 3.50;
+        break;
+      case 'Tapas para canaleta':
+        precio = 56;
+        break;
+      default:
+        precio = 0.0;
+    }
 
     final productoService = ProductoService();
     final imageUrl = await productoService.subirImagen(_selectedImage);

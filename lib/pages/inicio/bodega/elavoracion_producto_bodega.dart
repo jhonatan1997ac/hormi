@@ -1,16 +1,17 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors
 
 import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
-import 'package:apphormi/pages/inicio/administrador/administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ProcesoProductos extends StatefulWidget {
+class ElavoracionProductoBode extends StatefulWidget {
   @override
-  _ProcesoProductosState createState() => _ProcesoProductosState();
+  _ElavoracionProductoBodeState createState() =>
+      _ElavoracionProductoBodeState();
 }
 
-class _ProcesoProductosState extends State<ProcesoProductos> {
+class _ElavoracionProductoBodeState extends State<ElavoracionProductoBode> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
@@ -29,7 +30,7 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Administrador()),
+              MaterialPageRoute(builder: (context) => const Bodeguero()),
             );
           },
           icon: const Icon(

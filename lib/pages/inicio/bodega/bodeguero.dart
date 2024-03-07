@@ -26,7 +26,7 @@ class BodegueroHome extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Tablero de Control de Bodeguero',
+          'Tablero del Bodeguero',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
         leading: IconButton(
@@ -56,46 +56,6 @@ class BodegueroHome extends StatelessWidget {
             mainAxisSpacing: 16.0,
             children: [
               HomeCard(
-                title: 'Ubicacion',
-                icon: Icons.local_offer,
-                color: const Color(0xFFB1355A),
-                onTap: () {
-                  Navigator.pushNamed(context, '/geolocatorwidget');
-                },
-              ),
-              HomeCard(
-                title: 'producto terminado',
-                icon: Icons.add_box_sharp,
-                color: const Color.fromARGB(255, 53, 158, 177),
-                onTap: () {
-                  Navigator.pushNamed(context, '/MaterialAvailabilityPage');
-                },
-              ),
-              HomeCard(
-                title: 'Gestión de Productos',
-                icon: Icons.inventory,
-                color: const Color(0xFF1CA8A8),
-                onTap: () {
-                  Navigator.pushNamed(context, '/gestprod');
-                },
-              ),
-              HomeCard(
-                title: 'Agregar Productos',
-                icon: Icons.add_box,
-                color: const Color(0xFF1976D2),
-                onTap: () {
-                  Navigator.pushNamed(context, '/agregarproducto');
-                },
-              ),
-              HomeCard(
-                title: 'Disponibilidad de producto',
-                icon: Icons.check_circle,
-                color: const Color(0xFFF39F21),
-                onTap: () {
-                  Navigator.pushNamed(context, '/disponibilidadproducto');
-                },
-              ),
-              HomeCard(
                 title: 'Agregar material ',
                 icon: Icons.inventory_outlined,
                 color: const Color(0xFF660952),
@@ -112,45 +72,85 @@ class BodegueroHome extends StatelessWidget {
                 },
               ),
               HomeCard(
-                title: 'Detalle de Ordenes',
-                icon: Icons.receipt_long,
+                title: 'proceso de producto',
+                icon: Icons.auto_mode,
+                color: const Color.fromARGB(255, 53, 158, 177),
+                onTap: () {
+                  Navigator.pushNamed(context, '/procesoproductosadmin');
+                },
+              ),
+              HomeCard(
+                title: 'Vista de Pedidos',
+                icon: Icons.remove_red_eye,
                 color: const Color(0xFF245520),
                 onTap: () {
                   Navigator.pushNamed(context, '/detalleorden');
                 },
               ),
               HomeCard(
+                title: 'Gestión de Productos',
+                icon: Icons.inventory,
+                color: const Color.fromARGB(255, 204, 171, 100),
+                onTap: () {
+                  Navigator.pushNamed(context, '/gestprod');
+                },
+              ),
+              HomeCard(
                 title: 'Proveedores',
                 icon: Icons.supervisor_account,
-                color: const Color(0xFF35B3B3),
+                color: const Color.fromARGB(255, 30, 167, 114),
                 onTap: () {
                   Navigator.pushNamed(context, '/proveedor');
                 },
               ),
               HomeCard(
-                title: 'Historial de Inventarios',
-                icon: Icons.history,
-                color: const Color(0xFFB7E70B),
-                onTap: () {
-                  Navigator.pushNamed(context, '/historialinventario');
-                },
-              ),
-              HomeCard(
-                title: 'Categorias producto',
-                icon: Icons.category,
-                color: const Color(0xFFB16735),
-                onTap: () {
-                  Navigator.pushNamed(context, '/categoriaproducto');
-                },
-              ),
-              HomeCard(
                 title: 'Promoción',
                 icon: Icons.local_offer,
-                color: const Color(0xFFB1355A),
+                color: const Color.fromARGB(255, 190, 50, 50),
                 onTap: () {
                   Navigator.pushNamed(context, '/promocion');
                 },
               ),
+              // HomeCard(
+              //   title: 'Agregar Productos',
+              //   icon: Icons.add_box,
+              //   color: const Color(0xFF1976D2),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/agregarproducto');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Ubicacion',
+              //   icon: Icons.local_offer,
+              //   color: const Color(0xFFB1355A),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/geolocatorwidget');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Disponibilidad de producto',
+              //   icon: Icons.check_circle,
+              //   color: const Color(0xFFF39F21),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/disponibilidadproducto');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Historial de Inventarios',
+              //   icon: Icons.history,
+              //   color: const Color(0xFFB7E70B),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/historialinventario');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Categorias producto',
+              //   icon: Icons.category,
+              //   color: const Color(0xFFB16735),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/categoriaproducto');
+              //   },
+              // ),
               HomeCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,
