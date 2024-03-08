@@ -95,28 +95,24 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                     }
 
                     final data = snapshot.data!.docs;
-                    Map<String, int> availabilityMap = {};
+                    List<DataRow> rows = [];
 
                     for (int i = 0; i < data.length; i++) {
                       final cantidad = data[i]['cantidad'];
                       final nombre = data[i]['nombre'];
-                      availabilityMap.update(nombre, (value) => cantidad,
-                          ifAbsent: () => cantidad);
-                    }
-
-                    List<DataRow> rows = [];
-
-                    availabilityMap.forEach((nombre, cantidad) {
+                      final descripcion = data[i][
+                          'descripcion']; // Nueva línea para obtener la descripción real desde Firestore
                       rows.add(
                         DataRow(
                           cells: [
                             DataCell(Text(nombre)),
-                            const DataCell(Text('Volqueta')),
+                            DataCell(Text(
+                                descripcion)), // Utiliza la descripción real en lugar de "Volqueta"
                             DataCell(Text(cantidad.toString())),
                           ],
                         ),
                       );
-                    });
+                    }
 
                     return DataTable(
                       columns: const [

@@ -44,7 +44,7 @@ class _InicioState extends State<Inicio> {
             children: <Widget>[
               SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               const Text(
-                "Iniciar Seción",
+                "Iniciar Sesión",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

@@ -299,22 +299,34 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
   }
 
   List<DropdownMenuItem<String>> _buildCantidadDropdownItems() {
-    if (_selectedMaterial == 'barilla') {
-      return ['1', '10', '100', '1000'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList();
-    } else {
-      return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-          .map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList();
+    List<String> cantidadItems;
+    switch (_selectedMaterial.toLowerCase()) {
+      case 'cemento':
+        cantidadItems = ['1', '10', '20', '50', '100', '1000'];
+        break;
+      case 'barilla':
+        cantidadItems = ['1', '10', '20', '50', '100', '1000'];
+        break;
+      case 'arena':
+      case 'piedra':
+      default:
+        cantidadItems = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+        break;
     }
+
+    // Asegúrate de que el valor seleccionado esté en la lista de elementos
+    if (!cantidadItems.contains(_selectedCantidad)) {
+      cantidadItems.add(_selectedCantidad);
+      cantidadItems.sort(); // Ordena la lista para mantener el orden
+    }
+
+    // Crea los elementos del menú desplegable
+    return cantidadItems.map((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList();
   }
 
   Future<void> _tomarFoto() async {

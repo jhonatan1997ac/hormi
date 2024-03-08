@@ -354,7 +354,7 @@ class _VentasState extends State<Ventas> {
                               style: const TextStyle(fontSize: 18),
                             ),
                             Text(
-                              'Cantidad: ${producto.cantidad}',
+                              'Cantidad: ${producto.cantidad} unidades',
                               style: const TextStyle(fontSize: 16),
                             ),
                             Text(

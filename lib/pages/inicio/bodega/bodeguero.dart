@@ -95,22 +95,22 @@ class BodegueroHome extends StatelessWidget {
                   Navigator.pushNamed(context, '/gestprod');
                 },
               ),
-              HomeCard(
-                title: 'Proveedores',
-                icon: Icons.supervisor_account,
-                color: const Color.fromARGB(255, 30, 167, 114),
-                onTap: () {
-                  Navigator.pushNamed(context, '/proveedor');
-                },
-              ),
-              HomeCard(
-                title: 'Promoción',
-                icon: Icons.local_offer,
-                color: const Color.fromARGB(255, 190, 50, 50),
-                onTap: () {
-                  Navigator.pushNamed(context, '/promocion');
-                },
-              ),
+              // HomeCard(
+              //   title: 'Proveedores',
+              //   icon: Icons.supervisor_account,
+              //   color: const Color.fromARGB(255, 30, 167, 114),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/proveedor');
+              //   },
+              // ),
+              // HomeCard(
+              //   title: 'Promoción',
+              //   icon: Icons.local_offer,
+              //   color: const Color.fromARGB(255, 190, 50, 50),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/promocion');
+              //   },
+              // ),
               // HomeCard(
               //   title: 'Agregar Productos',
               //   icon: Icons.add_box,
