@@ -1,9 +1,5 @@
-// ignore_for_file: library_private_types_in_public_api, sort_child_properties_last, avoid_function_literals_in_foreach_calls, unnecessary_import
-
-import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -26,6 +22,51 @@ class ProcesoProductoBode extends StatefulWidget {
 class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
   String? _selectedProduct;
   int _cantidad = 0;
+
+  // Inicialización de materialesNecesarios
+  var materialesNecesarios = {
+    'Adoquin clasico vehicular sin color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Adoquin clasico vehicular con color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Adoquin jaboncillo vehicular sin color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Adoquin jaboncillo vehicular con color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Adoquin paleta vehicular sin color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Adoquin paleta vehicular con color': {
+      'Piedra': 1,
+      'Arena': 1,
+      'Cemento': 36
+    },
+    'Bloque de 10cm alivianado': {'Cemento': 36},
+    'Bloque de 10cm estructural': {'Cemento': 36},
+    'Bloque de 15cm alivianado': {'Cemento': 36},
+    'Bloque de 15cm estructural': {'Cemento': 36},
+    'Bloque de 20cm alivianado': {'Cemento': 36},
+    'Bloque de 20cm estructural': {'Cemento': 36},
+    'Bloque de anclaje': {'Cemento': 36},
+    'Postes de alambrado 1.60m': {'Cemento': 36},
+    'Postes de alambrado 2m': {'Cemento': 36},
+    'Tapas para canaleta': {'Cemento': 36},
+    'Barilla': {'Cemento': 36}
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -100,14 +141,12 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                     for (int i = 0; i < data.length; i++) {
                       final cantidad = data[i]['cantidad'];
                       final nombre = data[i]['nombre'];
-                      final descripcion = data[i][
-                          'descripcion']; // Nueva línea para obtener la descripción real desde Firestore
+                      final descripcion = data[i]['descripcion'];
                       rows.add(
                         DataRow(
                           cells: [
                             DataCell(Text(nombre)),
-                            DataCell(Text(
-                                descripcion)), // Utiliza la descripción real en lugar de "Volqueta"
+                            DataCell(Text(descripcion)),
                             DataCell(Text(cantidad.toString())),
                           ],
                         ),
@@ -138,7 +177,7 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                 children: [
                   DropdownButtonFormField<String>(
                     value: _selectedProduct,
-                    items: cantidadesPredeterminadas.keys.map((String value) {
+                    items: materialesNecesarios.keys.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -148,8 +187,11 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                       if (value != null) {
                         setState(() {
                           _selectedProduct = value;
-                          _cantidad = cantidadesPredeterminadas[value] ?? 0;
+                          _cantidad =
+                              materialesNecesarios[value]!['Cemento'] ?? 0;
                         });
+
+                        _showMaterialsRequiredDialog(context, value);
                       }
                     },
                     decoration: InputDecoration(
@@ -193,83 +235,173 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
   }
 }
 
+void _showMaterialsRequiredDialog(
+    BuildContext context, String? selectedProduct) {
+  if (selectedProduct != null) {
+    Map<String, Map<String, int>> materialesNecesarios = {
+      'Adoquin clasico vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin clasico vehicular con color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin jaboncillo vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin jaboncillo vehicular con color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin paleta vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin paleta vehicular con color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Bloque de 10cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 10cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 15cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 15cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 20cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 20cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de anclaje': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Postes de alambrado 1.60m': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Postes de alambrado 2m': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Tapas para canaleta': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+    };
+
+    if (materialesNecesarios.containsKey(selectedProduct)) {
+      Map<String, int> materiales = materialesNecesarios[selectedProduct] ?? {};
+
+      String message = 'Materiales necesarios:\n';
+      materiales.forEach((material, cantidad) {
+        message += '$cantidad Voqueta de $material\n';
+      });
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Materiales Necesarios para $selectedProduct'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+}
+
 void _producirProducto(
     BuildContext context, String? selectedProduct, String cantidad) {
   if (cantidad.isNotEmpty) {
     int cantidadInt = int.tryParse(cantidad) ?? 0;
     if (cantidadInt > 0) {
-      List<String> productsToCheck = [
-        'Adoquin clasico vehicular sin color',
-        'Adoquin clasico vehicular con color',
-        'Adoquin jaboncillo vehicular sin color',
-        'Adoquin jaboncillo vehicular con color',
-        'Adoquin paleta vehicular sin color',
-        'Adoquin paleta vehicular con color',
-        'Bloque de 10cm alivianado',
-        'Bloque de 10cm estructural',
-        'Bloque de 15cm alivianado',
-        'Bloque de 15cm estructural',
-        'Bloque de 20cm alivianado',
-        'Bloque de 20cm estructural',
-        'Bloque de anclaje',
-        'Postes de alambrado 1.60m',
-        'Postes de alambrado 2m',
-        'Tapas para canaleta',
-        'Barilla'
-      ];
+      Map<String, Map<String, int>> materialesNecesarios = {
+        'Adoquin clasico vehicular sin color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Adoquin clasico vehicular con color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Adoquin jaboncillo vehicular sin color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Adoquin jaboncillo vehicular con color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Adoquin paleta vehicular sin color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Adoquin paleta vehicular con color': {
+          'Piedra': 1,
+          'Arena': 1,
+          'Cemento': 36
+        },
+        'Bloque de 10cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de 10cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de 15cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de 15cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de 20cm alivianado': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de 20cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Bloque de anclaje': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Postes de alambrado 1.60m': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Postes de alambrado 2m': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+        'Tapas para canaleta': {'Piedra': 1, 'Arena': 1, 'Cemento': 36}
+      };
 
-      // Verificar si el producto seleccionado está en la lista de productos a verificar
-      if (productsToCheck.contains(selectedProduct)) {
-        // Verificar la disponibilidad de Cemento, Piedra y Arena
-        FirebaseFirestore.instance
-            .collection('disponibilidadmaterial')
-            .where('nombre', whereIn: ['Cemento', 'Piedra', 'Arena'])
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-              bool materialAvailable = true;
-              querySnapshot.docs.forEach((doc) {
-                int disponible = doc['cantidad'];
-                if (disponible <= 0) {
-                  materialAvailable = false;
-                }
-              });
-
-              if (materialAvailable) {
-                // Realizar la resta de una unidad para cada material
-                querySnapshot.docs.forEach((doc) {
-                  FirebaseFirestore.instance
-                      .collection('disponibilidadmaterial')
-                      .doc(doc.id)
-                      .update({'cantidad': doc['cantidad'] - 1});
-                });
-
-                // Continuar con el proceso de producción
-                _continuarProduccion(context, selectedProduct, cantidadInt);
-              } else {
-                // Mostrar mensaje de pedido de material
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Aviso'),
-                      content: const Text(
-                          'Se necesita hacer un pedido de material (Cemento, Piedra, Arena).'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
-            });
-      } else {
-        // Si el producto no necesita verificación de cantidad, continuar con el proceso de producción
-        _continuarProduccion(context, selectedProduct, cantidadInt);
+      if (materialesNecesarios.containsKey(selectedProduct)) {
+        FirebaseFirestore.instance.collection('procesoproducto').add({
+          'nombre': selectedProduct,
+          'cantidad': cantidadInt,
+          'descripcion': "En proceso",
+          'fecha': DateTime.now().toString().substring(0, 10),
+        }).then((_) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Éxito'),
+                content:
+                    const Text('El producto se ha producido exitosamente.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }).catchError((error) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: Text('Se produjo un error: $error'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        });
       }
     } else {
       showDialog(
@@ -309,57 +441,4 @@ void _producirProducto(
       },
     );
   }
-}
-
-void _continuarProduccion(
-    BuildContext context, String? selectedProduct, int cantidadInt) {
-  // Obtener la fecha actual en formato "yyyy-MM-dd"
-  String formattedDate = DateTime.now().toString().substring(0, 10);
-
-  // Crear un nuevo documento en la colección 'procesoproducto'
-  FirebaseFirestore.instance.collection('procesoproducto').add({
-    'nombre': selectedProduct,
-    'cantidad': cantidadInt,
-    'descripcion': "En proceso",
-    // Utilizar formattedDate como la fecha
-    'fecha': formattedDate,
-  }).then((_) {
-    // Mostrar un mensaje de éxito
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Éxito'),
-          content: const Text('El producto se ha producido exitosamente.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }).catchError((error) {
-    // Mostrar un mensaje de error si ocurre un error al agregar los datos
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text('Se produjo un error: $error'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  });
 }
