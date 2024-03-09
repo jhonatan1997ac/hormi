@@ -155,6 +155,7 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                       if (value != null) {
                         setState(() {
                           _selectedProduct = value;
+                          _showMaterialsRequiredDialog;
                           _cantidad = cantidadesPredeterminadas[value] ?? 0;
                         });
                       }
@@ -516,6 +517,96 @@ void verificarCantidades(BuildContext context) {
         );
       },
     );
+  }
+}
+
+void _showMaterialsRequiredDialog(
+    BuildContext context, String? selectedProduct) {
+  if (selectedProduct != null) {
+    Map<String, Map<String, int>> materialesNecesarios = {
+      'Adoquin clasico vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin clasico vehicular con color': {
+        'Piedra': 1,
+        'cantidad': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin jaboncillo vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin jaboncillo vehicular con color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin paleta vehicular sin color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Adoquin paleta vehicular con color': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36
+      },
+      'Bloque de 10cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de 15cm estructural': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Bloque de anclaje': {'Piedra': 1, 'Arena': 1, 'Cemento': 36},
+      'Postes de alambrado 1.60m': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36,
+        'Barilla': 576
+      },
+      'Postes de alambrado 2m': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36,
+        'Barilla': 468
+      },
+      'Tapas para canaleta': {
+        'Piedra': 1,
+        'Arena': 1,
+        'Cemento': 36,
+        'Barilla': 234
+      }
+    };
+
+    if (materialesNecesarios.containsKey(selectedProduct)) {
+      Map<String, int> materiales = materialesNecesarios[selectedProduct] ?? {};
+
+      String message = 'Materiales necesarios:\n';
+      materiales.forEach((material, cantidad) {
+        String unit = material == 'Cemento' || material == 'Barilla'
+            ? 'Unidad'
+            : 'Voqueta';
+        message += '$cantidad $unit de $material\n';
+      });
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Materiales Necesarios para $selectedProduct'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
 
