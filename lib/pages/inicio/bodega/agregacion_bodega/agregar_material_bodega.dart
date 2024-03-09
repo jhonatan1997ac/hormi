@@ -168,7 +168,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                             _selectedMaterial == 'Piedra') {
                           _selectedDescripcion = 'Volqueta';
                         } else {
-                          _selectedDescripcion = 'unidad';
+                          _selectedDescripcion = 'Unidad';
                           _selectedCantidad = '1';
                         }
                         _materialSeleccionado = true; // Selecciona el material
@@ -204,7 +204,7 @@ class _AgregarMaterialState extends State<AgregarMaterial> {
                         if (_selectedMaterial == 'Arena' ||
                             _selectedMaterial == 'Piedra')
                           'Volqueta',
-                        'unidad',
+                        'Unidad',
                       ].map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
