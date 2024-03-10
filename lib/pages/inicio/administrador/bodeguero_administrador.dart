@@ -1,9 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class BodegueroAdmin extends StatefulWidget {
   const BodegueroAdmin({Key? key}) : super(key: key);
@@ -111,9 +111,11 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
                                       ),
                                       child: ListTile(
                                         title: Text(
-                                          'Usuario ID: ${users[index].id}',
+                                          'Usuario : ${userData['email']}',
                                           style: const TextStyle(
-                                              color: Colors.black),
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         subtitle: Column(
                                           crossAxisAlignment:
@@ -215,10 +217,18 @@ class _BodegueroAdminState extends State<BodegueroAdmin> {
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(labelText: 'Nuevo Email'),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               TextField(
                 controller: roolController,
                 decoration: const InputDecoration(labelText: 'Nuevo Rol'),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

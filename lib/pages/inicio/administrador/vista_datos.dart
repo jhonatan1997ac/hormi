@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, avoid_unnecessary_containers, deprecated_member_use
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,21 +59,44 @@ class VistaDatos extends StatelessWidget {
               Wrap(
                 alignment: WrapAlignment.center,
                 children: <Widget>[
-                  buildCard(context, 'Pedidos Realizados', 'pedidorealizado',
-                      Icons.shopping_cart, Colors.green),
-                  buildCard(context, 'Proceso de Producto', 'procesoproducto',
-                      Icons.build, Colors.orange),
-                  buildCard(context, 'Productos Terminados',
-                      'productoterminado', Icons.check_circle, Colors.blue),
+                  buildCard(
+                    context,
+                    collectionTitle: 'Pedidos          ',
+                    collectionName: 'pedidorealizado',
+                    iconData: Icons.shopping_cart,
+                    color: Colors.green,
+                  ),
+                  buildCard(
+                    context,
+                    collectionTitle: 'Proceso de Producto',
+                    collectionName: 'procesoproducto',
+                    iconData: Icons.build,
+                    color: Colors.orange,
+                  ),
+                  buildCard(
+                    context,
+                    collectionTitle: 'Productos Terminados',
+                    collectionName: 'productoterminado',
+                    iconData: Icons.check_circle,
+                    color: Color.fromARGB(255, 34, 73, 95), // Cambiado a gris
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  // Cerrar la aplicación
                   Navigator.of(context).pop();
                 },
-                child: const Text('Cerrar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(
+                      255, 173, 106, 106), // Cambiado a gris
+                ),
+                child: const Text(
+                  'Cerrar',
+                  style: TextStyle(
+                    color: Colors.white, // Cambiado a blanco
+                  ),
+                ),
               ),
             ],
           ),
@@ -84,8 +105,11 @@ class VistaDatos extends StatelessWidget {
     );
   }
 
-  Widget buildCard(BuildContext context, String cardTitle,
-      String collectionName, IconData iconData, Color color) {
+  Widget buildCard(BuildContext context,
+      {required String collectionTitle,
+      required String collectionName,
+      required IconData iconData,
+      required Color color}) {
     return Card(
       elevation: 4,
       margin: const EdgeInsets.all(16),
@@ -97,6 +121,7 @@ class VistaDatos extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => PaginaDatosFirestore(
                 nombreColeccion: collectionName,
+                tituloColeccion: collectionTitle,
               ),
             ),
           );
@@ -113,7 +138,7 @@ class VistaDatos extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                cardTitle,
+                collectionTitle,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -129,40 +154,62 @@ class VistaDatos extends StatelessWidget {
   }
 }
 
-class PaginaDatosFirestore extends StatelessWidget {
+class PaginaDatosFirestore extends StatefulWidget {
   final String nombreColeccion;
+  final String tituloColeccion;
 
-  const PaginaDatosFirestore({Key? key, required this.nombreColeccion})
-      : super(key: key);
+  const PaginaDatosFirestore({
+    Key? key,
+    required this.nombreColeccion,
+    required this.tituloColeccion,
+  }) : super(key: key);
+
+  @override
+  _PaginaDatosFirestoreState createState() => _PaginaDatosFirestoreState();
+}
+
+class _PaginaDatosFirestoreState extends State<PaginaDatosFirestore> {
+  late DateTime _selectedDate;
+  late Stream<QuerySnapshot<Map<String, dynamic>>> _stream;
+  late List<QueryDocumentSnapshot>
+      _filteredDocuments; // Lista de documentos filtrados
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    _stream = FirebaseFirestore.instance
+        .collection(widget.nombreColeccion)
+        .snapshots();
+    _filteredDocuments = []; // Inicializa la lista de documentos filtrados
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(nombreColeccion),
+        title: Text(widget.tituloColeccion),
         actions: [
           IconButton(
             onPressed: () async {
-              final List<String> columnHeaders =
-                  getColumnHeaders(nombreColeccion);
-              final documents = await FirebaseFirestore.instance
-                  .collection(nombreColeccion)
-                  .get();
-              final rows = getRows(documents.docs, columnHeaders);
-              await generateAndSavePDF(
-                context,
-                nombreColeccion,
-                columnHeaders,
-                rows,
-              );
+              await _generateAndSavePDF(
+                  _filteredDocuments); // Pasa los documentos filtrados al método
             },
             icon: const Icon(Icons.picture_as_pdf),
           ),
+          if (widget.nombreColeccion !=
+              'productoterminado') // Evitar el filtro para 'productoterminado'
+            IconButton(
+              onPressed: () {
+                _selectDate(context);
+              },
+              icon:
+                  Icon(Icons.calendar_today), // Cambiado a icono de calendario
+            ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream:
-            FirebaseFirestore.instance.collection(nombreColeccion).snapshots(),
+        stream: _stream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
@@ -178,8 +225,11 @@ class PaginaDatosFirestore extends StatelessWidget {
             return const Text('No hay datos disponibles');
           }
 
-          final fieldNames = getColumnHeaders(nombreColeccion);
+          final fieldNames = getColumnHeaders(widget.nombreColeccion);
           final rows = getRows(documents, fieldNames);
+
+          // Actualiza los documentos filtrados con los documentos actuales
+          _filteredDocuments = documents;
 
           return SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -213,6 +263,25 @@ class PaginaDatosFirestore extends StatelessWidget {
     );
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _stream = FirebaseFirestore.instance
+            .collection(widget.nombreColeccion)
+            .where('fecha', isGreaterThanOrEqualTo: _selectedDate)
+            .where('fecha', isLessThan: _selectedDate.add(Duration(days: 1)))
+            .snapshots();
+      });
+    }
+  }
+
   List<String> getColumnHeaders(String nombreColeccion) {
     if (nombreColeccion == 'pedidorealizado') {
       return [
@@ -225,10 +294,8 @@ class PaginaDatosFirestore extends StatelessWidget {
         'calidad',
       ];
     } else if (nombreColeccion == 'procesoproducto') {
-      // Agrega 'fecha' al principio de la lista de encabezados
       return ['fecha', 'nombre', 'descripcion', 'cantidad'];
     } else if (nombreColeccion == 'productoterminado') {
-      // Reorganiza los encabezados para que 'nombre' sea el primero
       return ['nombre', 'precio', 'calidad', 'cantidad'];
     } else {
       return [];
@@ -261,14 +328,16 @@ class PaginaDatosFirestore extends StatelessWidget {
     return rows;
   }
 
-  Future<void> generateAndSavePDF(BuildContext context, String title,
-      List<String> columnHeaders, List<List<dynamic>> rows) async {
+  Future<void> _generateAndSavePDF(
+      List<QueryDocumentSnapshot> documents) async {
+    final List<String> columnHeaders = getColumnHeaders(widget.nombreColeccion);
+    final rows = getRows(documents, columnHeaders);
     final pdf = pw.Document();
 
     pdf.addPage(
       pw.MultiPage(
         build: (context) => [
-          pw.Header(level: 0, child: pw.Text(title)),
+          pw.Header(level: 0, child: pw.Text(widget.tituloColeccion)),
           pw.Table.fromTextArray(
             headers: columnHeaders,
             data: rows,
@@ -278,7 +347,7 @@ class PaginaDatosFirestore extends StatelessWidget {
     );
 
     final output = await getExternalStorageDirectory();
-    final file = File("${output!.path}/$title.pdf");
+    final file = File("${output!.path}/${widget.tituloColeccion}.pdf");
     await file.writeAsBytes(await pdf.save());
 
     OpenFile.open(file.path);

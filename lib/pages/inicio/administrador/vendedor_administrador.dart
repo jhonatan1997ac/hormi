@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:apphormi/pages/inicio/administrador/administrador.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -107,23 +107,11 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                             BorderRadius.circular(10.0),
                                       ),
                                       child: ListTile(
-                                        title: RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: 'Usuario : ',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: '${userData['email']}',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
+                                        title: Text(
+                                          'Email: ${userData['email']}',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         subtitle: Column(
@@ -131,30 +119,14 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Email: ',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              'Email: ${userData['email']}',
+                                              style: const TextStyle(
+                                                  color: Colors.black),
                                             ),
                                             Text(
-                                              '${userData['email']}',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Rol: ',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${userData['rool']}',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
+                                              'Rol: ${userData['rool']}',
+                                              style: const TextStyle(
+                                                  color: Colors.black),
                                             ),
                                           ],
                                         ),
@@ -203,8 +175,7 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
                                 },
                                 icon: const Icon(Icons.add),
                                 label: const Text('Agregar Vendedor'),
-                                backgroundColor:
-                                    Color.fromARGB(255, 221, 204, 204),
+                                backgroundColor: Colors.black,
                               ),
                             ),
                           ],
@@ -244,10 +215,18 @@ class _VendedorAdministradorState extends State<VendedorAdministrador> {
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(labelText: 'Nuevo Email'),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               TextField(
                 controller: roolController,
                 decoration: const InputDecoration(labelText: 'Nuevo Rol'),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
