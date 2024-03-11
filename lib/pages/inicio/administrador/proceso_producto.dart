@@ -157,7 +157,8 @@ class _DisponibilidadMaterialScreenState
                       if (value != null) {
                         setState(() {
                           _selectedProduct = value;
-                          _showMaterialsRequiredDialog;
+                          _showMaterialsRequiredDialog(context,
+                              _selectedProduct); // Llamada a la función _showMaterialsRequiredDialog
                           _cantidad = cantidadesPredeterminadas[value] ?? 0;
                         });
                       }
@@ -176,6 +177,8 @@ class _DisponibilidadMaterialScreenState
                     onPressed: _cantidad != 0
                         ? () {
                             if (_cantidad != 0) {
+                              _showMaterialsRequiredDialog(
+                                  context, _selectedProduct);
                               _producirProducto(context, _selectedProduct,
                                   _cantidad.toString());
                               Navigator.pushNamed(context, '/procesoproductos');

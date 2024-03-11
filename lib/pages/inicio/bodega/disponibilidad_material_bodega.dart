@@ -213,12 +213,6 @@ class _DisponibilidadMaterialState extends State<DisponibilidadMaterial> {
                                         });
                                       },
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        eliminarMaterial(material);
-                                      },
-                                    ),
                                   ],
                                 ),
                               ),

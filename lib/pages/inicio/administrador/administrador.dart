@@ -62,7 +62,7 @@ class _AdministradorState extends State<Administrador> {
                 },
               ),
               buildMenuCard(
-                title: 'Proceso de productos',
+                title: 'Elavoracion',
                 color: const Color.fromARGB(255, 130, 151, 141),
                 icon: Icons.all_inbox_rounded,
                 onTap: () {

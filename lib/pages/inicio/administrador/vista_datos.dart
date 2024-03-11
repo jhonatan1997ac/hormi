@@ -71,7 +71,7 @@ class VistaDatos extends StatelessWidget {
                   buildCard(
                     context,
                     collectionTitle: 'Proceso de Producto',
-                    collectionName: 'procesoproducto',
+                    collectionName: 'elevoracionenviada',
                     iconData: Icons.build,
                     color: Colors.orange,
                   ),
@@ -295,8 +295,14 @@ class _PaginaDatosFirestoreState extends State<PaginaDatosFirestore> {
         'nombre',
         'calidad',
       ];
-    } else if (nombreColeccion == 'procesoproducto') {
-      return ['fecha', 'nombre', 'descripcion', 'cantidad'];
+    } else if (nombreColeccion == 'elevoracionenviada') {
+      return [
+        'idproductoenviado',
+        'fecha',
+        'nombre',
+        'descripcion',
+        'cantidad'
+      ];
     } else if (nombreColeccion == 'productoterminado') {
       return ['nombre', 'precio', 'calidad', 'cantidad'];
     } else {

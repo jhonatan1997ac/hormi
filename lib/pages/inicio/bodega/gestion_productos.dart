@@ -315,12 +315,6 @@ class _GestionProductosState extends State<GestionProductos> {
                                     });
                                   },
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    await eliminarProducto(producto);
-                                  },
-                                ),
                               ],
                             ),
                           ),

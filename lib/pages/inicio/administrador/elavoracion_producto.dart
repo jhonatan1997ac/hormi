@@ -127,6 +127,22 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
     DocumentSnapshot productoSnapshot = await productoRef.get();
     String nombre = productoSnapshot['nombre'].toString();
     int cantidad = productoSnapshot['cantidad'] as int;
+    String descripcion = productoSnapshot['descripcion'];
+    String fecha = productoSnapshot['fecha'];
+
+    // Eliminar el documento de 'procesoproducto'
+    await productoRef.delete();
+
+    // Agregar los datos a la colección 'elevoracionenviada'
+    FirebaseFirestore.instance.collection('elevoracionenviada').add({
+      'nombre': nombre,
+      'cantidad': cantidad,
+      'descripcion': descripcion,
+      'fecha': fecha,
+      'idproductoenviado': DateTime.now().millisecondsSinceEpoch,
+    });
+
+    // Navegar a la pantalla de ProductosAdministrador
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
