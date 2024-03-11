@@ -66,20 +66,28 @@ class VendedorHome extends StatelessWidget {
               ),
               HomeCard(
                 title: 'Historial de Ventas',
-                icon: Icons.receipt,
-                color: Colors.deepPurple[600]!,
+                icon: Icons.event,
+                color: const Color(0xFF673AB7),
                 onTap: () {
-                  Navigator.pushNamed(context, '/historial_ventas');
+                  Navigator.pushNamed(context, '/fechaventas');
                 },
               ),
               HomeCard(
-                title: 'Estadísticas',
-                icon: Icons.dashboard,
-                color: Colors.teal[600]!,
+                title: 'Estadísticas de pago',
+                icon: Icons.attach_money,
+                color: const Color(0xFF2196F3),
                 onTap: () {
-                  Navigator.pushNamed(context, '/menuestadisticas');
+                  Navigator.pushNamed(context, '/estadisticapago');
                 },
               ),
+              // HomeCard(
+              //   title: 'Estadísticas',
+              //   icon: Icons.dashboard,
+              //   color: Colors.teal[600]!,
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/menuestadisticas');
+              //   },
+              // ),
               // HomeCard(
               //   title: 'Reclamaciones',
               //   icon: Icons.error_outline,

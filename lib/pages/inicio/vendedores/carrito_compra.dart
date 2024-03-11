@@ -1,5 +1,6 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
@@ -52,7 +53,6 @@ class CarritoDeCompras extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // Mostramos la imagen del producto en el carrito
                       Image.network(
                         producto.imagen ?? '',
                         width: 50,
@@ -229,7 +229,7 @@ class CarritoDeCompras extends StatelessWidget {
       {required String metodoPago,
       required String nombrePersona,
       required String imagen}) {
-    List<int> denominaciones = [1, 2, 5, 10, 20, 50, 100];
+    List<int> denominaciones = [1, 2, 5, 10, 20, 50, 100, 200];
 
     showDialog(
       context: context,
@@ -254,16 +254,11 @@ class CarritoDeCompras extends StatelessWidget {
                       Future.delayed(const Duration(seconds: 0), () {
                         Navigator.of(context).pop();
                         carrito.clear();
-                        enviarVentaAHistorial(
-                          productos: productos,
-                          subtotal: subtotal,
-                          total: total,
-                          iva: iva,
-                          metodoPago: metodoPago,
-                          nombrePersona: '',
-                          imagen: '',
-                          fecha: Timestamp.now(),
-                        );
+                        ScaffoldMessenger.of(context)
+                            .removeCurrentSnackBar(); // Cerrar el SnackBar actual
+                        Timer(const Duration(seconds: 5), () {
+                          Navigator.pushNamed(context, '/fechaventas');
+                        }); // Esperar 5 segundos y luego redireccionar
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -286,7 +281,7 @@ class CarritoDeCompras extends StatelessWidget {
                 ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/historial_ventas');
+                  Navigator.of(context).pop();
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -75,14 +75,6 @@ class MenuEstadisticasHome extends StatelessWidget {
                 },
               ),
               HomeCard(
-                title: 'Estadistica de fecha de ventas',
-                icon: Icons.event,
-                color: const Color(0xFF673AB7),
-                onTap: () {
-                  Navigator.pushNamed(context, '/fechaventas');
-                },
-              ),
-              HomeCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,
                 color: const Color(0xFF512DA8),
