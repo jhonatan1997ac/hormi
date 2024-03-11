@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 // ignore: depend_on_referenced_packages
-import 'package:uuid/uuid.dart'; // Importamos la librería uuid para generar IDs únicos
+import 'package:uuid/uuid.dart';
 
 class CarritoDeCompras extends StatelessWidget {
   final List<Producto> carrito;
@@ -138,8 +138,6 @@ class CarritoDeCompras extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: const Color.fromARGB(255, 223, 195, 185),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -204,7 +202,7 @@ class CarritoDeCompras extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text('Registro de pago'),
+              title: const Text('Registro de Pago'),
               onTap: () {
                 Navigator.of(context).pop();
                 mostrarDialogoOpcionesRegistropago(
@@ -288,7 +286,7 @@ class CarritoDeCompras extends StatelessWidget {
                 ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pushNamed(context, '/historial_ventas');
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -439,10 +437,9 @@ class CarritoDeCompras extends StatelessWidget {
                       onPressed: () {
                         if (total > 0) {
                           Navigator.of(context).pop();
-                          // Aquí puedes manejar la lógica para guardar la imagen
-                          var metodoPago = ''; // Definir el método de pago aquí
-                          var nombrePersona =
-                              ''; // Definir el nombre de la persona aquí
+                          var metodoPago = 'Registro de Pago';
+                          var nombrePersona = nombreController
+                              .text; // Obtener el valor del controlador
                           var imagen = ''; // Definir la URL de la imagen aquí
                           enviarVentaAHistorial(
                             productos: productos,
@@ -468,7 +465,7 @@ class CarritoDeCompras extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/historial_ventas');
                       },
                       child: const Text('Cancelar'),
                     ),

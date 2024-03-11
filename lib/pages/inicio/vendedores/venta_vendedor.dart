@@ -162,8 +162,27 @@ class _VentasState extends State<Ventas> {
 
   Future<bool> verificarDisponibilidad(
       Producto producto, int selectedQuantity) async {
-    if (producto.cantidad >= selectedQuantity &&
-        (producto.cantidad - selectedQuantity) >= 2300) {
+    // Lista de productos con sus cantidades mínimas
+    Map<String, int> cantidadesMinimas = {
+      'Adoquin clasico vehicular sin color': 2300,
+      'Adoquin clasico vehicular con color': 2300,
+      'Adoquin jaboncillo vehicular sin color': 4000,
+      'Adoquin jaboncillo vehicular con color': 4000,
+      'Adoquin paleta vehicular sin color': 2300,
+      'Adoquin paleta vehicular con color': 2300,
+      'Bloque de 10cm estructural': 500,
+      'Bloque de 15cm estructural': 400,
+      'Postes de alambrado 1.60m': 250,
+      'Postes de alambrado 2m': 200,
+      'Bloque de anclaje': 230,
+      'Tapas para canaleta': 115,
+    };
+
+    // Verificar si el nombre del producto está en la lista y si hay suficiente cantidad
+    if (cantidadesMinimas.containsKey(producto.nombre) &&
+        producto.cantidad >= selectedQuantity &&
+        (producto.cantidad - selectedQuantity) >=
+            cantidadesMinimas[producto.nombre]!) {
       setState(() {
         errorMessage = null;
       });
