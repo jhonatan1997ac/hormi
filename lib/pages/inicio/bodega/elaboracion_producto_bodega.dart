@@ -1,6 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors, unused_local_variable
 
-import 'package:apphormi/pages/inicio/administrador/Agregacion/agregar_producto_administrador.dart';
+import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -128,28 +128,28 @@ class _ElavoracionProductoBodeState extends State<ElavoracionProductoBode> {
     DocumentSnapshot productoSnapshot = await productoRef.get();
     String nombre = productoSnapshot['nombre'].toString();
     int cantidad = productoSnapshot['cantidad'] as int;
-    String descripcion = productoSnapshot['descripcion'];
+    String descripcion = productoSnapshot['enviada a terminar'];
     String fecha = productoSnapshot['fecha'];
 
     // Eliminar el documento de 'procesoproducto'
     await productoRef.delete();
 
     // Agregar los datos a la colección 'elevoracionenviada'
-    FirebaseFirestore.instance.collection('elevoracionenviada').add({
+    await FirebaseFirestore.instance.collection('elevoracionenviada').add({
       'nombre': nombre,
       'cantidad': cantidad,
-      'descripcion': descripcion,
+      'descripcion': 'enviada a terminar',
       'fecha': fecha,
       'idproductoenviado': DateTime.now().millisecondsSinceEpoch,
     });
 
-    // Navegar a la pantalla de ProductosAdministrador
+    // Navegar a la pantalla de AgregarProductoBodega
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => ProductosAdministrador(
+        builder: (context) => AgregarProductoBodega(
           selectedProduct: nombre,
-          cantidadProducto: cantidad.toString(),
+          cantidadProducto: cantidad.toString(), // Convertir cantidad a String
         ),
       ),
     );

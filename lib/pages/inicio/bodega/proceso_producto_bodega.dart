@@ -179,7 +179,8 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                                   context, _selectedProduct);
                               _producirProducto(context, _selectedProduct,
                                   _cantidad.toString());
-                              Navigator.pushNamed(context, '/procesoproductos');
+                              Navigator.pushNamed(
+                                  context, '/elavoracionproductobode');
                             }
                           }
                         : null,

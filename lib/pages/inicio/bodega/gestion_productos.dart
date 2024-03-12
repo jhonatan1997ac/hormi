@@ -401,11 +401,18 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   @override
   Widget build(BuildContext context) {
     List<String> opcionesNombres = [
-      'Opción 1',
-      'Opción 2',
-      'Opción 3',
-      'Opción 4',
-      'Opción 5'
+      'Adoquin clasico vehicular sin color',
+      'Adoquin clasico vehicular con color',
+      'Adoquin jaboncillo vehicular sin color',
+      'Adoquin jaboncillo vehicular con color',
+      'Adoquin paleta vehicular sin color',
+      'Adoquin paleta vehicular con color',
+      'Bloque de 10cm estructural',
+      'Bloque de 15cm estructural',
+      'Postes de alambrado 1.60m',
+      'Postes de alambrado 2m',
+      'Bloque de anclaje',
+      'Tapas para canaleta'
     ];
     String selectedNombre = opcionesNombres.contains(widget.producto.nombre)
         ? widget.producto.nombre

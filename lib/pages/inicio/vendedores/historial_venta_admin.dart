@@ -1,8 +1,8 @@
 // ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, unnecessary_brace_in_string_interps
 
 import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Producto {
   final String nombre;

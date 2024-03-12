@@ -1,8 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_key_in_widget_constructors, library_private_types_in_public_api
 
-import 'package:apphormi/pages/inicio/vendedores/menu_estadisticas.dart';
-import 'package:flutter/material.dart';
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
@@ -47,10 +47,8 @@ class _FechaVentasState extends State<FechaVentas> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const MenuEstadisticas()));
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const VendedorHome()));
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,

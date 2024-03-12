@@ -82,30 +82,6 @@ class _EliminarDatosScreenState extends State<EliminarDatosScreen> {
                 },
               ),
               buildMenuCard(
-                title: 'Eliminar pedido realizado ',
-                icon: Icons.delete_outline_outlined,
-                color: const Color.fromARGB(255, 190, 202, 84),
-                onTap: () {
-                  Navigator.pushNamed(context, '');
-                },
-              ),
-              buildMenuCard(
-                title: 'Eliminar proceso producto',
-                icon: Icons.delete_sweep_outlined,
-                color: const Color.fromARGB(164, 84, 202, 100),
-                onTap: () {
-                  Navigator.pushNamed(context, '');
-                },
-              ),
-              buildMenuCard(
-                title: 'Eliminar producto terminado',
-                icon: Icons.delete_forever_outlined,
-                color: const Color.fromARGB(242, 192, 80, 80),
-                onTap: () {
-                  Navigator.pushNamed(context, '');
-                },
-              ),
-              buildMenuCard(
                 title: 'Cerrar Sesión',
                 icon: Icons.exit_to_app,
                 color: Colors.deepPurple,

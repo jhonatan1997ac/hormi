@@ -96,7 +96,10 @@ class _MyAppState extends State<MyApp> {
             ),
         '/pedidovendedor': (context) => const Detallepedidoadmin(),
         '/bodeguero': (context) => const BodegueroAdmin(),
-        '/agregarproducto': (context) => const AgregarProductoBodega(),
+        '/agregarproducto': (context) => const AgregarProductoBodega(
+              selectedProduct: '',
+              cantidadProducto: '',
+            ),
         '/disponibilidadproducto': (context) =>
             const DisponibilidadProductobodega(),
         '/disponibilidadmaterial': (context) => const DisponibilidadMaterial(),

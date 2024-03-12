@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, unused_element, prefer_const_constructors_in_immutables
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, unused_element, prefer_const_constructors_in_immutables, unused_field, use_build_context_synchronously, prefer_const_declarations
 
 import 'dart:io';
 
@@ -9,179 +9,134 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() {
-  runApp(MyApp());
-}
+const Map<String, int> cantidadesPredeterminadas = {
+  'Adoquin clasico vehicular sin color': 3034,
+  'Adoquin clasico vehicular con color': 3034,
+  'Adoquin jaboncillo vehicular sin color': 7585,
+  'Adoquin jaboncillo vehicular con color': 7585,
+  'Adoquin paleta vehicular sin color': 5612,
+  'Adoquin paleta vehicular con color': 5612,
+  'Bloque de 10cm estructural': 1050,
+  'Bloque de 15cm estructural': 800,
+  'Postes de alambrado 1.60m': 504,
+  'Postes de alambrado 2m': 396,
+  'Bloque de anclaje': 468,
+  'Tapas para canaleta': 234,
+};
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Disponibilidad de producto',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const AgregarProductoBodega(),
-    );
+class ProductoService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  Future<void> agregarProducto(
+      Producto nuevoProducto, String imageUrl, int cantidad) async {
+    try {
+      await _firestore.collection('productoterminado').add({
+        'nombre': nuevoProducto.nombre,
+        'precio': nuevoProducto.precio,
+        'disponible': nuevoProducto.disponible,
+        'imagen': imageUrl,
+        'calidad': nuevoProducto.calidad,
+        'cantidad': cantidad, // Utiliza la cantidad seleccionada
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al agregar el producto: $e');
+      }
+    }
+  }
+
+  Future<String?> subirImagen(File? imagen) async {
+    try {
+      if (imagen != null) {
+        Reference storageReference = _storage.ref().child(
+            'imagenes_productos/${DateTime.now().millisecondsSinceEpoch}');
+        UploadTask uploadTask = storageReference.putFile(imagen);
+        await uploadTask.whenComplete(() => null);
+        return await storageReference.getDownloadURL();
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al subir la imagen: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<int?> obtenerCantidadProductoDesdeFirestore(String producto) async {
+    try {
+      final docSnapshot =
+          await _firestore.collection('procesoproducto').doc(producto).get();
+      final data = docSnapshot.data();
+      if (data != null && data.containsKey('cantidad')) {
+        return data['cantidad'] as int?;
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error al obtener la cantidad del producto desde Firestore: $e');
+      }
+      return null;
+    }
   }
 }
 
+class Producto {
+  String nombre;
+  double precio;
+  bool disponible;
+  File? imagen;
+  String calidad;
+
+  Producto({
+    required this.nombre,
+    required this.precio,
+    required this.disponible,
+    this.imagen,
+    required this.calidad,
+  });
+
+  bool get estaDisponible => disponible;
+
+  static fromSnapshot(QueryDocumentSnapshot<Object?> doc) {}
+}
+
 class AgregarProductoBodega extends StatefulWidget {
-  const AgregarProductoBodega({Key? key}) : super(key: key);
+  final String selectedProduct;
+  final String cantidadProducto;
+
+  const AgregarProductoBodega({
+    Key? key,
+    required this.selectedProduct,
+    required this.cantidadProducto,
+  }) : super(key: key);
 
   @override
   _AgregarProductoBodegaState createState() => _AgregarProductoBodegaState();
 }
 
 class _AgregarProductoBodegaState extends State<AgregarProductoBodega> {
-  late CollectionReference productosCollection;
-  File? _imagen;
+  bool _disponible = true;
+  String _selectedCalidad = 'Calidad adoquin resistencia 300';
+  File? _selectedImage;
 
-  @override
-  void initState() {
-    super.initState();
-    productosCollection =
-        FirebaseFirestore.instance.collection('AgregarProductoBodega');
-  }
+  final List<String> _calidadOptions = [
+    'Calidad adoquin resistencia 300',
+    'Calidad adoquin resistencia 350',
+    'Calidad adoquin resistencia 400',
+    'Calidad bloques 2MPA',
+    'Calidad bloques 4MPA',
+  ];
 
-  Future<void> editarProducto(Producto producto) async {
-    try {
-      Producto productoEditado = Producto(
-        id: producto.id,
-        nombre: producto.nombre,
-        precio: producto.precio,
-        cantidad: producto.cantidad,
-        disponible: producto.disponible,
-        imagen: producto.imagen,
-        calidad: producto.calidad,
-      );
-
-      bool confirmacion = await _mostrarConfirmacion(context, productoEditado);
-
-      if (confirmacion) {
-        await productosCollection.doc(producto.id).update({
-          'nombre': productoEditado.nombre,
-          'precio': productoEditado.precio,
-          'cantidad': productoEditado.cantidad,
-          'disponible': productoEditado.disponible,
-          'imagen': productoEditado.imagen,
-          'calidad': productoEditado.calidad,
-        });
-
-        if (kDebugMode) {
-          print('Producto actualizado: $productoEditado');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error al editar el producto: $e');
-      }
-    }
-  }
-
-  Future<void> eliminarProducto(Producto producto) async {
-    try {
-      bool confirmacion = await _mostrarConfirmacionEliminar(context);
-      if (confirmacion) {
-        await productosCollection.doc(producto.id).delete();
-
-        if (producto.imagen != null) {
-          await FirebaseStorage.instance.refFromURL(producto.imagen!).delete();
-        }
-
-        if (kDebugMode) {
-          print('Producto eliminado: $producto');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error al eliminar el producto: $e');
-      }
-    }
-  }
-
-  Future<File?> _cargarImagen() async {
-    final picker = ImagePicker();
-    try {
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        setState(() {
-          _imagen = File(pickedFile.path);
-        });
-        return _imagen;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error al cargar la imagen: $e');
-      }
-    }
-    return null;
-  }
-
-  Future<bool> _mostrarConfirmacion(
-      BuildContext context, Producto producto) async {
-    return await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirmar Edición'),
-              content:
-                  const Text('¿Está seguro de que desea editar este producto?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('Aceptar'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
-
-  Future<bool> _mostrarConfirmacionEliminar(BuildContext context) async {
-    return await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirmar Eliminación'),
-              content: const Text(
-                  '¿Está seguro de que desea eliminar este producto?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('Eliminar'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Disponibilidad de producto',
+          'Agregar Producto',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -198,7 +153,7 @@ class _AgregarProductoBodegaState extends State<AgregarProductoBodega> {
           icon: const Icon(
             Icons.arrow_back_ios_rounded,
             color: Colors.black,
-            size: 30.0,
+            size: 50.0,
           ),
         ),
         backgroundColor: Colors.white,
@@ -216,110 +171,133 @@ class _AgregarProductoBodegaState extends State<AgregarProductoBodega> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _imagen != null
-                  ? Image.file(
-                      _imagen!,
-                      width: 150.0,
-                      height: 150.0,
-                      fit: BoxFit.cover,
-                    )
-                  : const SizedBox.shrink(),
+              Container(
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    const Text(
+                      'Nombre:',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Text(
+                      widget.selectedProduct,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 16.0),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: productosCollection.snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        final producto =
-                            Producto.fromSnapshot(snapshot.data!.docs[index]);
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
+              Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: [
+                          const Text(
+                            'Calidad:',
+                            style: TextStyle(color: Colors.black),
                           ),
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: ListTile(
-                            title: Text(producto.nombre),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    'Precio: \$${producto.precio.toStringAsFixed(2)}'),
-                                Text('Cantidad: ${producto.cantidad}'),
-                                Text(
-                                    'Disponibilidad: ${producto.disponible ? 'Disponible' : 'No disponible'}'),
-                                Text('Calidad: ${producto.calidad}'),
-                              ],
-                            ),
-                            leading: producto.imagen != null
-                                ? Image.network(
-                                    producto.imagen!,
-                                    width: 50.0,
-                                    height: 50.0,
-                                  )
-                                : const SizedBox.shrink(),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            EditarProductoScreen(
-                                          producto: producto,
-                                        ),
-                                      ),
-                                    ).then((productoActualizado) async {
-                                      if (productoActualizado != null) {
-                                        await editarProducto(
-                                            productoActualizado);
-                                        if (kDebugMode) {
-                                          print(
-                                              'Producto actualizado: $productoActualizado');
-                                        }
-                                      }
-                                    });
-                                  },
+                          const SizedBox(width: 16.0),
+                          DropdownButton<String>(
+                            value: _selectedCalidad,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCalidad = newValue!;
+                              });
+                            },
+                            items: _calidadOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.0,
+                                  ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    eliminarProducto(producto);
-                                  },
-                                ),
-                              ],
-                            ),
+                              );
+                            }).toList(),
                           ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        const Text(
+                          'Disponible:',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        Switch(
+                          value: _disponible,
+                          onChanged: (value) {
+                            setState(() {
+                              _disponible = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              if (_selectedImage != null)
+                Image.file(
+                  _selectedImage!,
+                  width: 150.0,
+                  height: 150.0,
+                  fit: BoxFit.cover,
+                ),
+              ElevatedButton(
+                onPressed: _seleccionarImagen,
+                child: const Text('Seleccionar Imagen'),
+              ),
+              const SizedBox(height: 16.0),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_selectedImage != null) {
+                    final cantidadPredeterminada =
+                        cantidadesPredeterminadas[widget.selectedProduct];
+                    await _agregarProducto(cantidadPredeterminada ?? 0);
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Error'),
+                          content: const Text(
+                              'Debe seleccionar una imagen y completar los campos correctamente.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
                         );
                       },
                     );
-                  },
-                ),
+                  }
+                },
+                child: const Text('Agregar Producto'),
               ),
             ],
           ),
@@ -327,242 +305,175 @@ class _AgregarProductoBodegaState extends State<AgregarProductoBodega> {
       ),
     );
   }
-}
 
-class Producto {
-  final String id;
-  final String nombre;
-  final double precio;
-  final int cantidad;
-  final bool disponible;
-  String? imagen;
-  String calidad;
+  Future<void> _seleccionarImagen() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
-  Producto({
-    required this.id,
-    required this.nombre,
-    required this.precio,
-    required this.cantidad,
-    required this.disponible,
-    this.imagen,
-    required this.calidad,
-  });
+    setState(() {
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+      }
+    });
+  }
 
-  Producto.fromSnapshot(DocumentSnapshot snapshot)
-      : id = snapshot.id,
-        nombre = snapshot['nombre'] ?? '',
-        precio = (snapshot['precio'] as num?)?.toDouble() ?? 0.0,
-        cantidad = (snapshot['cantidad'] as num?)?.toInt() ?? 0,
-        disponible = snapshot['disponible'] ?? false,
-        imagen = snapshot['imagen'] as String?,
-        calidad = snapshot['calidad'] ?? '';
+  Future<void> _agregarProducto(int cantidadSeleccionada) async {
+    final nombre = widget.selectedProduct;
+    final calidad = _selectedCalidad;
+    double precio = 0.0;
+    switch (nombre) {
+      case 'Adoquin clasico vehicular sin color':
+        precio = 0.30;
+        break;
+      case 'Adoquin clasico vehicular con color':
+        precio = 0.50;
+        break;
+      case 'Adoquin jaboncillo vehicular sin color':
+        precio = 0.16;
+        break;
+      case 'Adoquin jaboncillo vehicular con color':
+        precio = 0.20;
+        break;
+      case 'Adoquin paleta vehicular sin color':
+        precio = 0.21;
+        break;
+      case 'Adoquin paleta vehicular con color':
+        precio = 0.27;
+        break;
+      case 'Bloque de 10cm estructural':
+        precio = 0.35;
+        break;
+      case 'Bloque de 15cm estructural':
+        precio = 0.40;
+        break;
+      case 'Postes de alambrado 1.60m':
+        precio = 6;
+        break;
+      case 'Postes de alambrado 2m':
+        precio = 7;
+        break;
+      case 'Bloque de anclaje':
+        precio = 3.50;
+        break;
+      case 'Tapas para canaleta':
+        precio = 56;
+        break;
+      default:
+        precio = 0.0;
+    }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'nombre': nombre,
-      'precio': precio,
-      'cantidad': cantidad,
-      'disponible': disponible,
-      'imagen': imagen,
-      'calidad': calidad,
-    };
+    final productoService = ProductoService();
+    final imageUrl = await productoService.subirImagen(_selectedImage);
+
+    if (imageUrl != null) {
+      final cantidadDesdeFirestore = await productoService
+          .obtenerCantidadProductoDesdeFirestore(widget.selectedProduct);
+      final cantidadTotal =
+          cantidadSeleccionada + (cantidadDesdeFirestore ?? 0);
+
+      final nuevoProducto = Producto(
+        nombre: nombre,
+        precio: precio,
+        disponible: _disponible,
+        imagen: _selectedImage,
+        calidad: calidad,
+      );
+
+      await productoService.agregarProducto(
+          nuevoProducto, imageUrl, cantidadTotal);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Éxito'),
+            content: const Text('Producto agregado correctamente.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(context, '/gestprod');
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Error al subir la imagen.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
 
-class EditarProductoScreen extends StatefulWidget {
-  final Producto producto;
-
-  EditarProductoScreen({required this.producto});
-
+class MyApp extends StatelessWidget {
   @override
-  _EditarProductoScreenState createState() => _EditarProductoScreenState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Mi Aplicación',
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const ProcesoProductosScreen(),
+        '/disponibilidadmaterial': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+          if (arguments is String) {
+            return AgregarProductoBodega(
+              selectedProduct: arguments,
+              cantidadProducto: '',
+            );
+          } else {
+            return const Scaffold(
+              body: Center(
+                child: Text('No se proporcionaron argumentos'),
+              ),
+            );
+          }
+        },
+      },
+    );
+  }
 }
 
-class _EditarProductoScreenState extends State<EditarProductoScreen> {
-  late TextEditingController nombreController;
-  late TextEditingController precioController;
-  late TextEditingController cantidadController;
-  bool _disponible = true;
-  String _selectedProducto = 'Adoquin jaboncillo peatonal sin color';
-  String _selectedCalidad = 'Calidad adoquin resistencia 300';
-  final List<String> _productos = [
-    'Adoquin clasico vehicular sin color',
-    'Adoquin clasico vehicular con color',
-    'Adoquin jaboncillo vehicular sin color',
-    'Adoquin jaboncillo vehicular con color',
-    'Adoquin paleta vehicular sin color',
-    'Adoquin paleta vehicular con color',
-    'Bloque de 10cm estructural',
-    'Bloque de 15cm estructural',
-    'Postes de alambrado 1.60m',
-    'Postes de alambrado 2m',
-    'Bloque de anclaje',
-    'Tapas para canaleta',
-  ];
-
-  final List<String> _calidad = [
-    'Calidad adoquin resistencia 300',
-    'Calidad adoquin resistencia 350',
-    'Calidad adoquin resistencia 400',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    nombreController = TextEditingController(text: widget.producto.nombre);
-    precioController =
-        TextEditingController(text: widget.producto.precio.toString());
-    cantidadController =
-        TextEditingController(text: widget.producto.cantidad.toString());
-
-    _selectedProducto = widget.producto.nombre;
-    _selectedCalidad = widget.producto.calidad;
-  }
+class ProcesoProductosScreen extends StatelessWidget {
+  const ProcesoProductosScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (!_productos.contains(_selectedProducto)) {
-      _selectedProducto = _productos[0];
-    }
-
-    if (!_calidad.contains(_selectedCalidad)) {
-      _selectedCalidad = _calidad[0];
-    }
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Editar Producto',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 24.0,
-          ),
-        ),
-        leading: IconButton(
+      body: Center(
+        child: ElevatedButton(
           onPressed: () {
-            Navigator.pushReplacement(
+            final selectedProduct = 'nombre';
+            Navigator.pushNamed(
               context,
-              MaterialPageRoute(builder: (context) => const Bodeguero()),
+              '/disponibilidadmaterial',
+              arguments: selectedProduct,
             );
           },
-          icon: const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Colors.black,
-            size: 30.0,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 5,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 55, 111, 139),
-              Color.fromARGB(255, 165, 160, 160),
-            ],
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text('Nombre:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedProducto,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedProducto = newValue!;
-                    });
-                  },
-                  items:
-                      _productos.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: precioController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration:
-                      const InputDecoration(labelText: 'Precio del Producto'),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: cantidadController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Cantidad'),
-                ),
-                const SizedBox(height: 16.0),
-                const Text('Calidad:'),
-                const SizedBox(width: 16.0),
-                DropdownButton<String>(
-                  value: _selectedCalidad,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCalidad = newValue!;
-                    });
-                  },
-                  items: _calidad.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    const Text('Disponible:'),
-                    Switch(
-                      value: _disponible,
-                      onChanged: (value) {
-                        setState(() {
-                          _disponible = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32.0),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (precioController.text.isNotEmpty &&
-                        cantidadController.text.isNotEmpty) {
-                      final productoActualizado = Producto(
-                        id: widget.producto.id,
-                        nombre: _selectedProducto,
-                        precio: double.tryParse(precioController.text) ?? 0.0,
-                        cantidad: int.tryParse(cantidadController.text) ?? 0,
-                        disponible: _disponible,
-                        imagen: widget.producto.imagen,
-                        calidad: _selectedCalidad,
-                      );
-
-                      Navigator.pop(context, productoActualizado);
-                    }
-                  },
-                  child: const Text('Guardar Cambios'),
-                ),
-              ],
-            ),
-          ),
+          child: const Text('Seleccionar Producto'),
         ),
       ),
     );
   }
+}
 
-  String _capitalizeFirstLetter(String text) {
-    return text[0].toUpperCase() + text.substring(1);
-  }
+void main() {
+  runApp(MyApp());
 }

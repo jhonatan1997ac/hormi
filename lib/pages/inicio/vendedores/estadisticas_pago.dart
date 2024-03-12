@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, unnecessary_string_interpolations
 
+import 'package:apphormi/pages/inicio/vendedores/vendedor.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,10 @@ class _EstadisticapagoState extends State<Estadisticapago> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/menuestadisticas');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const VendedorHome()),
+            );
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,

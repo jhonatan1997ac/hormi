@@ -30,7 +30,7 @@ class EliminarMaterial extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eliminacion Material'),
+        title: const Text('Eliminación Material'),
       ),
       body: StreamBuilder(
         stream: disponibilidadMaterialCollection.snapshots(),
