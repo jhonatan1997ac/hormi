@@ -185,14 +185,23 @@ class _EstadisticapagoState extends State<Estadisticapago> {
   }
 
   Widget _buildText() {
-    return const Positioned(
+    return Positioned(
       top: 50,
       left: 16,
-      child: Text(
-        'Tipo de pago ?',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+      child: Container(
+        padding:
+            const EdgeInsets.all(8.0), // Ajusta el relleno según sea necesario
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.5), // Opacidad ajustada a 0.5
+          borderRadius: BorderRadius.circular(
+              8.0), // Ajusta el radio de la esquina según sea necesario
+        ),
+        child: const Text(
+          'Tipo de pago',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

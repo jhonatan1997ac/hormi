@@ -292,28 +292,6 @@ class _VentasState extends State<Ventas> {
           ],
         ),
         backgroundColor: Colors.white,
-        elevation: 5,
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (carrito.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CarritoDeCompras(carrito: []),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('El carrito está vacío'),
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.shopping_cart),
-          ),
-        ],
       ),
       body: Container(
         decoration: const BoxDecoration(

@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors, unused_local_variable
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, use_key_in_widget_constructors
 
 import 'package:apphormi/pages/inicio/bodega/agregacion_bodega/agregar_producto_bodega.dart';
 import 'package:apphormi/pages/inicio/bodega/bodeguero.dart';
@@ -128,7 +128,7 @@ class _ElavoracionProductoBodeState extends State<ElavoracionProductoBode> {
     DocumentSnapshot productoSnapshot = await productoRef.get();
     String nombre = productoSnapshot['nombre'].toString();
     int cantidad = productoSnapshot['cantidad'] as int;
-    String descripcion = productoSnapshot['enviada a terminar'];
+    String descripcion = productoSnapshot['descripcion'];
     String fecha = productoSnapshot['fecha'];
 
     // Eliminar el documento de 'procesoproducto'
@@ -138,7 +138,7 @@ class _ElavoracionProductoBodeState extends State<ElavoracionProductoBode> {
     await FirebaseFirestore.instance.collection('elevoracionenviada').add({
       'nombre': nombre,
       'cantidad': cantidad,
-      'descripcion': 'enviada a terminar',
+      'descripcion': descripcion,
       'fecha': fecha,
       'idproductoenviado': DateTime.now().millisecondsSinceEpoch,
     });
