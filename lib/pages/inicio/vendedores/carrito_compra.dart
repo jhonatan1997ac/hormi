@@ -263,6 +263,7 @@ class CarritoDeCompras extends StatelessWidget {
                           imagen: '',
                           fecha: Timestamp.now(),
                         );
+                        Navigator.pushNamed(context, '/historial_ventas');
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -450,6 +451,7 @@ class CarritoDeCompras extends StatelessWidget {
                             imagen: imagen,
                             fecha: Timestamp.now(),
                           );
+                          Navigator.pushNamed(context, '/historial_ventas');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
