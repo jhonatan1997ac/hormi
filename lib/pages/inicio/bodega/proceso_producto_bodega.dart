@@ -10,7 +10,7 @@ void main() {
     title: 'Material Availability',
     initialRoute: '/',
     routes: {
-      '/elavoracionproductobode': (context) => const ProcesoProductoBode(),
+      '/procesoproductobode': (context) => const ProcesoProductoBode(),
     },
   ));
 }
@@ -155,8 +155,8 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                       if (value != null) {
                         setState(() {
                           _selectedProduct = value;
-                          _showMaterialsRequiredDialog(
-                              context, _selectedProduct);
+                          _showMaterialsRequiredDialog(context,
+                              _selectedProduct); // Llamada a la función _showMaterialsRequiredDialog
                           _cantidad = cantidadesPredeterminadas[value] ?? 0;
                         });
                       }
@@ -179,8 +179,7 @@ class _ProcesoProductoBodeState extends State<ProcesoProductoBode> {
                                   context, _selectedProduct);
                               _producirProducto(context, _selectedProduct,
                                   _cantidad.toString());
-                              Navigator.pushNamed(
-                                  context, '/elavoracionproductobode');
+                              Navigator.pushNamed(context, '/procesoproductos');
                             }
                           }
                         : null,

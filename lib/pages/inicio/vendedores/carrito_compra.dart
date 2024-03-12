@@ -1,6 +1,5 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:apphormi/pages/inicio/vendedores/venta_vendedor.dart';
@@ -254,11 +253,16 @@ class CarritoDeCompras extends StatelessWidget {
                       Future.delayed(const Duration(seconds: 0), () {
                         Navigator.of(context).pop();
                         carrito.clear();
-                        ScaffoldMessenger.of(context)
-                            .removeCurrentSnackBar(); // Cerrar el SnackBar actual
-                        Timer(const Duration(seconds: 5), () {
-                          Navigator.pushNamed(context, '/fechaventas');
-                        }); // Esperar 5 segundos y luego redireccionar
+                        enviarVentaAHistorial(
+                          productos: productos,
+                          subtotal: subtotal,
+                          total: total,
+                          iva: iva,
+                          metodoPago: metodoPago,
+                          nombrePersona: '',
+                          imagen: '',
+                          fecha: Timestamp.now(),
+                        );
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -185,7 +185,7 @@ class _EstadisticapagoState extends State<Estadisticapago> {
       top: 50,
       left: 16,
       child: Text(
-        'Cual es el tipo de pago que se usa más ?',
+        'Tipo de pago ?',
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,

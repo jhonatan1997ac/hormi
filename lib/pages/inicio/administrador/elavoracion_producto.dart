@@ -18,7 +18,7 @@ class _ProcesoProductosState extends State<ProcesoProductos> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Proceso Elavoracion',
+          'Proceso Elaboración',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
